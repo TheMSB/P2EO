@@ -20,6 +20,7 @@ public class CrapTalker {
 		System.out.println(insult());
 	}
 
+	
 	public static String Convert() throws FileNotFoundException {
 		pWriter = new PrintWriter("RussianInsults.txt");
 		pWriter.println("Кгыышфт еуче");
