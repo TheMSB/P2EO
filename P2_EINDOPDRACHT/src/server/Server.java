@@ -33,7 +33,7 @@ public class Server extends Thread{
 	/**
 	 * Waar het debug spul te printen
 	 */
-	private PrintStream out = System.out;
+	public static final PrintStream out = System.out;
 	
 	/**
 	 * Start server op
@@ -98,11 +98,34 @@ public class Server extends Thread{
 		}
 	}
 	
+	protected synchronized void broadcastMessage(String command){
+		for(ClientHandler i : clientHandlers){
+			i.sendCommand(command);
+		}
+	}
+	
+	
 	/**
 	 * @return Een lijst met ondersteunde features door de server
 	 */
 	public ArrayList<String> getFeatures()
 	{
 		return new ArrayList<String>();
+	}
+	
+	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
+	{
+		String output = "";
+		for (Elem s : arr) {
+			output = output + s + " "; // TODO
+																	// navragen
+																	// of
+																	// arraylist
+																	// hier
+																	// functie
+																	// voor
+																	// heeft
+		}
+		return output;
 	}
 }

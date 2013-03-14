@@ -17,7 +17,7 @@ public class ClientHandler extends Thread {
 	private Server server;
 	private BufferedReader in;
 	private BufferedWriter out;
-	private String lastCommand;
+	private String lastInput;
 
 	/**
 	 * Features van clients/servers, clientFeatures kan alleen features bevaten
@@ -25,7 +25,16 @@ public class ClientHandler extends Thread {
 	 */
 	private ArrayList<String> clientFeatures;
 	private ArrayList<String> serverFeatures;
-	private String serverFeaturesString;
+
+	/**
+	 * De lobby waar een client in zit, indien niet in lobby = null
+	 */
+	private Lobby lobby;
+
+	private ArrayList<Lobby> lobbies2;
+	private ArrayList<Lobby> lobbies3;
+	private ArrayList<Lobby> lobbies4;
+	private ArrayList<ArrayList<Lobby>> lobbies;
 
 	/**
 	 * Status van handshake
@@ -33,6 +42,8 @@ public class ClientHandler extends Thread {
 	public static final int EXPECTING_CONNECT = 0;
 	public static final int EXPECTING_FEATURED = 1;
 	public static final int HANDSHAKE_SUCCESFULL = 2;
+	public static final int INLOBBY = 3;
+	public static final int INGAME = 4;
 
 	private int status = EXPECTING_CONNECT;
 
@@ -58,34 +69,28 @@ public class ClientHandler extends Thread {
 				Server.ENCODING));
 
 		serverFeatures = server.getFeatures();
-
-		for (String s : serverFeatures) {
-			serverFeaturesString = serverFeaturesString + s + " "; // TODO
-																	// navragen
-																	// of
-																	// arraylist
-																	// hier
-																	// functie
-																	// voor
-																	// heeft
-		}
+		lobbies2 = new ArrayList<Lobby>();
+		lobbies3 = new ArrayList<Lobby>();
+		lobbies4 = new ArrayList<Lobby>();
+		lobbies = new ArrayList<ArrayList<Lobby>>();
+		lobbies.add(lobbies2);
+		lobbies.add(lobbies3);
+		lobbies.add(lobbies4); // TODO checken of dit goed gaat
 	}
 
 	/**
 	 * Blijft klaarstaan om commands te ontvangen
 	 */
 	public void run() {
-		String input;
 		while (true) {
 			try {
-				input = in.readLine();
-				if (input != null) {
-					Scanner scanner = new Scanner(input);
+				lastInput = in.readLine();
+				if (lastInput != null) {
+					Scanner scanner = new Scanner(lastInput);
 					if (scanner.hasNext()) { // TODO: navragen of input != null
 												// betekent dat
 												// scanner.hasNext() true is
 						String command = scanner.next();
-						lastCommand = command;
 						ArrayList<String> args = new ArrayList<String>();
 						while (scanner.hasNext()) {
 							args.add(scanner.next());
@@ -116,6 +121,12 @@ public class ClientHandler extends Thread {
 			cmdCONNECT(args);
 		} else if (command.equals(util.Protocol.CMD_FEATURED)) {
 			cmdFEATURED(args);
+		} else if (command.equals(util.Protocol.CMD_JOIN)) {
+			cmdJOIN(args);
+		} else if (command.equals(util.Protocol.CMD_MOVE)) {
+			cmdMOVE(args);
+		} else if (command.equals(util.Protocol.CMD_DISCONNECT)) {
+			cmdDISCONNECT(args);
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -131,8 +142,10 @@ public class ClientHandler extends Thread {
 		if (status == EXPECTING_CONNECT) {
 			if (args.size() == 1) {
 				this.name = args.get(0);
-				sendCommand(util.Protocol.CMD_CONNECTED+" " + "Goedendag, welkom op onze server");
-				sendCommand(util.Protocol.CMD_FEATURES+" " + serverFeaturesString);
+				sendCommand(util.Protocol.CMD_CONNECTED + " "
+						+ "Goedendag, welkom op onze server");
+				sendCommand(util.Protocol.CMD_FEATURES + " "
+						+ server.concatArrayList(serverFeatures));
 				status = EXPECTING_FEATURED;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -162,6 +175,7 @@ public class ClientHandler extends Thread {
 					}
 				}
 				server.approve(this);
+				status = HANDSHAKE_SUCCESFULL;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -170,10 +184,92 @@ public class ClientHandler extends Thread {
 		}
 	}
 
+	public void cmdJOIN(ArrayList<String> args) {
+		if (status == HANDSHAKE_SUCCESFULL) {
+			if (args.size() >= 0 && args.size() <= 1) {
+				int slots;
+				try {
+					if(args.size()==1){
+						slots = Integer.parseInt(args.get(0));
+					}else{
+						slots = 4;
+					}
+				} catch (NumberFormatException e) {
+					slots = 4; // TODO deze persoon een openstaande lobby laten
+								// joinen;
+				}
+
+				ArrayList<Lobby> queue = lobbies.get(slots - 2);
+				if (!lobbies.get(slots - 2).isEmpty()) {
+					Lobby lastLobby = lobbies.get(slots - 2).get(lobbies.get(slots - 2).size() - 1);
+					if (!lastLobby.addClient(this)) {
+						Server.out.println("No empty Lobby, making new one");
+						lobbies.get(slots - 2).add(new Lobby(slots, this, server));
+					}
+				}else{
+					Server.out.println("No current lobbies, making new one");
+					
+					lobbies.get(slots - 2).add(new Lobby(slots, this, server));
+					Server.out.println(queue);
+					Server.out.println(lobbies4);
+					Server.out.println(lobbies);
+					//TODO Lobbies reset voor iedereen, moet in server, doh
+					//TODO client kan JOIN command meerdere keren doen
+				}
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
+	}
+
+	public void cmdMOVE(ArrayList<String> args) {
+		if (status == INGAME) {
+			if (args.size() == 4) {
+				// TODO dit verbeteren:
+				try {
+					lobby.move();
+				} catch (exceptions.InvalidMoveException e) {
+					sendError(util.Protocol.ERR_INVALID_MOVE);
+				}
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
+	}
+
+	public void cmdDISCONNECT(ArrayList<String> args) {
+		if (status == INGAME) {
+			if (args.size() >= 0) {
+				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
+						+ this.name + " " + server.concatArrayList(args));
+				// TODO protocol vaag over of dit naar iedereen van de server,
+				// of iedereen van de huidige game (max 4) moet
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
+	}
+
+	public void lobbySTART(String command) {
+		sendCommand(command);
+		status = INGAME;
+	}
+
+	public void joinLobby(Lobby lobby) {
+		this.lobby = lobby;
+		status = INLOBBY;
+	}
+
 	public void sendError(int errorCode) {
-		System.out.println("STATUS: "+status);
-		System.out.println("Last command: "+lastCommand);
-		sendCommand(util.Protocol.CMD_ERROR+errorCode);
+		System.out.println("STATUS: " + status);
+		System.out.println("Last input: " + lastInput);
+		sendCommand(util.Protocol.CMD_ERROR + errorCode);
 	}
 
 	public void sendCommand(String command) {
@@ -182,13 +278,13 @@ public class ClientHandler extends Thread {
 			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Sturen command mislukt");
-			//TODO dit oplossen? mogelijk met retry na seconde ofzo
+			System.out.println("Failed to send message to:  " + this.name);
+			// TODO dit oplossen? mogelijk met retry na seconde ofzo
 		}
-		System.out.print(command + "\n");
 	}
 
 	public String toString() {
 		return this.name;
 	}
+
 }
