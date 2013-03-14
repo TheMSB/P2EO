@@ -97,4 +97,12 @@ public class Server extends Thread{
 			}
 		}
 	}
+	
+	/**
+	 * @return Een lijst met ondersteunde features door de server
+	 */
+	public ArrayList<String> getFeatures()
+	{
+		return new ArrayList<String>();
+	}
 }
