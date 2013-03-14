@@ -18,12 +18,29 @@ public class Server extends Thread{
 	 * De ServerSocket waarna clients kunnen connecten
 	 */
 	private ServerSocket ssock;
+	/**
+	 * Geeft aan of de server het moet blijven doen
+	 */
 	private boolean running = true;
+	/**
+	 * ArrayList van ClientHandlers die het protocol ook hebben
+	 */
 	private ArrayList<ClientHandler> clientHandlers;
+	/**
+	 * ArrayList van ClientHandlers die het protocol NOG NIET hebben
+	 */
 	private ArrayList<ClientHandler> newlyConnected;
+	/**
+	 * Waar het debug spul te printen
+	 */
 	private PrintStream out = System.out;
 	
-	
+	/**
+	 * Start server op
+	 * @param port	Poort om server op te starten
+	 * @param name	Naam van server
+	 * @throws IOException	Wordt gethrowed als het maken van de ServerSocket mislukt
+	 */
 	public Server(int port, String name) throws IOException{
 		ssock = new ServerSocket(port);
 		clientHandlers = new ArrayList<ClientHandler>();

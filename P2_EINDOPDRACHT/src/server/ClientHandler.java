@@ -19,13 +19,22 @@ public class ClientHandler extends Thread {
     
     private boolean ClientHasProtocol;
 	
+    /**
+     * Maakt CLientHandler
+     * @param server	De Server
+     * @param sock		De Socket waarmee de Client verbonden is met de Server
+     * @throws UnsupportedEncodingException			Als de encoding niet gesupport is
+     * @throws IOException							Als er iets anders mis gaat
+     */
 	public ClientHandler(Server server, Socket sock) throws UnsupportedEncodingException, IOException{
 		this.sock = sock;
         this.server = server;
         in = new BufferedReader(new InputStreamReader(sock.getInputStream(),Server.ENCODING));
         out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(),Server.ENCODING));
 	}
-	
+	/**
+	 * Blijft klaarstaan om commands te ontvangen
+	 */
 	public void run()
 	{
 		String input;
@@ -43,6 +52,7 @@ public class ClientHandler extends Thread {
 							{
 								this.name = scanner.next();
 								ClientHasProtocol = true;
+								//TODO Features nog checken;
 								server.approve(this);
 								//TODO checken of scanner.next() null kan teruggeven;
 							}
