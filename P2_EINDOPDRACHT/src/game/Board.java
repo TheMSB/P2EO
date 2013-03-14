@@ -6,6 +6,7 @@ public class Board {
 	//---- Constants
 
 	public static final int DIM = 4;
+	private static final int AREA = DIM*DIM;
 	private static final int	  X = DIM;
 	private static final int	  Y = DIM;
 
@@ -19,17 +20,18 @@ public class Board {
 	// -- Constructor -----------------------------------------
 
 	public Board() {
+		cells = new Cell[X][Y];
 		for (int x = 0;x<X;x++){
 			for (int y = 0;y<Y;y++){
-				cells = new Cell[x][y];
+				cells[x][y]=new Cell(x,y);
 			}
 		}
 	}
 
-	// -- Methods -----------------------------------------
+	// -- Queries -----------------------------------------
 
 	/**
-	 * Returns true if (x,y)-addres is a vallid Cell
+	 * Returns true if (x,y)-address is a valid Cell
 	 * on the Board
 	 * @ensure  <code>result == 0 <= x,y < DIM</code>
 	 * @return  true if <code>0 <= x < DIM && 0 <= y < DIM</code>
@@ -49,5 +51,5 @@ public class Board {
 		return cells[x][y];
 	}
 
-	
+	// -- Methods -----------------------------------------
 }
