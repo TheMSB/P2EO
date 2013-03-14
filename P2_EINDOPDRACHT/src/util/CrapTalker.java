@@ -25,7 +25,7 @@ public class CrapTalker {
 		pWriter.println("Кгыышфт еуче");
 		pWriter.flush();
 
-		return "Some russian text";
+		return "Russian text";
 	}
 
 	public static String toCyrillic(String string) {
