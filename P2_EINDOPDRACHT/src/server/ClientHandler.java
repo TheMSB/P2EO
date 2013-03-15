@@ -31,10 +31,7 @@ public class ClientHandler extends Thread {
 	 */
 	private Lobby lobby;
 
-	private ArrayList<Lobby> lobbies2;
-	private ArrayList<Lobby> lobbies3;
-	private ArrayList<Lobby> lobbies4;
-	private ArrayList<ArrayList<Lobby>> lobbies;
+	
 
 	/**
 	 * Status van handshake
@@ -69,13 +66,6 @@ public class ClientHandler extends Thread {
 				Server.ENCODING));
 
 		serverFeatures = server.getFeatures();
-		lobbies2 = new ArrayList<Lobby>();
-		lobbies3 = new ArrayList<Lobby>();
-		lobbies4 = new ArrayList<Lobby>();
-		lobbies = new ArrayList<ArrayList<Lobby>>();
-		lobbies.add(lobbies2);
-		lobbies.add(lobbies3);
-		lobbies.add(lobbies4); // TODO checken of dit goed gaat
 	}
 
 	/**
@@ -189,33 +179,15 @@ public class ClientHandler extends Thread {
 			if (args.size() >= 0 && args.size() <= 1) {
 				int slots;
 				try {
-					if(args.size()==1){
+					if (args.size() == 1) {
 						slots = Integer.parseInt(args.get(0));
-					}else{
+					} else {
 						slots = 4;
 					}
 				} catch (NumberFormatException e) {
-					slots = 4; // TODO deze persoon een openstaande lobby laten
-								// joinen;
+					slots = 4; //TODO openstaande lobby joined
 				}
-
-				ArrayList<Lobby> queue = lobbies.get(slots - 2);
-				if (!lobbies.get(slots - 2).isEmpty()) {
-					Lobby lastLobby = lobbies.get(slots - 2).get(lobbies.get(slots - 2).size() - 1);
-					if (!lastLobby.addClient(this)) {
-						Server.out.println("No empty Lobby, making new one");
-						lobbies.get(slots - 2).add(new Lobby(slots, this, server));
-					}
-				}else{
-					Server.out.println("No current lobbies, making new one");
-					
-					lobbies.get(slots - 2).add(new Lobby(slots, this, server));
-					Server.out.println(queue);
-					Server.out.println(lobbies4);
-					Server.out.println(lobbies);
-					//TODO Lobbies reset voor iedereen, moet in server, doh
-					//TODO client kan JOIN command meerdere keren doen
-				}
+				joinLobby(server.joinLobby(slots, this));
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

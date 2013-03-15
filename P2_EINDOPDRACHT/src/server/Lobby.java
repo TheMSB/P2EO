@@ -18,11 +18,12 @@ public class Lobby extends Thread {
 	 */
 	public Lobby(int slots, ClientHandler client,Server server)
 	{
+		this.server = server;
+		this.slots = slots;
 		Server.out.println("Made new Lobby with "+slots +" slots");
 		clients = new ArrayList<ClientHandler>();
 		addClient(client);
-		this.server = server;
-		this.slots = slots;
+		
 	}
 	
 	public void move() throws InvalidMoveException
@@ -37,6 +38,8 @@ public class Lobby extends Thread {
 			if(clients.size()==slots){
 				//TODO dit niet continue checken?
 				startLobby();
+				//TODO: wordt gespammed
+				//TODO: naam checken
 			}
 		}
 		while(true)
@@ -66,8 +69,11 @@ public class Lobby extends Thread {
 			clients.add(client);
 			client.joinLobby(this);
 			out = true;
+			
+			Server.out.println(client+ " has joined the lobby, "+(slots-clients.size()) + " slots left.");
+			Server.out.println("Clients:  "+clients.size()+"  Max slots: "+slots);
 		}
-		Server.out.println(client+ " has joined the lobby.");
+		
 		return out;
 	}
 	

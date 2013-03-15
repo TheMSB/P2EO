@@ -35,6 +35,18 @@ public class Server extends Thread{
 	 */
 	public static final PrintStream out = System.out;
 	
+	/** 
+	 * Houd lobbies bij
+	 */
+	private ArrayList<Lobby> lobbies2;
+	private ArrayList<Lobby> lobbies3;
+	private ArrayList<Lobby> lobbies4;
+	private ArrayList<ArrayList<Lobby>> lobbies;
+	
+	
+	
+	
+	
 	/**
 	 * Start server op
 	 * @param port	Poort om server op te starten
@@ -46,6 +58,14 @@ public class Server extends Thread{
 		clientHandlers = new ArrayList<ClientHandler>();
 		newlyConnected = new ArrayList<ClientHandler>();
 		
+
+		lobbies2 = new ArrayList<Lobby>();
+		lobbies3 = new ArrayList<Lobby>();
+		lobbies4 = new ArrayList<Lobby>();
+		lobbies = new ArrayList<ArrayList<Lobby>>();
+		lobbies.add(lobbies2);
+		lobbies.add(lobbies3);
+		lobbies.add(lobbies4);
 	}
 	/**
 	 * De start methode van dit thread, blijft kijken of er nieuwe dingen connecten,
@@ -73,6 +93,10 @@ public class Server extends Thread{
 		}
 	}
 	
+	
+	
+	
+	
 	/**
 	 * Sluit de server af
 	 */
@@ -96,6 +120,32 @@ public class Server extends Thread{
 				out.println("ClientHandler approved:  "+ch);
 			}
 		}
+	}
+	
+	public synchronized Lobby joinLobby(int slots, ClientHandler ch){
+		ArrayList<Lobby> queue = lobbies.get(slots-2);
+		Lobby lobby = null;
+		if (queue!=null && !queue.isEmpty()) {
+			lobby = queue.get(queue.size() - 1);
+			if (!lobby.addClient(ch)) {
+				Server.out.println("No empty Lobby, making new one");
+				lobby = new Lobby(slots, ch, this);
+				lobby.start();
+				queue.add(lobby);
+			}
+		}else{
+			Server.out.println("No current lobbies, making new one");
+			lobby = new Lobby(slots, ch, this);
+			lobby.start();
+			queue.add(lobby);
+			Server.out.println(queue);
+			Server.out.println(lobbies4);
+			Server.out.println(lobbies);
+			//TODO Lobbies reset voor iedereen, moet in server, doh
+			//TODO client kan JOIN command meerdere keren doen
+		}
+		
+		return lobby;
 	}
 	
 	protected synchronized void broadcastMessage(String command){
