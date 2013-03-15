@@ -35,6 +35,9 @@ public class Server extends Thread{
 	 */
 	public static final PrintStream out = System.out;
 	
+	private int port;
+	private String name;
+	
 	/** 
 	 * Houd lobbies bij
 	 */
@@ -54,6 +57,9 @@ public class Server extends Thread{
 	 * @throws IOException	Wordt gethrowed als het maken van de ServerSocket mislukt
 	 */
 	public Server(int port, String name) throws IOException{
+		this.port = port;
+		this.name = name;
+		
 		ssock = new ServerSocket(port);
 		clientHandlers = new ArrayList<ClientHandler>();
 		newlyConnected = new ArrayList<ClientHandler>();
@@ -177,5 +183,16 @@ public class Server extends Thread{
 																	// heeft
 		}
 		return output;
+	}
+	
+	
+	public boolean isRunning(){
+		return running;
+	}
+	public int getPort(){
+		return port;
+	}
+	public String getServerName(){
+		return name;
 	}
 }
