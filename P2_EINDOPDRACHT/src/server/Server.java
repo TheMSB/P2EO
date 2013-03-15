@@ -41,10 +41,10 @@ public class Server extends Thread{
 	/** 
 	 * Houd lobbies bij
 	 */
-	private ArrayList<Lobby> lobbies2;
-	private ArrayList<Lobby> lobbies3;
-	private ArrayList<Lobby> lobbies4;
-	private ArrayList<ArrayList<Lobby>> lobbies;
+	private static ArrayList<Lobby> lobbies2;
+	private static ArrayList<Lobby> lobbies3;
+	private static ArrayList<Lobby> lobbies4;
+	public static ArrayList<ArrayList<Lobby>> lobbies;
 	
 	
 	
@@ -144,11 +144,6 @@ public class Server extends Thread{
 			lobby = new Lobby(slots, ch, this);
 			lobby.start();
 			queue.add(lobby);
-			Server.out.println(queue);
-			Server.out.println(lobbies4);
-			Server.out.println(lobbies);
-			//TODO Lobbies reset voor iedereen, moet in server, doh
-			//TODO client kan JOIN command meerdere keren doen
 		}
 		
 		return lobby;
@@ -158,6 +153,23 @@ public class Server extends Thread{
 		for(ClientHandler i : clientHandlers){
 			i.sendCommand(command);
 		}
+	}
+	
+	//TODO overleggen of martijn eens is met static maken server, rest ook static maken
+	/**
+	 * @return het aantal spelers waarvoor de lobby het meest gevorderd is
+	 */
+	public static synchronized int getBestLobby(){
+		int output = 2;
+		for(int i=0;i<3;i++){
+			if(lobbies.get(i).size()>0 && lobbies.get(i).get(lobbies.get(i).size()-1).slotsLeft()<=(i+1) && !lobbies.get(i).get(lobbies.get(i).size()-1).isFull())
+			{
+				output = i+2;
+				break;
+			}
+		}
+		
+		return output;
 	}
 	
 	

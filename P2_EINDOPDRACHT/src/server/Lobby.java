@@ -9,6 +9,7 @@ public class Lobby extends Thread {
 	private ArrayList<ClientHandler> clients;
 	private int slots;
 	private Server server;
+	private int status;
 	
 	/**
 	 * @param slots
@@ -23,7 +24,7 @@ public class Lobby extends Thread {
 		Server.out.println("Made new Lobby with "+slots +" slots");
 		clients = new ArrayList<ClientHandler>();
 		addClient(client);
-		
+		status = ClientHandler.INLOBBY;
 	}
 	
 	public void move() throws InvalidMoveException
@@ -33,17 +34,17 @@ public class Lobby extends Thread {
 	
 	public void run()
 	{
-		while(clients.size()>0)
+		while(status==ClientHandler.INLOBBY)
 		{
-			if(clients.size()==slots){
+			if(isFull()){
 				//TODO dit niet continue checken?
 				startLobby();
 				//TODO: wordt gespammed
 				//TODO: naam checken
 			}
 		}
-		while(true)
-		{}
+		
+		while(true){}
 	}
 	
 	private void startLobby()
@@ -53,6 +54,7 @@ public class Lobby extends Thread {
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+Server.concatArrayList(clients));
 		}
+		status = ClientHandler.INGAME;
 		Server.out.println("Starting Lobby Game");
 	}
 	
@@ -70,7 +72,7 @@ public class Lobby extends Thread {
 			client.joinLobby(this);
 			out = true;
 			
-			Server.out.println(client+ " has joined the lobby, "+(slots-clients.size()) + " slots left.");
+			Server.out.println(client+ " has joined the lobby, "+slotsLeft() + " slots left.");
 			Server.out.println("Clients:  "+clients.size()+"  Max slots: "+slots);
 		}
 		
@@ -79,6 +81,11 @@ public class Lobby extends Thread {
 	
 	public synchronized boolean isFull()
 	{
-		return clients.size()==slots;
+		return slotsLeft()==0;
+	}
+	
+	public synchronized int slotsLeft()
+	{
+		return slots - clients.size();
 	}
 }

@@ -177,15 +177,12 @@ public class ClientHandler extends Thread {
 	public void cmdJOIN(ArrayList<String> args) {
 		if (status == HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0 && args.size() <= 1) {
-				int slots;
+				int slots = server.getBestLobby();
 				try {
 					if (args.size() == 1) {
 						slots = Integer.parseInt(args.get(0));
-					} else {
-						slots = 4;
 					}
 				} catch (NumberFormatException e) {
-					slots = 4; //TODO openstaande lobby joined
 				}
 				joinLobby(server.joinLobby(slots, this));
 			} else {
@@ -249,7 +246,7 @@ public class ClientHandler extends Thread {
 			out.write(command + "\n");
 			out.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("Failed to send message to:  " + this.name);
 			// TODO dit oplossen? mogelijk met retry na seconde ofzo
 		}

@@ -17,10 +17,10 @@ public class ServerTest {
 	public static void createServer(){
 		try {
 			server = new Server(4242,"Deze server");
+			server.start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	@Test
@@ -34,9 +34,24 @@ public class ServerTest {
 		assertEquals("Naam = 'Deze server'","Deze server",server.getServerName());
 	}
 
+	
+	//TODO synchronisatie fixen
 	@Test
-	public void testShutDown() {
-		fail("Not yet implemented");
+	public void testGetBestLobby() {
+		new TestClient("c1.1",2).start();
+		assertEquals("Best lobby = 2",2,Server.getBestLobby());
+		new TestClient("c2.1",3).start();
+		assertEquals("Best lobby = 2",2,Server.getBestLobby());
+		new TestClient("c2.2",3).start();
+		assertEquals("Best lobby = 2",2,Server.getBestLobby());
+		new TestClient("c3.1",0).start();
+		assertEquals("Best lobby = 3",3,Server.getBestLobby());
+		new TestClient("c4.1",4).start();
+		assertEquals("Best lobby = 3",3,Server.getBestLobby());
+		new TestClient("c5.1",0).start();
+		new TestClient("c5.2",4).start();
+		new TestClient("c5.3",4).start();
+		assertEquals("Best lobby = 4",4,Server.getBestLobby());
 	}
 
 	@Test
