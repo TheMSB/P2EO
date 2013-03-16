@@ -79,6 +79,15 @@ public class Lobby extends Thread {
 		return out;
 	}
 	
+	public synchronized void endGame(ClientHandler ch)
+	{
+		clients.remove(ch);
+		if(clients.size()==0){
+			server.removeLobby(slots,this);
+		}
+		//TODO game stoppen;
+	}
+	
 	public synchronized boolean isFull()
 	{
 		return slotsLeft()==0;

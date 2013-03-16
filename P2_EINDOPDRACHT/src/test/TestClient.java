@@ -30,7 +30,32 @@ public class TestClient extends Thread{
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream(),"UTF-8"));
 	        out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(),"UTF-8"));
 			
+	        doHandshake();
+			joinLobby();
+	        
 		}catch(IOException e){
+		}
+	}
+	
+	public TestClient(String[] args){
+		try{
+			sock = new Socket(InetAddress.getByName("localhost"), 4242);
+			in = new BufferedReader(new InputStreamReader(sock.getInputStream(),"UTF-8"));
+	        out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(),"UTF-8"));
+			
+	        for(String i : args){
+	        	sendCommand(i);
+	        }
+	        
+		}catch(IOException e){
+		}
+	}
+	
+	public void sendCommand(String command){
+		try {
+			out.write(command + "\n");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -58,8 +83,6 @@ public class TestClient extends Thread{
 	}
 	
 	public void run(){
-		doHandshake();
-		joinLobby();
 		try {
 			String input;
 			while(true){

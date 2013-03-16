@@ -87,7 +87,7 @@ public class Server extends Thread{
 				ch.start();
 				out.println("Iets heeft verbinding gemaakt");
 				newlyConnected.add(ch);
-				
+				//TODO kunt nu nog eeuwing in newlyCOnnected blijven
 				
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -128,6 +128,32 @@ public class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * Haalt een client weg uit de lijst met verbonden clients
+	 * @param ch	De clienthandler van de client
+	 */
+	protected synchronized void removeClient(ClientHandler ch){
+		clientHandlers.remove(ch);
+		newlyConnected.remove(ch);
+	}
+	
+	/**
+	 * Haalt een lobby weg uit de lijst met lobbies
+	 * @param slots		Hoeveel slots de weg te halen lobby heeft
+	 * @param lobby		Welke lobby weg te halen
+	 */
+	protected synchronized void removeLobby(int slots, Lobby lobby){
+		lobbies.get(slots-2).remove(lobby);
+	}
+	
+	/**
+	 * Laat een ClientHandler een lobby joinen, met het meegegeven aantal slots.
+	 * Als slots 0 is wordt getBestLobby() aangeroepen voor slots
+	 * Als er geen openstaande lobby is van het aantal slots wordt een nieuwe lobby aangemaakt
+	 * @param slots		Hoeveel spelers de lobby moet toestaan
+	 * @param ch		de toe te voegen ClientHandler
+	 * @return			De lobby waar de ClientHandler aan toegevoegd is
+	 */
 	public synchronized Lobby joinLobby(int slots, ClientHandler ch){
 		ArrayList<Lobby> queue = lobbies.get(slots-2);
 		Lobby lobby = null;
@@ -206,5 +232,15 @@ public class Server extends Thread{
 	}
 	public String getServerName(){
 		return name;
+	}
+	
+	public ArrayList<ClientHandler> getClients()
+	{
+		return clientHandlers;
+	}
+	
+	public ArrayList<ArrayList<Lobby>> getLobbies()
+	{
+		return lobbies;
 	}
 }

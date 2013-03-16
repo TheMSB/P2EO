@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -72,32 +73,48 @@ public class ClientHandler extends Thread {
 	 * Blijft klaarstaan om commands te ontvangen
 	 */
 	public void run() {
-		while (true) {
-			try {
+		try {
+			while (true) {
+
 				lastInput = in.readLine();
 				if (lastInput != null) {
-					Scanner scanner = new Scanner(lastInput);
-					if (scanner.hasNext()) { // TODO: navragen of input != null
-												// betekent dat
-												// scanner.hasNext() true is
-						String command = scanner.next();
-						ArrayList<String> args = new ArrayList<String>();
-						while (scanner.hasNext()) {
-							args.add(scanner.next());
-						}
-						checkCommand(command, args);
-					} else {
-						sendError(util.Protocol.ERR_INVALID_COMMAND);
-					}
+					readCommand(new Scanner(lastInput));
 				} else {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
+					if(status==EXPECTING_CONNECT){
+						unexpectedDisconnect("Expecting_input");
+					}
 				}
-			} catch (IOException e) {
-				sendError(util.Protocol.ERR_UNDEFINED);
-				e.printStackTrace();
+			}
+		} catch (SocketException e) {
+			// TODO mag ik er vanuitgaan dat dit een disconnect is
+			
+			unexpectedDisconnect("SocketException");
+		} catch (IOException e) {
+			sendError(util.Protocol.ERR_UNDEFINED);
+			e.printStackTrace();
+		}
+	}
+	
+	private void readCommand(Scanner scanner)
+	{
+		if (scanner.hasNext()) { 
+			String command = scanner.next();
+			ArrayList<String> args = new ArrayList<String>();
+			while (scanner.hasNext()) {
+				args.add(scanner.next());
+			}
+			checkCommand(command, args);
+		} else {
+			sendError(util.Protocol.ERR_INVALID_COMMAND);
+			if(status==EXPECTING_CONNECT){
+				ArrayList<String> arr = new ArrayList<String>();
+				arr.add("Wrong_protocol");
+				cmdDISCONNECT(arr);//TODO dit netter maken
 			}
 		}
 	}
+	
 
 	/**
 	 * Checked of het meegegeven command herkent wordt
@@ -210,8 +227,20 @@ public class ClientHandler extends Thread {
 		}
 	}
 
+	
+	public void unexpectedDisconnect(String message){
+		ArrayList<String> arr = new ArrayList<String>();
+		arr.add(message);
+		cmdDISCONNECT(arr);
+	}
+	
+	/**
+	 * Geeft aan dat de client wil disconnecting, als de client de handshake heeft gedaan wordt de disconnect gebroadcast
+	 * als de client nog niet de handshake heeft gedaan wordt alleen een bericht naar de client zelf gestuurd
+	 * @param args Een mogelijk bericht
+	 */
 	public void cmdDISCONNECT(ArrayList<String> args) {
-		if (status == INGAME) {
+		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
 				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + server.concatArrayList(args));
@@ -220,9 +249,14 @@ public class ClientHandler extends Thread {
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
-		} else {
-			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}else{
+			sendCommand(util.Protocol.CMD_DISCONNECTED+" "+this.name +"Closing connection");
 		}
+		
+		server.removeClient(this);
+		if(this.status>=INLOBBY){
+			lobby.endGame(this);
+		}//TODO testen of dit alles is;
 	}
 
 	public void lobbySTART(String command) {

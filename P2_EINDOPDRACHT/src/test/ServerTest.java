@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import server.*;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ public class ServerTest {
 
 	private static Server server;
 	
-	@BeforeClass
+	@Before
 	public static void createServer(){
 		try {
 			server = new Server(4242,"Deze server");
@@ -45,6 +46,7 @@ public class ServerTest {
 		new TestClient("c2.2",3).start();
 		assertEquals("Best lobby = 2",2,Server.getBestLobby());
 		new TestClient("c3.1",0).start();
+		//TODO Zorgen dat hij hier wacht op server ofzo
 		assertEquals("Best lobby = 3",3,Server.getBestLobby());
 		new TestClient("c4.1",4).start();
 		assertEquals("Best lobby = 3",3,Server.getBestLobby());
@@ -56,7 +58,7 @@ public class ServerTest {
 
 	@Test
 	public void testApprove() {
-		fail("Not yet implemented");
+		//server.approve(new ClientHandler(4242,new Socket())); //TODO hoe protected methoden te testen
 	}
 
 	@Test
