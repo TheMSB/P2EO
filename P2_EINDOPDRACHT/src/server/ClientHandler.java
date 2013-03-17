@@ -227,7 +227,10 @@ public class ClientHandler extends Thread {
 		}
 	}
 
-	
+	/**
+	 * Uit te voeren als de disconnect niet aangegeven is door de client, maar opgemerkt door een error in de verbinding
+	 * @param message	Mogelijk bericht om mee te geven bij het melden van de disconnect
+	 */
 	public void unexpectedDisconnect(String message){
 		ArrayList<String> arr = new ArrayList<String>();
 		arr.add(message);
