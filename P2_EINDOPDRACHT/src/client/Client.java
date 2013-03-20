@@ -64,6 +64,7 @@ public class Client extends Thread{
 		
 		//Ga er vanuit dat de server aan staat in het begin
 		serverAlive = true;
+		status = DISCONNECTED;
 		
 		try {
 			connectToServer(4242,InetAddress.getByName("localhost"));
@@ -76,26 +77,16 @@ public class Client extends Thread{
 			serverAlive = false;
 		}
 		
-		try {
-			in = new BufferedReader(new InputStreamReader(sock.getInputStream(),Server.ENCODING));
-			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(),Server.ENCODING));
-		} catch (UnsupportedEncodingException e1) {
-			System.out.println("Not Supported Encoding, this program requires UTF-8");
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		status = DISCONNECTED;
 	}
 	
 	public void run() {
 		while(true){ //TODO clientGUI moet client kunnen afsluiten
 			try {
 				String lastInput;
+				
 				while (connected) {
 					lastInput = in.readLine();
+					System.out.println(lastInput);
 					if (lastInput != null) {
 						readCommand(new Scanner(lastInput));
 					} else {
@@ -149,6 +140,8 @@ public class Client extends Thread{
 			cmdTURN(args);
 		} else if (command.equals(util.Protocol.CMD_MOVED)) {
 			cmdMOVED(args);
+		}else if (command.equals(util.Protocol.CMD_ERROR)) {
+			//TODO doe iets?
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -157,7 +150,7 @@ public class Client extends Thread{
 	//TODO kijken naar public/private van zowel client als clienthandler
 	private void cmdCONNECTED(ArrayList<String> args) {
 		if (status == HANDSHAKE_PENDING_1) {
-			if (args.size() == 0) {
+			if (args.size() >= 0) {
 				status = HANDSHAKE_PENDING_2;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -267,7 +260,7 @@ public class Client extends Thread{
 	public void sendError(int errorCode) {
 		System.out.println(">>>>>>>ERROR, Last input: " + lastInput);
 		System.out.println("##>STATUS<##  " + status);
-		sendCommand(util.Protocol.CMD_ERROR + errorCode);
+		sendCommand(util.Protocol.CMD_ERROR + " "+errorCode);
 	}
 
 	public void sendCommand(String command) {
@@ -301,14 +294,26 @@ public class Client extends Thread{
 	 * @require Of geen verbinding, Of het eerst versturen van een disconnect
 	 */
 	public void connectToServer(int port, InetAddress ip) throws IOException{
-		sendDisconnect("Connecting to a (new) server");
+		if(connected){sendDisconnect("Connecting to a (new) server"); }
 		
 		sock = new Socket(ip,port);
 		connected = sock!=null;
 		if(connected){
-			serverAlive = true;
-			sendCommand(util.Protocol.CMD_CONNECT +" "+name);
-			status = HANDSHAKE_PENDING_1;
+			
+			try {
+				in = new BufferedReader(new InputStreamReader(sock.getInputStream(),Server.ENCODING));
+				out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(),Server.ENCODING));
+				
+				serverAlive = true;
+				sendCommand(util.Protocol.CMD_CONNECT +" "+name);
+				status = HANDSHAKE_PENDING_1;				
+			} catch (UnsupportedEncodingException e1) {
+				System.out.println("Not Supported Encoding, this program requires UTF-8");
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }

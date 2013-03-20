@@ -77,6 +77,7 @@ public class ClientHandler extends Thread {
 			while (true) {
 
 				lastInput = in.readLine();
+				System.out.println(lastInput);
 				if (lastInput != null) {
 					readCommand(new Scanner(lastInput));
 				} else {
@@ -133,6 +134,8 @@ public class ClientHandler extends Thread {
 			cmdMOVE(args);
 		} else if (command.equals(util.Protocol.CMD_DISCONNECT)) {
 			cmdDISCONNECT(args);
+		}else if (command.equals(util.Protocol.CMD_ERROR)) {
+			//TODO doe iets?
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
