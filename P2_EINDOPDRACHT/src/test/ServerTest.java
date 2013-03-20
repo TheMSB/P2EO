@@ -15,7 +15,7 @@ public class ServerTest {
 	private static Server server;
 	
 	@Before
-	public static void createServer(){
+	public void createServer(){
 		try {
 			server = new Server(4242,"Deze server");
 			server.start();
@@ -58,6 +58,7 @@ public class ServerTest {
 
 	@Test
 	public void testApprove() {
+		fail("test");
 		//server.approve(new ClientHandler(4242,new Socket())); //TODO hoe protected methoden te testen
 	}
 

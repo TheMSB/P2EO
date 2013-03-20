@@ -93,6 +93,7 @@ public class ClientHandler extends Thread {
 		} catch (IOException e) {
 			sendError(util.Protocol.ERR_UNDEFINED);
 			e.printStackTrace();
+			//TODO hier afluisten?
 		}
 	}
 	
@@ -108,9 +109,7 @@ public class ClientHandler extends Thread {
 		} else {
 			sendError(util.Protocol.ERR_INVALID_COMMAND);
 			if(status==EXPECTING_CONNECT){
-				ArrayList<String> arr = new ArrayList<String>();
-				arr.add("Wrong_protocol");
-				cmdDISCONNECT(arr);//TODO dit netter maken
+				unexpectedDisconnect("Wrong_protocol");
 			}
 		}
 	}
@@ -152,7 +151,7 @@ public class ClientHandler extends Thread {
 				sendCommand(util.Protocol.CMD_CONNECTED + " "
 						+ "Goedendag, welkom op onze server");
 				sendCommand(util.Protocol.CMD_FEATURES + " "
-						+ server.concatArrayList(serverFeatures));
+						+ Server.concatArrayList(serverFeatures));
 				status = EXPECTING_FEATURED;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -275,7 +274,7 @@ public class ClientHandler extends Thread {
 	public void sendError(int errorCode) {
 		System.out.println("STATUS: " + status);
 		System.out.println("Last input: " + lastInput);
-		sendCommand(util.Protocol.CMD_ERROR + errorCode);
+		sendCommand(util.Protocol.CMD_ERROR + " "+errorCode);
 	}
 
 	public void sendCommand(String command) {

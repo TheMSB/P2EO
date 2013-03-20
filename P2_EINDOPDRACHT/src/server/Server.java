@@ -120,7 +120,7 @@ public class Server extends Thread{
 	{
 		if(ch!=null)
 		{
-			if(newlyConnected.remove(ch))
+			if(newlyConnected.remove(ch)) //TODO eerst adden?
 			{
 				clientHandlers.add(ch);
 				out.println("ClientHandler approved:  "+ch);
@@ -207,6 +207,7 @@ public class Server extends Thread{
 		return new ArrayList<String>();
 	}
 	
+	//TODO dit naar andere class
 	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
 	{
 		String output = "";
