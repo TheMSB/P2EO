@@ -124,6 +124,7 @@ public class Server extends Thread{
 			{
 				clientHandlers.add(ch);
 				out.println("ClientHandler approved:  "+ch);
+				out.println(this.getLobbies());
 			}
 		}
 	}
@@ -208,19 +209,20 @@ public class Server extends Thread{
 	}
 	
 	public boolean nameInUse(String name){
-		boolean output = false;
+		int count = 0;
 		for(ClientHandler ch : newlyConnected){
 			if(ch.getClientName().equals(name)){
-				output = true;
+				count++;
 			}
 		}
 		for(ClientHandler ch : clientHandlers){
 			if(ch.getClientName().equals(name)){
-				output = true;
+				count = 2;
 			}
 		}
 		
-		return output;
+		//System.out.println(count);
+		return count!=1;
 	}
 	
 	

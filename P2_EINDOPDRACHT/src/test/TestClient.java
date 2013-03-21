@@ -19,7 +19,7 @@ public class TestClient extends Thread{
     private BufferedWriter  out;
 	
     public static void main(String[] args){
-    	new TestClient("TestClientVanMain",0).start();
+    	new TestClient("TestClientVanMain",2).start();
     }
     
 	public TestClient(String name, int slots){
