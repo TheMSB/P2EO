@@ -1,6 +1,8 @@
 package client;
 
 import java.io.BufferedReader;
+import game.*;
+import server.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,6 +31,7 @@ public class Client extends Thread {
 	private String lastInput;
 	private boolean serverAlive;
 	private int status;
+	private Game game;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -44,7 +47,6 @@ public class Client extends Thread {
 	public static final int INLOBBY = 30;
 	public static final int INGAME = 40;
 
-	// public static final int CONNECTED = 30;
 
 	/**
 	 * Maakt nieuwe client aan met een naam, meestal aangeroepen door clientGUI,
@@ -216,7 +218,7 @@ public class Client extends Thread {
 	 * Start de game.
 	 */
 	private void startGame() {
-		// TODO implementeren
+		//game = new Game()
 	}
 
 	/**

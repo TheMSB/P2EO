@@ -1,6 +1,7 @@
 package server;
 
 import java.util.ArrayList;
+import game.*;
 import java.util.Collections;
 import java.util.Observable;
 import java.util.Observer;
@@ -13,6 +14,7 @@ public class Lobby extends Thread implements Observer{
 	private int slots;
 	private Server server;
 	private int status;
+	private Game game;
 	
 	/**
 	 * @param slots
@@ -44,14 +46,26 @@ public class Lobby extends Thread implements Observer{
 	private void startLobby()
 	{
 		//TODO startsteen positie bepalen;
-		//TODO game maken
 		
 		Collections.shuffle(clients);
+		makePlayerNameList(clients);
+		
+		game = new Game(makePlayerNameList(clients));
+		
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+Server.concatArrayList(clients));
 		}
+		
 		status = ClientHandler.INGAME;
 		Server.out.println("Starting Lobby Game");
+	}
+	
+	public ArrayList<String> makePlayerNameList(ArrayList<ClientHandler> arr){
+		ArrayList<String> names = new ArrayList();
+		for(ClientHandler ch : arr){
+			names.add(ch.getClientName());
+		}
+		return names; 
 	}
 	
 	protected synchronized void broadcastMessage(String command){
@@ -91,7 +105,6 @@ public class Lobby extends Thread implements Observer{
 		for(ClientHandler ch : clients){
 			removeClientFromLobby(ch);
 		}
-		//Game stoppen?
 	}
 	
 	public synchronized boolean isFull()
@@ -106,6 +119,7 @@ public class Lobby extends Thread implements Observer{
 
 	@Override
 	public void update(Observable o, Object arg) {
+		//TODO syncen met game
 		boolean gameOver = true;
 		if(gameOver){
 			this.broadcastMessage(util.Protocol.CMD_END+" 1 2"); //TODO score implementeren
