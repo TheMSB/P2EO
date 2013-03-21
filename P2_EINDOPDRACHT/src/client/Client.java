@@ -1,6 +1,8 @@
 package client;
 
 import java.io.BufferedReader;
+import game.*;
+import server.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,6 +31,7 @@ public class Client extends Thread {
 	private String lastInput;
 	private boolean serverAlive;
 	private int status;
+	private Game game;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -44,7 +47,6 @@ public class Client extends Thread {
 	public static final int INLOBBY = 30;
 	public static final int INGAME = 40;
 
-	// public static final int CONNECTED = 30;
 
 	/**
 	 * Maakt nieuwe client aan met een naam, meestal aangeroepen door clientGUI,
@@ -202,8 +204,8 @@ public class Client extends Thread {
 		if (status == INLOBBY) {
 			if (args.size() >= 4 && args.size() <= 6) {
 				status = INGAME;
-				// TODO spul doorgeven aan de game
-				startGame();
+				startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(1)),args);
+				//LET OP: args is hier aangepast
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -213,10 +215,13 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Start de game.
+	 * Start een game 
+	 * @param x		X coordinaat van startsteen
+	 * @param y		Y coordinaat van startsteen
+	 * @param args	Lijst met namen van spelers
 	 */
-	private void startGame() {
-		// TODO implementeren
+	private void startGame(int x, int y, ArrayList<String> args) {
+		game = new Game(x,y,args);
 	}
 
 	/**
@@ -260,8 +265,10 @@ public class Client extends Thread {
 	 */
 	private void cmdMOVED(ArrayList<String> args) {
 		if (status == INGAME) {
-			if (args.size() == 1) {
-				processMove();
+			if (args.size() == 4) {
+				
+				ArrayList<Integer> arr = util.Util.ConvertToInt(args);
+				processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -315,8 +322,9 @@ public class Client extends Thread {
 	/**
 	 * Verwerkt een zet op het spel bord.
 	 */
-	private void processMove() {
-		// TODO bordt bijwerken
+	private void processMove(int x, int y, int type, int color) {
+		game.move(x,y,type,color);
+		System.out.println("Adding ring at: "+ x+" , "+y);
 	}
 
 	/**
@@ -353,8 +361,6 @@ public class Client extends Thread {
 			out.flush();
 		} catch (IOException e) {
 			System.out.println("Failed to send message to:  " + this.name);
-			// TODO dit oplossen? mogelijk met retry na seconde ofzo
-			// TODO of hier al reconnect proberen?
 		}
 	}
 
