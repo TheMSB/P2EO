@@ -60,7 +60,8 @@ public class Lobby extends Thread implements Observer{
 		Server.out.println("Starting Lobby Game");
 	}
 	
-	public ArrayList<String> makePlayerNameList(ArrayList<ClientHandler> arr){
+	//TODO dit naar andere class doen
+	public static ArrayList<String> makePlayerNameList(ArrayList<ClientHandler> arr){
 		ArrayList<String> names = new ArrayList();
 		for(ClientHandler ch : arr){
 			names.add(ch.getClientName());

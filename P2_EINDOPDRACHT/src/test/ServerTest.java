@@ -23,11 +23,6 @@ public class ServerTest {
 			e.printStackTrace();
 		}
 	}
-	
-	@Test
-	public void testRun() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	public void testServer() {
