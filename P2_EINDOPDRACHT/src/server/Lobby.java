@@ -53,7 +53,7 @@ public class Lobby extends Thread implements Observer{
 		game = new Game(2,2,makePlayerNameList(clients));
 		
 		for(ClientHandler i : clients){
-			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+Server.concatArrayList(clients));
+			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+util.Util.concatArrayList(clients));
 		}
 		
 		status = ClientHandler.INGAME;
