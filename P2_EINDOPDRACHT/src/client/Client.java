@@ -186,7 +186,7 @@ public class Client extends Thread {
 					}
 				}
 				sendCommand(util.Protocol.CMD_FEATURED + " "
-						+ Server.concatArrayList(clientFeatures));
+						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -266,9 +266,13 @@ public class Client extends Thread {
 	private void cmdMOVED(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 4) {
+				try{
+					ArrayList<Integer> arr = util.Util.ConvertToInt(args);
+					processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
+				}catch(NumberFormatException e){
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
+				}
 				
-				ArrayList<Integer> arr = util.Util.ConvertToInt(args);
-				processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -302,8 +306,11 @@ public class Client extends Thread {
 	private void cmdERROR(final ArrayList<String> args) {
 		int errorCode = 0;
 		if (args.size() == 1) {
-			errorCode = Integer.parseInt(args.get(1)); // TODO kan dit fout
-														// gaan?
+			try{
+				errorCode = Integer.parseInt(args.get(1));
+			}catch(NumberFormatException e){
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
 		} else {
 			sendError(util.Protocol.ERR_INVALID_COMMAND);
 		}

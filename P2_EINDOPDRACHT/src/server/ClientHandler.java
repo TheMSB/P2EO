@@ -151,7 +151,7 @@ public class ClientHandler extends Thread {
 					sendCommand(util.Protocol.CMD_CONNECTED + " "
 							+ "Goedendag, welkom op onze server");
 					sendCommand(util.Protocol.CMD_FEATURES + " "
-							+ Server.concatArrayList(serverFeatures));
+							+ util.Util.concatArrayList(serverFeatures));
 					status = EXPECTING_FEATURED;
 				} else {
 					sendError(util.Protocol.ERR_NAME_IN_USE);
@@ -258,7 +258,7 @@ public class ClientHandler extends Thread {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
 				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
-						+ this.name + " " + server.concatArrayList(args));
+						+ this.name + " " + util.Util.concatArrayList(args));
 				// TODO protocol vaag over of dit naar iedereen van de server,
 				// of iedereen van de huidige game (max 4) moet
 			} else {

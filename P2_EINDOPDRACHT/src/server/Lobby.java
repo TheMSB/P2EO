@@ -50,7 +50,7 @@ public class Lobby extends Thread implements Observer{
 		Collections.shuffle(clients);
 		makePlayerNameList(clients);
 		
-		game = new Game(makePlayerNameList(clients));
+		game = new Game(2,2,makePlayerNameList(clients));
 		
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+Server.concatArrayList(clients));

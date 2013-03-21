@@ -227,21 +227,7 @@ public class Server extends Thread{
 	
 	
 	//TODO dit naar andere class
-	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
-	{
-		String output = "";
-		for (Elem s : arr) {
-			output = output + s + " "; // TODO
-																	// navragen
-																	// of
-																	// arraylist
-																	// hier
-																	// functie
-																	// voor
-																	// heeft
-		}
-		return output;
-	}
+	
 	
 	
 	public boolean isRunning(){
