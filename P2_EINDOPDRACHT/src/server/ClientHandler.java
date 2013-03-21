@@ -19,6 +19,7 @@ public class ClientHandler extends Thread {
 	private BufferedReader in;
 	private BufferedWriter out;
 	private String lastInput;
+	private boolean alive = true; // TODO kijken of dit beter kan
 
 	/**
 	 * Features van clients/servers, clientFeatures kan alleen features bevaten
@@ -31,8 +32,6 @@ public class ClientHandler extends Thread {
 	 * De lobby waar een client in zit, indien niet in lobby = null
 	 */
 	private Lobby lobby;
-
-	
 
 	/**
 	 * Status van handshake
@@ -74,7 +73,7 @@ public class ClientHandler extends Thread {
 	 */
 	public void run() {
 		try {
-			while (true) {
+			while (alive) {
 
 				lastInput = in.readLine();
 				System.out.println(lastInput);
@@ -82,25 +81,22 @@ public class ClientHandler extends Thread {
 					readCommand(new Scanner(lastInput));
 				} else {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
-					if(status==EXPECTING_CONNECT){
-						unexpectedDisconnect("Expecting_input");
-					}
+					unexpectedDisconnect("Expecting_input");
 				}
 			}
 		} catch (SocketException e) {
 			// TODO mag ik er vanuitgaan dat dit een disconnect is
-			
+
 			unexpectedDisconnect("SocketException");
 		} catch (IOException e) {
 			sendError(util.Protocol.ERR_UNDEFINED);
 			e.printStackTrace();
-			//TODO hier afluisten?
+			// TODO hier afluisten?
 		}
 	}
-	
-	private void readCommand(Scanner scanner)
-	{
-		if (scanner.hasNext()) { 
+
+	private void readCommand(Scanner scanner) {
+		if (scanner.hasNext()) {
 			String command = scanner.next();
 			ArrayList<String> args = new ArrayList<String>();
 			while (scanner.hasNext()) {
@@ -109,12 +105,11 @@ public class ClientHandler extends Thread {
 			checkCommand(command, args);
 		} else {
 			sendError(util.Protocol.ERR_INVALID_COMMAND);
-			if(status==EXPECTING_CONNECT){
+			if (status == EXPECTING_CONNECT) {
 				unexpectedDisconnect("Wrong_protocol");
 			}
 		}
 	}
-	
 
 	/**
 	 * Checked of het meegegeven command herkent wordt
@@ -134,8 +129,8 @@ public class ClientHandler extends Thread {
 			cmdMOVE(args);
 		} else if (command.equals(util.Protocol.CMD_DISCONNECT)) {
 			cmdDISCONNECT(args);
-		}else if (command.equals(util.Protocol.CMD_ERROR)) {
-			//TODO doe iets?
+		} else if (command.equals(util.Protocol.CMD_ERROR)) {
+			// TODO doe iets?
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -151,11 +146,17 @@ public class ClientHandler extends Thread {
 		if (status == EXPECTING_CONNECT) {
 			if (args.size() == 1) {
 				this.name = args.get(0);
-				sendCommand(util.Protocol.CMD_CONNECTED + " "
-						+ "Goedendag, welkom op onze server");
-				sendCommand(util.Protocol.CMD_FEATURES + " "
-						+ Server.concatArrayList(serverFeatures));
-				status = EXPECTING_FEATURED;
+
+				if (!server.nameInUse(name)) {
+					sendCommand(util.Protocol.CMD_CONNECTED + " "
+							+ "Goedendag, welkom op onze server");
+					sendCommand(util.Protocol.CMD_FEATURES + " "
+							+ Server.concatArrayList(serverFeatures));
+					status = EXPECTING_FEATURED;
+				} else {
+					sendError(util.Protocol.ERR_NAME_IN_USE);
+				}
+
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -230,19 +231,28 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * Uit te voeren als de disconnect niet aangegeven is door de client, maar opgemerkt door een error in de verbinding
-	 * @param message	Mogelijk bericht om mee te geven bij het melden van de disconnect
+	 * Uit te voeren als de disconnect niet aangegeven is door de client, maar
+	 * opgemerkt door een error in de verbinding
+	 * 
+	 * @param message
+	 *            Mogelijk bericht om mee te geven bij het melden van de
+	 *            disconnect
 	 */
-	public void unexpectedDisconnect(String message){
+	public void unexpectedDisconnect(String message) {
+		System.out.println("UNEXPECTED DISCONNECT");
 		ArrayList<String> arr = new ArrayList<String>();
 		arr.add(message);
 		cmdDISCONNECT(arr);
 	}
-	
+
 	/**
-	 * Geeft aan dat de client wil disconnecting, als de client de handshake heeft gedaan wordt de disconnect gebroadcast
-	 * als de client nog niet de handshake heeft gedaan wordt alleen een bericht naar de client zelf gestuurd
-	 * @param args Een mogelijk bericht
+	 * Geeft aan dat de client wil disconnecting, als de client de handshake
+	 * heeft gedaan wordt de disconnect gebroadcast als de client nog niet de
+	 * handshake heeft gedaan wordt alleen een bericht naar de client zelf
+	 * gestuurd
+	 * 
+	 * @param args
+	 *            Een mogelijk bericht
 	 */
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
@@ -254,14 +264,22 @@ public class ClientHandler extends Thread {
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
-		}else{
-			sendCommand(util.Protocol.CMD_DISCONNECTED+" "+this.name +"Closing connection");
+		} else {
+			sendCommand(util.Protocol.CMD_DISCONNECTED + " " + this.name
+					+ "Closing connection");
 		}
-		
+
+		try {
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		alive = false;
 		server.removeClient(this);
-		if(this.status>=INLOBBY){
-			lobby.endGame(this);
-		}//TODO testen of dit alles is;
+		if (this.status >= INLOBBY) {
+			lobby.removeClientFromLobby(this);
+		}// TODO testen of dit alles is;
 	}
 
 	public void lobbySTART(String command) {
@@ -277,7 +295,7 @@ public class ClientHandler extends Thread {
 	public void sendError(int errorCode) {
 		System.out.println("STATUS: " + status);
 		System.out.println("Last input: " + lastInput);
-		sendCommand(util.Protocol.CMD_ERROR + " "+errorCode);
+		sendCommand(util.Protocol.CMD_ERROR + " " + errorCode);
 	}
 
 	public void sendCommand(String command) {
@@ -285,13 +303,17 @@ public class ClientHandler extends Thread {
 			out.write(command + "\n");
 			out.flush();
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			System.out.println("Failed to send message to:  " + this.name);
 			// TODO dit oplossen? mogelijk met retry na seconde ofzo
 		}
 	}
 
 	public String toString() {
+		return this.name;
+	}
+
+	public String getClientName() {
 		return this.name;
 	}
 

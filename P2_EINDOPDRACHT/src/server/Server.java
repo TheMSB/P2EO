@@ -207,6 +207,23 @@ public class Server extends Thread{
 		return new ArrayList<String>();
 	}
 	
+	public boolean nameInUse(String name){
+		boolean output = false;
+		for(ClientHandler ch : newlyConnected){
+			if(ch.getClientName().equals(name)){
+				output = true;
+			}
+		}
+		for(ClientHandler ch : clientHandlers){
+			if(ch.getClientName().equals(name)){
+				output = true;
+			}
+		}
+		
+		return output;
+	}
+	
+	
 	//TODO dit naar andere class
 	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
 	{

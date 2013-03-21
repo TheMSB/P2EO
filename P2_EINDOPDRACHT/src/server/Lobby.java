@@ -1,10 +1,13 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Observable;
+import java.util.Observer;
 
 import exceptions.InvalidMoveException;
 
-public class Lobby extends Thread {
+public class Lobby extends Thread implements Observer{
 
 	private ArrayList<ClientHandler> clients;
 	private int slots;
@@ -34,16 +37,7 @@ public class Lobby extends Thread {
 	
 	public void run()
 	{
-		while(status==ClientHandler.INLOBBY)
-		{
-			if(isFull()){
-				//TODO dit niet continue checken?
-				startLobby();
-				//TODO: wordt gespammed
-				//TODO: naam checken
-			}
-		}
-		
+		//TODO iets doen
 		while(true){}
 	}
 	
@@ -51,6 +45,8 @@ public class Lobby extends Thread {
 	{
 		//TODO startsteen positie bepalen;
 		//TODO game maken
+		
+		Collections.shuffle(clients);
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+Server.concatArrayList(clients));
 		}
@@ -76,16 +72,26 @@ public class Lobby extends Thread {
 			Server.out.println("Clients:  "+clients.size()+"  Max slots: "+slots);
 		}
 		
+		if(out==true && isFull()){
+			startLobby();
+		}
 		return out;
 	}
 	
-	public synchronized void endGame(ClientHandler ch)
+	public synchronized void removeClientFromLobby(ClientHandler ch)
 	{
 		clients.remove(ch);
 		if(clients.size()==0){
 			server.removeLobby(slots,this);
 		}
 		//TODO game stoppen;
+	}
+	
+	private synchronized void endLobby(){
+		for(ClientHandler ch : clients){
+			removeClientFromLobby(ch);
+		}
+		//Game stoppen?
 	}
 	
 	public synchronized boolean isFull()
@@ -96,5 +102,14 @@ public class Lobby extends Thread {
 	public synchronized int slotsLeft()
 	{
 		return slots - clients.size();
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		boolean gameOver = true;
+		if(gameOver){
+			this.broadcastMessage(util.Protocol.CMD_END+" 1 2"); //TODO score implementeren
+			endLobby();
+		}
 	}
 }
