@@ -4,10 +4,10 @@ package game;
 public class PlayerColor {
 
 	//---- Constants ----------------
-	final static int COLOR_0 = 0;
-	final static int COLOR_1 = 1;
-	final static int COLOR_2 = 2;
-	final static int COLOR_3 = 3;
+	static final int COLOR_0 = 0;
+	static final int COLOR_1 = 1;
+	static final int COLOR_2 = 2;
+	static final int COLOR_3 = 3;
 	
 	//---- Instance Variables ---------
 	private Player PLAYER_0;

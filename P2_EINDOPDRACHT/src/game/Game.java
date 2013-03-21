@@ -49,6 +49,7 @@ public class Game extends Observable {
 		}
 
 		board = new Board();
+		players = new ArrayList<Player>();
 		//TODO spelers niet aanmaken als null
 		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
