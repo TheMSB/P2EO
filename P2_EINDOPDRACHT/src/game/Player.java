@@ -3,29 +3,61 @@ package game;
 
 import java.util.ArrayList;
 
+/**
+ * The Player class for the RINGZ.
+ * @author martijnbruning
+ *
+ */
 public class Player {
 
 	//---- Instance Variables ---------
+	/**
+	 * The Players name.
+	 */
 	private String name;
+	/**
+	 * The Color associated with this player,
+	 * only this Color grants him points.
+	 */
 	private PlayerColor color;
+	/**
+	 * The inventory of this Player, contains
+	 * all the Pieces he can use.
+	 */
 	private ArrayList<Piece> inventory;
 	
 	//---- Constructor ------------------------------------------
-	public Player(String name, int color) {
-		this.name = name;
-		this.color = new PlayerColor(this,color);
+	/**
+	 * Constructs a new Player using the given name and color.
+	 * @param pname The name of this Player.
+	 * @param pcolor The color of this Player.
+	 */
+	public Player(final String pname, final int pcolor) {
+		this.name = pname;
+		this.color = new PlayerColor(this, pcolor);
 		
 	}
 
 	// -- Queries -----------------------------------------
-	public String getName(){
+	/**
+	 * Returns the name of this Player.
+	 * @return name
+	 */
+	public String getName() {
 		return name;
 	}
-	
-	public int getColor(){
+	/**
+	 * Returns the color of this Player.
+	 * @return color
+	 */
+	public int getColor() {
 		return color.getColor(this);
 	}
-	public ArrayList<Piece> getPieces(){
+	/**
+	 * Returns the inventory of this Player.
+	 * @return inventory
+	 */
+	public ArrayList<Piece> getPieces() {
 		return inventory;
 	}
 	
@@ -36,7 +68,7 @@ public class Player {
 	 * can be used by the player.
 	 * @param piece The Piece to add.
 	 */
-	public void addPiece(Piece piece){
+	public void addPiece(final Piece piece) {
 		inventory.add(piece);
 	}
 
