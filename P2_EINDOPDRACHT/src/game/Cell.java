@@ -83,7 +83,7 @@ public class Cell {
 	 */
 	public boolean hasPieces(final Piece piece) {
 		boolean hasPiece = false;
-		for (int i = 0; i <= 5; i++) {
+		for (int i = 0; i < 4; i++) {
 			if (pieces[i].getColor() == piece.getColor()) {
 				hasPiece = true;
 			}
@@ -125,7 +125,7 @@ public class Cell {
 		int p2 = 0;
 		int p3 = 0;
 
-		for (int i = 0; i <= 4; i++) {
+		for (int i = 0; i < 4; i++) {
 			if (pieces[i].getColor() == PlayerColor.COLOR_0) {
 				p0++;
 			} else if (pieces[i].getColor() == PlayerColor.COLOR_1) {
