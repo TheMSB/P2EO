@@ -32,6 +32,7 @@ public class Client extends Thread {
 	private boolean serverAlive;
 	private int status;
 	private Game game;
+	private Player player;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -222,6 +223,7 @@ public class Client extends Thread {
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
 		game = new Game(x,y,args);
+		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 	}
 
 	/**
