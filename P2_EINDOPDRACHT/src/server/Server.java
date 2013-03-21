@@ -35,13 +35,16 @@ public class Server extends Thread{
 	 */
 	public static final PrintStream out = System.out;
 	
+	private int port;
+	private String name;
+	
 	/** 
 	 * Houd lobbies bij
 	 */
-	private ArrayList<Lobby> lobbies2;
-	private ArrayList<Lobby> lobbies3;
-	private ArrayList<Lobby> lobbies4;
-	private ArrayList<ArrayList<Lobby>> lobbies;
+	private static ArrayList<Lobby> lobbies2;
+	private static ArrayList<Lobby> lobbies3;
+	private static ArrayList<Lobby> lobbies4;
+	public static ArrayList<ArrayList<Lobby>> lobbies;
 	
 	
 	
@@ -54,6 +57,9 @@ public class Server extends Thread{
 	 * @throws IOException	Wordt gethrowed als het maken van de ServerSocket mislukt
 	 */
 	public Server(int port, String name) throws IOException{
+		this.port = port;
+		this.name = name;
+		
 		ssock = new ServerSocket(port);
 		clientHandlers = new ArrayList<ClientHandler>();
 		newlyConnected = new ArrayList<ClientHandler>();
@@ -81,7 +87,7 @@ public class Server extends Thread{
 				ch.start();
 				out.println("Iets heeft verbinding gemaakt");
 				newlyConnected.add(ch);
-				
+				//TODO kunt nu nog eeuwing in newlyCOnnected blijven
 				
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
@@ -114,7 +120,7 @@ public class Server extends Thread{
 	{
 		if(ch!=null)
 		{
-			if(newlyConnected.remove(ch))
+			if(newlyConnected.remove(ch)) //TODO eerst adden?
 			{
 				clientHandlers.add(ch);
 				out.println("ClientHandler approved:  "+ch);
@@ -122,6 +128,32 @@ public class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * Haalt een client weg uit de lijst met verbonden clients
+	 * @param ch	De clienthandler van de client
+	 */
+	protected synchronized void removeClient(ClientHandler ch){
+		clientHandlers.remove(ch);
+		newlyConnected.remove(ch);
+	}
+	
+	/**
+	 * Haalt een lobby weg uit de lijst met lobbies
+	 * @param slots		Hoeveel slots de weg te halen lobby heeft
+	 * @param lobby		Welke lobby weg te halen
+	 */
+	protected synchronized void removeLobby(int slots, Lobby lobby){
+		lobbies.get(slots-2).remove(lobby);
+	}
+	
+	/**
+	 * Laat een ClientHandler een lobby joinen, met het meegegeven aantal slots.
+	 * Als slots 0 is wordt getBestLobby() aangeroepen voor slots
+	 * Als er geen openstaande lobby is van het aantal slots wordt een nieuwe lobby aangemaakt
+	 * @param slots		Hoeveel spelers de lobby moet toestaan
+	 * @param ch		de toe te voegen ClientHandler
+	 * @return			De lobby waar de ClientHandler aan toegevoegd is
+	 */
 	public synchronized Lobby joinLobby(int slots, ClientHandler ch){
 		ArrayList<Lobby> queue = lobbies.get(slots-2);
 		Lobby lobby = null;
@@ -138,11 +170,6 @@ public class Server extends Thread{
 			lobby = new Lobby(slots, ch, this);
 			lobby.start();
 			queue.add(lobby);
-			Server.out.println(queue);
-			Server.out.println(lobbies4);
-			Server.out.println(lobbies);
-			//TODO Lobbies reset voor iedereen, moet in server, doh
-			//TODO client kan JOIN command meerdere keren doen
 		}
 		
 		return lobby;
@@ -154,6 +181,23 @@ public class Server extends Thread{
 		}
 	}
 	
+	//TODO overleggen of martijn eens is met static maken server, rest ook static maken
+	/**
+	 * @return het aantal spelers waarvoor de lobby het meest gevorderd is
+	 */
+	public static synchronized int getBestLobby(){
+		int output = 2;
+		for(int i=0;i<3;i++){
+			if(lobbies.get(i).size()>0 && lobbies.get(i).get(lobbies.get(i).size()-1).slotsLeft()<=(i+1) && !lobbies.get(i).get(lobbies.get(i).size()-1).isFull())
+			{
+				output = i+2;
+				break;
+			}
+		}
+		
+		return output;
+	}
+	
 	
 	/**
 	 * @return Een lijst met ondersteunde features door de server
@@ -163,6 +207,24 @@ public class Server extends Thread{
 		return new ArrayList<String>();
 	}
 	
+	public boolean nameInUse(String name){
+		boolean output = false;
+		for(ClientHandler ch : newlyConnected){
+			if(ch.getClientName().equals(name)){
+				output = true;
+			}
+		}
+		for(ClientHandler ch : clientHandlers){
+			if(ch.getClientName().equals(name)){
+				output = true;
+			}
+		}
+		
+		return output;
+	}
+	
+	
+	//TODO dit naar andere class
 	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
 	{
 		String output = "";
@@ -177,5 +239,26 @@ public class Server extends Thread{
 																	// heeft
 		}
 		return output;
+	}
+	
+	
+	public boolean isRunning(){
+		return running;
+	}
+	public int getPort(){
+		return port;
+	}
+	public String getServerName(){
+		return name;
+	}
+	
+	public ArrayList<ClientHandler> getClients()
+	{
+		return clientHandlers;
+	}
+	
+	public ArrayList<ArrayList<Lobby>> getLobbies()
+	{
+		return lobbies;
 	}
 }
