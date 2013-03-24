@@ -15,6 +15,8 @@ import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import ai.AI;
+
 import server.Server;
 
 public class Client extends Thread {
@@ -33,6 +35,7 @@ public class Client extends Thread {
 	private int status;
 	private Game game;
 	private Player player;
+	private AI ai;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -65,7 +68,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(4242, InetAddress.getByName("130.89.128.143"));
+			connectToServer(4242, InetAddress.getByName("localhost"));
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();
@@ -101,7 +104,7 @@ public class Client extends Thread {
 			if (serverAlive) {
 				try {
 					connectToServer(4242,
-							InetAddress.getByName("130.89.128.143"));
+							InetAddress.getByName("localhost"));
 					// TODO poort + ip variabel maken
 				} catch (IOException e) {
 					System.out
@@ -347,7 +350,6 @@ public class Client extends Thread {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
 		}
-
 	}
 
 	/**
