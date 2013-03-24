@@ -71,6 +71,15 @@ public class Board {
 	// -- Methods -----------------------------------------
 	
 	/**
+	 * Method used to place the starting stone.
+	 * @param x coordinate of the cell
+	 * @param y coordinate of the cell
+	 * @param piece to be placed
+	 */
+	protected void startStone(final int x, final int y, final Piece piece) {
+		cells[x][y].addPiece(piece);
+	}
+	/**
 	 * Finds the designated cell and places the piece.
 	 * @param x Coordinate of the cell
 	 * @param y Coordinate of the cell

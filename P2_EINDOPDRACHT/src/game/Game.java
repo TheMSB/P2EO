@@ -39,7 +39,7 @@ public class Game extends Observable {
 	 */
 	//TODO observable maken
 	public Game(final int x, final int y, final ArrayList<String> playernames) {
-		
+
 		playerCount = 4;
 		if (playernames.get(3) == null) {
 			playerCount--;
@@ -50,12 +50,15 @@ public class Game extends Observable {
 
 		board = new Board();
 		players = new ArrayList<Player>();
-		//TODO spelers niet aanmaken als null
+		//Creates players depending on the playerCount
 		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
-		players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
-		players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
-
+		if (playerCount > 2) {
+			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
+		}
+		if (playerCount > 3) {
+			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
+		}
 		setUpGame(x, y, playerCount);
 		turn = 0;
 	}
@@ -83,7 +86,7 @@ public class Game extends Observable {
 	public Board getBoard() {
 		return board;
 	}
-	
+
 	//---- Methods ------------------------------------------
 	/**
 	 * Sets up the game by adding the Pieces to all the players inventory
@@ -93,16 +96,16 @@ public class Game extends Observable {
 	 */
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
-		move(x, y, 0, 0);
-		move(x, y, 1, 1);
-		move(x, y, 2, 2);
-		move(x, y, 3, 3);
-		
+		board.startStone(x, y, new Piece(0, 0));
+		board.startStone(x, y, new Piece(1, 1));
+		board.startStone(x, y, new Piece(2, 2));
+		board.startStone(x, y, new Piece(3, 3));
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
 				for (int t = 0; t < 5; t++) { // Piece type loop
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
-						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
+						Player player = players.get(pl);
+						player.addPiece(new Piece(t, player.getColor()));
 					}
 				}
 			}
@@ -138,13 +141,21 @@ public class Game extends Observable {
 	 * @param color of the piece
 	 */
 	public void move(final int x, final int y, final int type, final int color) {
-		board.move(x, y, new Piece(type, color));
-		//TODO Bewerken, wat als 3 spelers? moet dit hier?
+		Piece movpc = players.get(turn).getPiece(type, color);
+		board.move(x, y, movpc);
+		int pindex = players.get(turn).getPieces().indexOf(movpc);
+		players.get(turn).getPieces().remove(pindex);
+		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
 		if (turn == players.size()) {
 			turn = 0;
 		} else {
 			turn++;
 		}
+
+
 	}
+	// Game over idee:
+	// Iteratieve loop die alle velden afgaat met canMove, check of inventory leeg is.
+	// als beide voor alle spelers of als eerste voor alle dan gameover.
 	//TODO gameOver, hasWinner, methods
 }
