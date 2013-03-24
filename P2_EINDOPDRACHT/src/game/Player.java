@@ -35,6 +35,7 @@ public class Player {
 	public Player(final String pname, final int pcolor) {
 		this.name = pname;
 		this.color = new PlayerColor(this, pcolor);
+		inventory = new ArrayList<Piece>(); // Dit was ik vergeten te init daardoor null err
 		
 	}
 
@@ -59,6 +60,17 @@ public class Player {
 	 */
 	public ArrayList<Piece> getPieces() {
 		return inventory;
+	}
+	/**
+	 * Returns a piece from the inventory.
+	 * @param typ Type of the piece to return
+	 * @param colr Color of the piece to return
+	 * @return Piece from inventory with sleceted type and color
+	 */
+	public Piece getPiece(final int typ, final int colr) {
+		//if (inventory.contains(new Piece(typ, colr))) {
+			return inventory.get(inventory.indexOf(new Piece(typ, colr)));
+		//}//TODO else no such piece exception
 	}
 	
 	// -- Methods -----------------------------------------

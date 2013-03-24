@@ -84,7 +84,7 @@ public class Cell {
 	public boolean hasPieces(final Piece piece) {
 		boolean hasPiece = false;
 		for (int i = 0; i < 4; i++) {
-			if (pieces[i].getColor() == piece.getColor()) {
+			if (pieces[i] != null && pieces[i].getColor() == piece.getColor()) {
 				hasPiece = true;
 			}
 		}
