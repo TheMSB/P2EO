@@ -3,6 +3,8 @@ package game;
 import java.util.ArrayList;
 import java.util.Observable;
 
+import exceptions.InvalidMoveException;
+
 /**
  * Main Game class for the RINGZ game.
  * @author martijnbruning
@@ -40,13 +42,7 @@ public class Game extends Observable {
 	//TODO observable maken
 	public Game(final int x, final int y, final ArrayList<String> playernames) {
 
-		playerCount = 4;
-		if (playernames.get(3) == null) {
-			playerCount--;
-			if (playernames.get(2) == null) {
-				playerCount--;
-			}
-		}
+		playerCount = playernames.size();
 
 		board = new Board();
 		players = new ArrayList<Player>();
@@ -140,7 +136,8 @@ public class Game extends Observable {
 	 * @param type of the piece
 	 * @param color of the piece
 	 */
-	public void move(final int x, final int y, final int type, final int color) {
+	public void move(final int x, final int y, final int type, final int color) throws InvalidMoveException {
+		//TODO hier canMove laten doen, crashed als speler gewenst stuk niet heeft, InvalidMoveException throwen
 		Piece movpc = players.get(turn).getPiece(type, color);
 		board.move(x, y, movpc);
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
@@ -151,8 +148,10 @@ public class Game extends Observable {
 		} else {
 			turn++;
 		}
-
-
+		
+		
+		setChanged();
+		notifyObservers();
 	}
 	// Game over idee:
 	// Iteratieve loop die alle velden afgaat met canMove, check of inventory leeg is.

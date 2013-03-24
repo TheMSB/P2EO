@@ -1,6 +1,8 @@
 package client;
 
 import java.io.BufferedReader;
+
+import exceptions.InvalidMoveException;
 import game.*;
 import server.*;
 import java.io.BufferedWriter;
@@ -60,6 +62,7 @@ public class Client extends Thread {
 	 * @param name
 	 */
 	public Client(String name) {
+		System.out.println("[Client]   "+name);
 		this.name = name;
 		
 		
@@ -194,7 +197,7 @@ public class Client extends Thread {
 				sendCommand(util.Protocol.CMD_FEATURED + " "
 						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
-				joinLobby(4);//TODO: dit hier weghalen.
+				joinLobby(2);//TODO: dit hier weghalen.
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -210,9 +213,13 @@ public class Client extends Thread {
 	private void cmdSTART(ArrayList<String> args) {
 		if (status == INLOBBY) {
 			if (args.size() >= 4 && args.size() <= 6) {
-				status = INGAME;
-				startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(1)),args);
-				//LET OP: args is hier aangepast
+				try{
+					startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(0)),args);
+					//LET OP: args is hier aangepast
+					status = INGAME;
+				}catch(NumberFormatException e){
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
+				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -241,7 +248,7 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
-				if (args.equals(this.name)) {
+				if (args.get(0).equals(this.name)) {
 					askMove();
 				}
 			} else {
@@ -257,6 +264,8 @@ public class Client extends Thread {
 	 * aan mens of ai om een zet door te geven.
 	 */
 	private void askMove() {
+		System.out.println("Asking move..");
+		
 		// TODO laat GUI aangeven dat het jou beurt is
 		// TODO hoe zit het met de tijd die je hiervoor hebt?
 		ArrayList<Integer> arr;
@@ -267,8 +276,7 @@ public class Client extends Thread {
 			arr = ai.getMove(); //TODO dit door mens laten doen
 		}
 
-		sendCommand(util.Protocol.CMD_MOVE + " " + arr.get(0) + " " + arr.get(1) + " " + arr.get(2)
-				+ " " + arr.get(3));
+		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
 	}
 
 	/**
@@ -283,6 +291,9 @@ public class Client extends Thread {
 					processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
 				}catch(NumberFormatException e){
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
+				}catch(InvalidMoveException e){
+					sendError(util.Protocol.ERR_INVALID_MOVE);
+					sendDisconnect(" Desync detected, disconnecting");					
 				}
 				
 			} else {
@@ -348,8 +359,9 @@ public class Client extends Thread {
 
 	/**
 	 * Verwerkt een zet op het spel bord.
+	 * @throws InvalidMoveException 
 	 */
-	private void processMove(int x, int y, int type, int color) {
+	private void processMove(int x, int y, int type, int color) throws InvalidMoveException {
 		game.move(x,y,type,color);
 		System.out.println("Adding ring at: "+ x+" , "+y);
 	}

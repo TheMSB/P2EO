@@ -214,13 +214,15 @@ public class ClientHandler extends Thread {
 	}
 
 	public void cmdMOVE(ArrayList<String> args) {
-		if (status == INGAME) {
+		if (status == INGAME && lobby.getTurn().equals(getClientName())) {
 			if (args.size() == 4) {
-				// TODO dit verbeteren:
 				try {
-					lobby.move();
+					lobby.move(util.Util.ConvertToInt(args));
+					//TODO wordt de exception automatisch doorgegeven?
 				} catch (exceptions.InvalidMoveException e) {
 					sendError(util.Protocol.ERR_INVALID_MOVE);
+				} catch (NumberFormatException e) {
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
