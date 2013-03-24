@@ -49,11 +49,12 @@ public class Board {
 	/**
 	 * Returns true if (x,y)-address is a valid Cell
 	 * on the Board.
+	 * @require cells[x][y] != null
 	 * @ensure  <code>result == 0 <= x,y < DIM</code>
 	 * @return  true if <code>0 <= x < DIM && 0 <= y < DIM</code>
 	 */
 	public boolean isCell(final int x, final int y) {
-		return (0 <= x && x <= X && 0 <= y && y <= Y && cells[x][y] != null);
+		return 0 <= x && x < X && 0 <= y && y < Y;
 	}
 
 
