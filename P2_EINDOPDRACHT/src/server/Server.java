@@ -124,7 +124,7 @@ public class Server extends Thread{
 			{
 				clientHandlers.add(ch);
 				out.println("ClientHandler approved:  "+ch);
-				out.println(this.getLobbies());
+				//out.println(this.getLobbies());
 			}
 		}
 	}

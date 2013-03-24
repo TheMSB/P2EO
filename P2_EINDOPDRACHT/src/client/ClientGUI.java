@@ -11,9 +11,9 @@ public class ClientGUI {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Client client = new Client("Derk");
+		Client client = new Client("Derk"+Math.random());
 		client.start();
-		client.joinLobby(4);
+		
 	}
 
 }
