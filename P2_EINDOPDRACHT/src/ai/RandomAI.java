@@ -10,15 +10,13 @@ public class RandomAI implements AI {
 	
 	private Game game;
 	private Board board;
-	private int playerNumber;
 	private Player player;
 	
 	
-	public void RandomAI(Game game, int playerNumber){
+	public RandomAI(Game game, Player player){
 		this.game = game;
 		this.player = player;
 		board = game.getBoard();
-		player = game.getPlayer(playerNumber);
 	}
 	
 	@Override
@@ -35,6 +33,8 @@ public class RandomAI implements AI {
 			piece = player.getPieces().get((int)(Math.random()*player.getPieces().size()));
 			validMoveFound = board.canMove(x,y,piece);
 		}while(!validMoveFound);		
+		
+		
 		
 		ArrayList<Integer> arr = new ArrayList<Integer>();
 		arr.add(x);

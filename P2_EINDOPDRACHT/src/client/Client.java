@@ -15,7 +15,7 @@ import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import ai.AI;
+import ai.*;
 
 import server.Server;
 
@@ -36,6 +36,7 @@ public class Client extends Thread {
 	private Game game;
 	private Player player;
 	private AI ai;
+	private boolean humanIsPlaying;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -60,7 +61,8 @@ public class Client extends Thread {
 	 */
 	public Client(String name) {
 		this.name = name;
-
+		
+		
 		clientFeatures = new ArrayList<String>();
 
 		// Ga er vanuit dat de server aan staat in het begin
@@ -192,6 +194,7 @@ public class Client extends Thread {
 				sendCommand(util.Protocol.CMD_FEATURED + " "
 						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
+				joinLobby(4);//TODO: dit hier weghalen.
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -225,8 +228,10 @@ public class Client extends Thread {
 	 * @param args	Lijst met namen van spelers
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
+		humanIsPlaying = false; //TODO dit variabel maken
 		game = new Game(x,y,args);
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
+		ai = new RandomAI(game,player);
 	}
 
 	/**
@@ -252,16 +257,18 @@ public class Client extends Thread {
 	 * aan mens of ai om een zet door te geven.
 	 */
 	private void askMove() {
-		// TODO laat GUI aangeven dat het jou beurt is, kies zet, doe die zet
-		// dan.
+		// TODO laat GUI aangeven dat het jou beurt is
 		// TODO hoe zit het met de tijd die je hiervoor hebt?
-		int x = 1;
-		int y = 1;
-		int type = 1;
-		int color = 1; // TODO deze verkrijgen van gui of ai
+		ArrayList<Integer> arr;
+		//arr: 0 = x, 1 = y, 2 = type, 3 = color
+		if(humanIsPlaying){
+			arr = ai.getMove();
+		}else{
+			arr = ai.getMove(); //TODO dit door mens laten doen
+		}
 
-		sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y + " " + type
-				+ " " + color);
+		sendCommand(util.Protocol.CMD_MOVE + " " + arr.get(0) + " " + arr.get(1) + " " + arr.get(2)
+				+ " " + arr.get(3));
 	}
 
 	/**
@@ -327,6 +334,14 @@ public class Client extends Thread {
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
+		if (status == INGAME) {
+			if (errorCode == util.Protocol.ERR_INVALID_MOVE) {
+				sendDisconnect("Desync detected");
+				//TODO dit niet met exception?
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
 
 		// TODO meer situaties toevoegen?
 	}
@@ -346,6 +361,7 @@ public class Client extends Thread {
 	 * @param slots
 	 */
 	public void joinLobby(final int slots) {
+		System.out.println("Joining, status:  "+status);
 		if (status == HANDSHAKE_SUCCESFULL) {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
@@ -421,7 +437,6 @@ public class Client extends Thread {
 						.println("Not Supported Encoding, this program requires UTF-8");
 				e1.printStackTrace();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
