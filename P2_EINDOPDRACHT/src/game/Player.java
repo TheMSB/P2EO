@@ -69,6 +69,7 @@ public class Player {
 	 */
 	public Piece getPiece(final int typ, final int colr) {
 		//if (inventory.contains(new Piece(typ, colr))) {
+		System.out.println(inventory.indexOf(new Piece(typ, colr)));
 			return inventory.get(inventory.indexOf(new Piece(typ, colr)));
 		//}//TODO else no such piece exception
 	}
