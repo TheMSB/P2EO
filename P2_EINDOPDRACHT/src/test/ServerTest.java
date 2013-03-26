@@ -56,7 +56,6 @@ public class ServerTest {
 		fail("test");
 		//server.approve(new ClientHandler(4242,new Socket())); //TODO hoe protected methoden te testen
 	}
-
 	@Test
 	public void testJoinLobby() {
 		fail("Not yet implemented");

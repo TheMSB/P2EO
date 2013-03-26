@@ -1,6 +1,8 @@
 package client;
 
 import java.io.BufferedReader;
+
+import exceptions.InvalidMoveException;
 import game.*;
 import server.*;
 import java.io.BufferedWriter;
@@ -14,6 +16,8 @@ import java.net.UnknownHostException;
 import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import ai.*;
 
 import server.Server;
 
@@ -32,6 +36,9 @@ public class Client extends Thread {
 	private boolean serverAlive;
 	private int status;
 	private Game game;
+	private Player player;
+	private AI ai;
+	private boolean humanIsPlaying;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -55,8 +62,10 @@ public class Client extends Thread {
 	 * @param name
 	 */
 	public Client(String name) {
+		System.out.println("[Client]   "+name);
 		this.name = name;
-
+		
+		
 		clientFeatures = new ArrayList<String>();
 
 		// Ga er vanuit dat de server aan staat in het begin
@@ -64,7 +73,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(4242, InetAddress.getByName("130.89.128.143"));
+			connectToServer(4242, InetAddress.getByName("localhost"));
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();
@@ -100,7 +109,7 @@ public class Client extends Thread {
 			if (serverAlive) {
 				try {
 					connectToServer(4242,
-							InetAddress.getByName("130.89.128.143"));
+							InetAddress.getByName("localhost"));
 					// TODO poort + ip variabel maken
 				} catch (IOException e) {
 					System.out
@@ -186,8 +195,9 @@ public class Client extends Thread {
 					}
 				}
 				sendCommand(util.Protocol.CMD_FEATURED + " "
-						+ Server.concatArrayList(clientFeatures));
+						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
+				joinLobby(2);//TODO: dit hier weghalen.
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -203,9 +213,13 @@ public class Client extends Thread {
 	private void cmdSTART(ArrayList<String> args) {
 		if (status == INLOBBY) {
 			if (args.size() >= 4 && args.size() <= 6) {
-				status = INGAME;
-				startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(1)),args);
-				//LET OP: args is hier aangepast
+				try{
+					startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(0)),args);
+					//LET OP: args is hier aangepast
+					status = INGAME;
+				}catch(NumberFormatException e){
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
+				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -221,7 +235,12 @@ public class Client extends Thread {
 	 * @param args	Lijst met namen van spelers
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
+		humanIsPlaying = false; //TODO dit variabel maken
 		game = new Game(x,y,args);
+		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
+		System.out.println("PlayerNumber:  "+args.indexOf(name));
+		//System.out.println(player.getPieces());
+		ai = new RandomAI(game,player);
 	}
 
 	/**
@@ -231,8 +250,9 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
-				if (args.equals(this.name)) {
+				if (args.get(0).equals(this.name)) {
 					askMove();
+					//TODO persoon die niet zet blijft hier in hangen.
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -247,16 +267,18 @@ public class Client extends Thread {
 	 * aan mens of ai om een zet door te geven.
 	 */
 	private void askMove() {
-		// TODO laat GUI aangeven dat het jou beurt is, kies zet, doe die zet
-		// dan.
+		System.out.println("Asking move..");
+		
+		// TODO laat GUI aangeven dat het jou beurt is
 		// TODO hoe zit het met de tijd die je hiervoor hebt?
-		int x = 1;
-		int y = 1;
-		int type = 1;
-		int color = 1; // TODO deze verkrijgen van gui of ai
-
-		sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y + " " + type
-				+ " " + color);
+		ArrayList<Integer> arr;
+		//arr: 0 = x, 1 = y, 2 = type, 3 = color
+		if(humanIsPlaying){
+			arr = ai.getMove();
+		}else{
+			arr = ai.getMove(); //TODO dit door mens laten doen
+		}
+		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
 	}
 
 	/**
@@ -266,9 +288,16 @@ public class Client extends Thread {
 	private void cmdMOVED(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 4) {
+				try{
+					ArrayList<Integer> arr = util.Util.ConvertToInt(args);
+					processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
+				}catch(NumberFormatException e){
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
+				}catch(InvalidMoveException e){
+					sendError(util.Protocol.ERR_INVALID_MOVE);
+					sendDisconnect(" Desync detected, disconnecting");					
+				}
 				
-				ArrayList<Integer> arr = util.Util.ConvertToInt(args);
-				processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -302,8 +331,11 @@ public class Client extends Thread {
 	private void cmdERROR(final ArrayList<String> args) {
 		int errorCode = 0;
 		if (args.size() == 1) {
-			errorCode = Integer.parseInt(args.get(1)); // TODO kan dit fout
-														// gaan?
+			try{
+				errorCode = Integer.parseInt(args.get(0));
+			}catch(NumberFormatException e){
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
 		} else {
 			sendError(util.Protocol.ERR_INVALID_COMMAND);
 		}
@@ -315,14 +347,23 @@ public class Client extends Thread {
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
+		if (status == INGAME) {
+			if (errorCode == util.Protocol.ERR_INVALID_MOVE) {
+				sendDisconnect("Desync detected");
+				//TODO dit niet met exception?
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
 
 		// TODO meer situaties toevoegen?
 	}
 
 	/**
 	 * Verwerkt een zet op het spel bord.
+	 * @throws InvalidMoveException 
 	 */
-	private void processMove(int x, int y, int type, int color) {
+	private void processMove(int x, int y, int type, int color) throws InvalidMoveException {
 		game.move(x,y,type,color);
 		System.out.println("Adding ring at: "+ x+" , "+y);
 	}
@@ -334,11 +375,11 @@ public class Client extends Thread {
 	 * @param slots
 	 */
 	public void joinLobby(final int slots) {
+		System.out.println("Joining, status:  "+status);
 		if (status == HANDSHAKE_SUCCESFULL) {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
 		}
-
 	}
 
 	/**
@@ -410,7 +451,6 @@ public class Client extends Thread {
 						.println("Not Supported Encoding, this program requires UTF-8");
 				e1.printStackTrace();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}

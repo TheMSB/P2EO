@@ -124,6 +124,7 @@ public class Server extends Thread{
 			{
 				clientHandlers.add(ch);
 				out.println("ClientHandler approved:  "+ch);
+				//out.println(this.getLobbies());
 			}
 		}
 	}
@@ -148,13 +149,12 @@ public class Server extends Thread{
 	
 	/**
 	 * Laat een ClientHandler een lobby joinen, met het meegegeven aantal slots.
-	 * Als slots 0 is wordt getBestLobby() aangeroepen voor slots
 	 * Als er geen openstaande lobby is van het aantal slots wordt een nieuwe lobby aangemaakt
 	 * @param slots		Hoeveel spelers de lobby moet toestaan
 	 * @param ch		de toe te voegen ClientHandler
 	 * @return			De lobby waar de ClientHandler aan toegevoegd is
 	 */
-	public synchronized Lobby joinLobby(int slots, ClientHandler ch){
+	public synchronized Lobby getLobby(int slots, ClientHandler ch){
 		ArrayList<Lobby> queue = lobbies.get(slots-2);
 		Lobby lobby = null;
 		if (queue!=null && !queue.isEmpty()) {
@@ -208,38 +208,25 @@ public class Server extends Thread{
 	}
 	
 	public boolean nameInUse(String name){
-		boolean output = false;
+		int count = 0;
 		for(ClientHandler ch : newlyConnected){
 			if(ch.getClientName().equals(name)){
-				output = true;
+				count++;
 			}
 		}
 		for(ClientHandler ch : clientHandlers){
 			if(ch.getClientName().equals(name)){
-				output = true;
+				count = 2;
 			}
 		}
 		
-		return output;
+		//System.out.println(count);
+		return count!=1;
 	}
 	
 	
 	//TODO dit naar andere class
-	public static <Elem> String concatArrayList(ArrayList<Elem> arr)
-	{
-		String output = "";
-		for (Elem s : arr) {
-			output = output + s + " "; // TODO
-																	// navragen
-																	// of
-																	// arraylist
-																	// hier
-																	// functie
-																	// voor
-																	// heeft
-		}
-		return output;
-	}
+	
 	
 	
 	public boolean isRunning(){

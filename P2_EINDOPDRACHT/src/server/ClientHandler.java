@@ -151,7 +151,7 @@ public class ClientHandler extends Thread {
 					sendCommand(util.Protocol.CMD_CONNECTED + " "
 							+ "Goedendag, welkom op onze server");
 					sendCommand(util.Protocol.CMD_FEATURES + " "
-							+ Server.concatArrayList(serverFeatures));
+							+ util.Util.concatArrayList(serverFeatures));
 					status = EXPECTING_FEATURED;
 				} else {
 					sendError(util.Protocol.ERR_NAME_IN_USE);
@@ -203,8 +203,10 @@ public class ClientHandler extends Thread {
 						slots = Integer.parseInt(args.get(0));
 					}
 				} catch (NumberFormatException e) {
+					//slots zo laten;
 				}
-				joinLobby(server.joinLobby(slots, this));
+				server.getLobby(slots, this);
+				//TODO controleren of multithread issue gefixed is;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -214,18 +216,21 @@ public class ClientHandler extends Thread {
 	}
 
 	public void cmdMOVE(ArrayList<String> args) {
-		if (status == INGAME) {
+		if (status == INGAME && lobby.getTurn().equals(getClientName())) {
 			if (args.size() == 4) {
-				// TODO dit verbeteren:
 				try {
-					lobby.move();
+					lobby.move(util.Util.ConvertToInt(args));
+					//TODO wordt de exception automatisch doorgegeven?
 				} catch (exceptions.InvalidMoveException e) {
 					sendError(util.Protocol.ERR_INVALID_MOVE);
+				} catch (NumberFormatException e) {
+					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
+			System.out.println(lobby.getTurn()+"   "+getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
@@ -258,7 +263,7 @@ public class ClientHandler extends Thread {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
 				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
-						+ this.name + " " + server.concatArrayList(args));
+						+ this.name + " " + util.Util.concatArrayList(args));
 				// TODO protocol vaag over of dit naar iedereen van de server,
 				// of iedereen van de huidige game (max 4) moet
 			} else {
@@ -285,11 +290,13 @@ public class ClientHandler extends Thread {
 	public void lobbySTART(String command) {
 		sendCommand(command);
 		status = INGAME;
+		System.out.println("Status: INGAME     "+this.getClientName());
 	}
 
 	public void joinLobby(Lobby lobby) {
 		this.lobby = lobby;
 		status = INLOBBY;
+		System.out.println("Status: INLOBBY     "+this.getClientName());
 	}
 
 	public void sendError(int errorCode) {
@@ -315,6 +322,10 @@ public class ClientHandler extends Thread {
 
 	public String getClientName() {
 		return this.name;
+	}
+	
+	public int getStatus(){
+		return status;
 	}
 
 }
