@@ -68,9 +68,17 @@ public class Player {
 	 * @return Piece from inventory with sleceted type and color
 	 */
 	public Piece getPiece(final int typ, final int colr) {
-		//if (inventory.contains(new Piece(typ, colr))) {
-		System.out.println(inventory.indexOf(new Piece(typ, colr)));
-			return inventory.get(inventory.indexOf(new Piece(typ, colr)));
+		//System.out.println(inventory);
+		//System.out.println("Getting piece: T"+typ+"C"+colr);
+		Piece output = null;
+		for(Piece p : inventory){
+			if(p.getType()==typ && p.getColor()==colr){
+				output = p;
+			}
+		}
+		
+		//TODO dit is gehotfixed, kan nu null teruggeven.
+		return output;
 		//}//TODO else no such piece exception
 	}
 	

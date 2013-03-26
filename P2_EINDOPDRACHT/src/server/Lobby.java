@@ -45,6 +45,7 @@ public class Lobby extends Thread implements Observer{
 			//TODO move exceptie laten gooien als niet kan
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
 			broadcastMessage(util.Protocol.CMD_MOVED +" " + util.Util.concatArrayList(args));
+			giveTurn();
 		}catch(InvalidMoveException e){
 			throw new exceptions.InvalidMoveException();
 		}
@@ -63,6 +64,7 @@ public class Lobby extends Thread implements Observer{
 		Collections.shuffle(clients);
 		
 		game = new Game(2,2,util.Util.makePlayerNameList(clients));
+		game.addObserver(this);
 		
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+util.Util.concatArrayList(clients));
@@ -76,6 +78,7 @@ public class Lobby extends Thread implements Observer{
 	private void giveTurn(){
 		turn = clients.get(game.getTurn()).getClientName();
 		broadcastMessage(util.Protocol.CMD_TURN + " "+turn);
+		//System.out.println(clients.get(game.getTurn()).getStatus());
 	}
 	
 	public String getTurn(){
@@ -138,8 +141,9 @@ public class Lobby extends Thread implements Observer{
 	@Override
 	public void update(Observable o, Object arg) {
 		//TODO daadwerkelijke gameOver boolean uit game halen
+		System.out.println("Lobby.update()");
 		boolean gameOver = false;
-		giveTurn();
+		//giveTurn();
 		
 		if(gameOver){
 			this.broadcastMessage(util.Protocol.CMD_END+" 1 2"); //TODO score implementeren

@@ -203,8 +203,10 @@ public class ClientHandler extends Thread {
 						slots = Integer.parseInt(args.get(0));
 					}
 				} catch (NumberFormatException e) {
+					//slots zo laten;
 				}
-				joinLobby(server.joinLobby(slots, this));
+				server.getLobby(slots, this);
+				//TODO controleren of multithread issue gefixed is;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -228,6 +230,7 @@ public class ClientHandler extends Thread {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
+			System.out.println(lobby.getTurn()+"   "+getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
@@ -287,11 +290,13 @@ public class ClientHandler extends Thread {
 	public void lobbySTART(String command) {
 		sendCommand(command);
 		status = INGAME;
+		System.out.println("Status: INGAME     "+this.getClientName());
 	}
 
 	public void joinLobby(Lobby lobby) {
 		this.lobby = lobby;
 		status = INLOBBY;
+		System.out.println("Status: INLOBBY     "+this.getClientName());
 	}
 
 	public void sendError(int errorCode) {
@@ -317,6 +322,10 @@ public class ClientHandler extends Thread {
 
 	public String getClientName() {
 		return this.name;
+	}
+	
+	public int getStatus(){
+		return status;
 	}
 
 }

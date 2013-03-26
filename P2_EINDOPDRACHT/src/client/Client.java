@@ -238,6 +238,8 @@ public class Client extends Thread {
 		humanIsPlaying = false; //TODO dit variabel maken
 		game = new Game(x,y,args);
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
+		System.out.println("PlayerNumber:  "+args.indexOf(name));
+		//System.out.println(player.getPieces());
 		ai = new RandomAI(game,player);
 	}
 
@@ -250,6 +252,7 @@ public class Client extends Thread {
 			if (args.size() == 1) {
 				if (args.get(0).equals(this.name)) {
 					askMove();
+					//TODO persoon die niet zet blijft hier in hangen.
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -275,7 +278,6 @@ public class Client extends Thread {
 		}else{
 			arr = ai.getMove(); //TODO dit door mens laten doen
 		}
-
 		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
 	}
 
@@ -330,7 +332,7 @@ public class Client extends Thread {
 		int errorCode = 0;
 		if (args.size() == 1) {
 			try{
-				errorCode = Integer.parseInt(args.get(1));
+				errorCode = Integer.parseInt(args.get(0));
 			}catch(NumberFormatException e){
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

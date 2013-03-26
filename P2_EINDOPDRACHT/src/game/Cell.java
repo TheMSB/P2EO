@@ -84,6 +84,7 @@ public class Cell {
 	public boolean hasPieces(final Piece piece) {
 		boolean hasPiece = false;
 		for (int i = 0; i < 4; i++) {
+			//System.out.println("Piece: "+pieces[i]);
 			if (pieces[i] != null && pieces[i].getColor() == piece.getColor()) {
 				hasPiece = true;
 			}
@@ -102,14 +103,14 @@ public class Cell {
 	protected void addPiece(final Piece piece) {
 		if (piece.getType() == Piece.RING_0 && pieces[0] == null) {
 			pieces[0] = piece;
-		} else if (piece.getType() == Piece.RING_1 && pieces[0] == null) {
+		} else if (piece.getType() == Piece.RING_1 && pieces[1] == null) {
 			pieces[1] = piece;
-		} else if (piece.getType() == Piece.RING_2 && pieces[0] == null) {
+		} else if (piece.getType() == Piece.RING_2 && pieces[2] == null) {
 			pieces[2] = piece;
-		} else if (piece.getType() == Piece.RING_3 && pieces[0] == null) {
+		} else if (piece.getType() == Piece.RING_3 && pieces[3] == null) {
 			pieces[3] = piece;
 		} else if (piece.getType() == Piece.RING_4 && pieces[0] == null) {
-			for (int i = 0; i <= 4; i++) {
+			for (int i = 0; i < 4; i++) {
 				pieces[i] = piece;
 			}
 		}

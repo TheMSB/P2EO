@@ -12,7 +12,7 @@ public class Board {
 	/**
 	 * The DIMension of the board.
 	 */
-	public static final int DIM = 4;
+	public static final int DIM = 5;
 	//private static final int AREA = DIM*DIM;
 	/**
 	 * The X coordinate length of the board.
@@ -40,6 +40,7 @@ public class Board {
 		for (int x = 0; x < X; x++) {
 			for (int y = 0; y < Y; y++) {
 				cells[x][y] = new Cell(x, y);
+				//System.out.println(x+" "+y);
 			}
 		}
 	}
@@ -77,8 +78,11 @@ public class Board {
 	 * @param y coordinate of the cell
 	 * @param piece to be placed
 	 */
-	protected void startStone(final int x, final int y, final Piece piece) {
-		cells[x][y].addPiece(piece);
+	protected void startStone(final int x, final int y) {
+		cells[x][y].addPiece(new Piece(0, 0));
+		cells[x][y].addPiece(new Piece(1, 1));
+		cells[x][y].addPiece(new Piece(2, 2));
+		cells[x][y].addPiece(new Piece(3, 3));
 	}
 	/**
 	 * Finds the designated cell and places the piece.

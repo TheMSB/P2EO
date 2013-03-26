@@ -49,6 +49,7 @@ public class Game extends Observable {
 		//Creates players depending on the playerCount
 		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
+		
 		if (playerCount > 2) {
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 		}
@@ -92,10 +93,7 @@ public class Game extends Observable {
 	 */
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
-		board.startStone(x, y, new Piece(0, 0));
-		board.startStone(x, y, new Piece(1, 1));
-		board.startStone(x, y, new Piece(2, 2));
-		board.startStone(x, y, new Piece(3, 3));
+		board.startStone(x, y);
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
 				for (int t = 0; t < 5; t++) { // Piece type loop
@@ -143,15 +141,12 @@ public class Game extends Observable {
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
 		players.get(turn).getPieces().remove(pindex);
 		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
-		if (turn == players.size()) {
-			turn = 0;
-		} else {
-			turn++;
-		}
+		turn = (turn+1)%players.size();
 		
 		
 		setChanged();
 		notifyObservers();
+		System.out.println("Notify observers!   " + this.countObservers());
 	}
 	// Game over idee:
 	// Iteratieve loop die alle velden afgaat met canMove, check of inventory leeg is.

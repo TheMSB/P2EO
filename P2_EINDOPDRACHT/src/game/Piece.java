@@ -81,5 +81,9 @@ public class Piece {
 	public void setPlaced() {
 		placed = true;
 	}
+	
+	public String toString(){
+		return "T "+this.type + " C "+color;
+	}
 
 }

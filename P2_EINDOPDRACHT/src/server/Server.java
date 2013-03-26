@@ -149,13 +149,12 @@ public class Server extends Thread{
 	
 	/**
 	 * Laat een ClientHandler een lobby joinen, met het meegegeven aantal slots.
-	 * Als slots 0 is wordt getBestLobby() aangeroepen voor slots
 	 * Als er geen openstaande lobby is van het aantal slots wordt een nieuwe lobby aangemaakt
 	 * @param slots		Hoeveel spelers de lobby moet toestaan
 	 * @param ch		de toe te voegen ClientHandler
 	 * @return			De lobby waar de ClientHandler aan toegevoegd is
 	 */
-	public synchronized Lobby joinLobby(int slots, ClientHandler ch){
+	public synchronized Lobby getLobby(int slots, ClientHandler ch){
 		ArrayList<Lobby> queue = lobbies.get(slots-2);
 		Lobby lobby = null;
 		if (queue!=null && !queue.isEmpty()) {
