@@ -6,6 +6,9 @@ import java.util.List;
 
 /**
  * One Cell on the board of the RINGZ game.
+ * Contains it's own location and an array list
+ * of pieces placed on this cell.
+ * Can determine the owner(winner) of this cell.
  * @author martijnbruning
  *
  */

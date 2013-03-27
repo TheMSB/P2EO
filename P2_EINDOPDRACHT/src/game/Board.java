@@ -2,6 +2,9 @@ package game;
 
 /**
  * The Board used to play the RINGZ game.
+ * Contains dimensions of the board and an arraylist
+ * with all the cells. Can determine if a move is valid
+ * for a certain player.
  * @author martijnbruning
  *
  */
@@ -17,11 +20,11 @@ public class Board {
 	/**
 	 * The X coordinate length of the board.
 	 */
-	private static final int	  X = DIM;
+	public static final int	  X = DIM;
 	/**
 	 * The Y coordinate length of the board.
 	 */
-	private static final int	  Y = DIM;
+	public static final int	  Y = DIM;
 
 	// -- Instance variables -----------------------------------------
 
@@ -68,6 +71,14 @@ public class Board {
 	 */
 	public Cell getCell(final int x, final int y) {
 		return cells[x][y];
+	}
+	
+	/**
+	 * Returns the array of cells for this board.
+	 * @return cells Array
+	 */
+	public Cell[][] getCells() {
+		return cells;
 	}
 
 	// -- Methods -----------------------------------------

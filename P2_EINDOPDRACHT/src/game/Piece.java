@@ -2,6 +2,10 @@ package game;
 
 /**
  * The Piece class used by the RINGZ game.
+ * Contains type constants, can determine if
+ * it has been placed or not and return it's type
+ * and color. Each player has a finite amount of
+ * pieces.
  * @author martijnbruning
  *
  */

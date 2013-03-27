@@ -7,6 +7,10 @@ import exceptions.InvalidMoveException;
 
 /**
  * Main Game class for the RINGZ game.
+ * Assigns the players to a color and greates a new
+ * board for the game to be played on.
+ * Can determine who's turn it is and relay moves
+ * for a player to board.
  * @author martijnbruning
  *
  */
