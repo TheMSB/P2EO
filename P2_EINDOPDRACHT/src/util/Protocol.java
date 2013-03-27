@@ -1,52 +1,88 @@
 package util;
 
 /*
-    Versie 1.0
+ Versie 1.3
 
-    ########  #### ##    ##  ######    ######   ########
-    ##     ##  ##  ###   ## ##    ##  ##    ##       ## 
-    ##     ##  ##  ####  ## ##        ##            ##  
-    ########   ##  ## ## ## ##   #### ##   ####    ##   
-    ##   ##    ##  ##  #### ##    ##  ##    ##    ##    
-    ##    ##   ##  ##   ### ##    ##  ##    ##   ##     
-    ##     ## #### ##    ##  ######    ######   ########
+ ########  #### ##    ##  ######    ######   ########
+ ##     ##  ##  ###   ## ##    ##  ##    ##       ## 
+ ##     ##  ##  ####  ## ##        ##            ##  
+ ########   ##  ## ## ## ##   #### ##   ####    ##   
+ ##   ##    ##  ##  #### ##    ##  ##    ##    ##    
+ ##    ##   ##  ##   ### ##    ##  ##    ##   ##     
+ ##     ## #### ##    ##  ######    ######   ########
 
-    Protocol Eindopdracht Programmeren 2 INF 2
-    Maintainer: Dennis Eijkel <d.j.eijkel@student.utwente.nl>
+ Protocol Eindopdracht Programmeren 2 INF 2
+ Maintainer: Dennis Eijkel <d.j.eijkel@student.utwente.nl>
+
+ ============================================================================
+ ===== CHANGELOG ============================================================
+ ============================================================================
+ Versie 1.3
+ - Restricties opgelegd aan de JOIN, ACCEPT en DECLINE commando's, een client
+ mag niet wachten op meerdere spellen
+ - DISCONNECTED commando moet gestuurd worden naar alle clients die de chat
+ en/of challenge feature ondersteunen en alle clients die in een spel zaten
+ met de client die de verbinding verbroken heeft, indien beschikbaar
+ - Bij het END commando moet nu ook het overgebleven aantal stenen van de
+ spelers worden doorgegeven
+ 
+ Versie 1.2
+ - Introductie is nu javadoc van klasse
+ - DISCONNECTED commando moet nu naar alle met de server verbonden clients
+ gestuurd worden
+
+ Versie 1.1
+ - Verandering aan beschrijving CONNECT
+ - Omschrijving DISCONNECTED verbeterd
+ - Encoding constante toegevoegd
+
+ Versie 1.0
+ - Eerste versie protocol
+ */
+
+/**
+ * <h2>Protocol Eindproject P2 INF 2</h2>
+ * <p>
+ * Dit bestand is ter beschijving van het protocol, er zijn ook constanten in
+ * gedefineerd. Er staan in deze klasse constanten die gebruikt kunnen worden
+ * voor de implementatie van het protocol. Men is niet verplicht deze klasse te
+ * gebruiken voor een implementatie maar het voorkomt wel typefouten.
+ * </p>
+ * 
+ * <p>
+ * Alle berichten die er met dit commando worden verstuurd moeten UTF-8
+ * gecodeerd zijn.
+ * </p>
+ * 
+ * <p>
+ * Alle berichten zijn case-sensitive en commando's worden in ALL CAPS
+ * verstuurd.
+ * </p>
+ * 
+ * <p>
+ * De standaard-poort voor communicatie is 4242, maar het is niet verplicht deze
+ * te gebruiken.
+ * </p>
+ * 
+ * <p>
+ * Alle berichten moeten als strings verstuurd en ontvangen worden, een commando
+ * wordt altijd afgesloten door een newline (\n) en/of carriage return (\r),
+ * allebei mag dus ook.
+ * </p>
+ * 
+ * <p>
+ * De woorden moeten gescheiden worden door een spatie. Er mogen dus GEEN
+ * spaties in de parameters voorkomen, tenzij anders aangegeven.
+ * </p>
+ * 
+ * <p>
+ * Parameters die omringt zijn met <> zijn verplicht, parameters omringt door []
+ * zijn optioneel. Als een bericht door de server naar meerdere clients moet
+ * worden gestuurd staat dit ook aangegeven. Ook staat er aangegeven of de
+ * client of de server het bericht stuurt.
+ * </p>
  */
 public class Protocol {
-
-	/*
-	 * =========================================================================
-	 * ===== INTRODUCTIE =======================================================
-	 * =========================================================================
-	 * Dit bestand is ter beschijving van het protocol, er zijn ook constanten
-	 * in gedefineerd. Er staan in deze klasse constanten die gebruikt kunnen
-	 * worden voor de implementatie van het protocol. Men is niet verplicht deze
-	 * klasse te gebruiken voor een implementatie maar het voorkomt wel
-	 * typefouten.
-	 * 
-	 * Alle berichten die er met dit commando worden verstuurd moeten UTF-8
-	 * gecodeerd zijn.
-	 * 
-	 * Alle berichten zijn case-sensitive en commando's worden in ALL CAPS
-	 * verstuurd.
-	 * 
-	 * De standaard-poort voor communicatie is 4242, maar het is niet verplicht
-	 * deze te gebruiken.
-	 * 
-	 * Alle berichten moeten als strings verstuurd en ontvangen worden, een
-	 * commando wordt altijd afgesloten door een newline (\n) en/of carriage
-	 * return (\r), allebei mag dus ook.
-	 * 
-	 * De woorden moeten gescheiden worden door een spatie. Er mogen dus GEEN
-	 * spaties in de parameters voorkomen, tenzij anders aangegeven.
-	 * 
-	 * Parameters die omringt zijn met <> zijn verplicht, parameters omringt
-	 * door [] zijn optioneel. Als een bericht door de server naar meerdere
-	 * clients moet worden gestuurd staat dit ook aangegeven. Ook staat er
-	 * aangegeven of de client of de server het bericht stuurt.
-	 */
 
 	/**
 	 * <h2>POORT</h2>
@@ -65,6 +101,15 @@ public class Protocol {
 	 * </p>
 	 */
 	public static final String DELIM = " ";
+
+	/**
+	 * <h2>ENCODING</h2>
+	 * <p>
+	 * De encoding die voor dit protocol gebruikt wordt is UTF-8, het is
+	 * verplicht deze encoding te gebruiken.
+	 * </p>
+	 */
+	public static final String ENCODING = "UTF-8";
 
 	/*
 	 * =========================================================================
@@ -88,13 +133,15 @@ public class Protocol {
 	 * 
 	 * <h2>PARAMETERS</h2>
 	 * <p>
-	 * name: verplicht - naam van de speler die wil verbinden
+	 * name: verplicht - naam van de speler die wil verbinden, naam moet uniek
+	 * zijn
 	 * </p>
 	 * 
 	 * <h2>BESCHRIJVING</h2>
 	 * <p>
 	 * Als een client met een server wil verbinden gebruikt hij dit commando. De
-	 * client stuurt zijn naam mee.
+	 * client stuurt zijn naam mee. De naam moet uniek zijn, als de naam al in
+	 * gebruik is zal de server een ERROR terugsturen.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>
@@ -262,7 +309,11 @@ public class Protocol {
 	 * client mag aangeven met hoeveel spelers deze wil spelen, maar als deze
 	 * parameter weggelaten wordt zegt de client dat het niet uitmaakt met
 	 * hoeveel spelers er gespeeld moet worden. Ook als het aantal spelers niet
-	 * 2, 3 of 4 is betekent dat ook dat het aantal spelers niet uitmaakt.
+	 * 2, 3 of 4 is betekent dat ook dat het aantal spelers niet uitmaakt. Als
+	 * een client dit commando heeft verstuurd is deze afwachtende op een spel.
+	 * De client mag dan geen andere JOIN commando's meer versturen totdat het
+	 * aangevraagde spel is gespeeld. Er mogen ook geen ACCEPT commando's meer
+	 * worden verstuurd door de client.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>
@@ -591,7 +642,8 @@ public class Protocol {
 	 * C &lt;&lt;- S - broadcast naar alle spelers in het spel
 	 * </p>
 	 * <p>
-	 * END &lt;score1&gt; &lt;score2&gt; [score3] [score4]
+	 * END &lt;score1&gt; &lt;stones1&gt; &lt;score2&gt; &lt;stones2&gt;
+	 * [score3] [stones3] [score4] [stones4]
 	 * </p>
 	 * 
 	 * <h2>PARAMETERS</h2>
@@ -599,20 +651,35 @@ public class Protocol {
 	 * score1: verplicht, integer - score van name1
 	 * </p>
 	 * <p>
+	 * stones1: verplicht, integer - aantal overgebleven stenen van name1
+	 * </p>
+	 * <p>
 	 * score2: verplicht, integer - score van name2
 	 * </p>
 	 * <p>
-	 * score3: verplicht indien 3e speler, integer - score van name3
+	 * stones2: verplicht, integer - aantal overgebleven stenen van name2
 	 * </p>
 	 * <p>
-	 * score4: verplicht indien 4e speler, integer - score van name4
+	 * score3: verplicht indien 3 spelers, integer - score van name3
+	 * </p>
+	 * <p>
+	 * stones3: verplicht indien 3 spelers, integer - aantal overgebleven stenen
+	 * van name3
+	 * </p>
+	 * <p>
+	 * score4: verplicht indien 4 spelers, integer - score van name4
+	 * </p>
+	 * <p>
+	 * stones4: verplicht indien 4 spelers, integer - aantal overgebleven stenen
+	 * van name4
 	 * </p>
 	 * 
 	 * <h2>BESCHRIJVING</h2>
 	 * <p>
-	 * De server geeft aan dat het spel is afgelopen. De scores van de spelers
-	 * worden meegegeven. Deze zijn gekoppeld aan de namen die meegegeven zijn
-	 * in het START commando en staan ook in dezelfde volgorde.
+	 * De server geeft aan dat het spel is afgelopen. De scores en de aantallen
+	 * overgebleven stenen van alle spelers worden meegegeven. Deze zijn
+	 * gekoppeld aan de namen die meegegeven zijn in het START commando en staan
+	 * in dezelfde volgorde.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>
@@ -658,15 +725,20 @@ public class Protocol {
 	/**
 	 * <h2>NAAM</h2>
 	 * <p>
-	 * DISCONNECT - client geeft aan dat hij de verbinding wil verbreken
+	 * DISCONNECTED - de server geeft aan alle clients die chat en/of challenge
+	 * ondersteunen en aan alle clients in een spel met de client die de
+	 * verbinding heeft verbroken door dat er een speler niet meer verbonden is
+	 * met de server
 	 * </p>
 	 * 
 	 * <h2>FORMAAT</h2>
 	 * <p>
-	 * C &lt;&lt;- S - broadcast naar alle clients in het spel
+	 * C &lt;&lt;- S - broadcast naar alle clients die chat en/of challenge
+	 * ondersteunen en alle clients die in een spel zaten met de client die de
+	 * verbinding heeft verbroken
 	 * </p>
 	 * <p>
-	 * DISCONNECT &lt;name&gt; [message]
+	 * DISCONNECTED &lt;name&gt; [message]
 	 * </p>
 	 * 
 	 * <h2>PARAMETERS</h2>
@@ -680,12 +752,15 @@ public class Protocol {
 	 * <h2>BESCHRIJVING</h2>
 	 * <p>
 	 * Als een client de verbinding heeft verbroken of als om een andere reden
-	 * de verbinding is verbroken met een client stuurt de server dit bericht.
+	 * de verbinding is verbroken met een client stuurt de server dit bericht
+	 * naar alle clients die de chat en/of challenge feature ondersteunen en
+	 * alle clients die in een spel zaten met de client die het DISCONNECT
+	 * commando heeft gestuurd.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>
 	 * <p>
-	 * DISCONNECT felix Ik haat dit spel
+	 * DISCONNECTED felix Ik haat dit spel
 	 * </p>
 	 */
 	public static final String CMD_DISCONNECTED = "DISCONNECTED";
@@ -1100,7 +1175,16 @@ public class Protocol {
 	 * <p>
 	 * De client accepteert een uitnodiging, vervolgens wacht deze totdat de
 	 * server een START bericht stuurt. De server stuurt een START bericht als
-	 * alle clients de uitnodiging hebben geaccepteerd.
+	 * alle clients de uitnodiging hebben geaccepteerd. Zodra de client een
+	 * ACCEPT heeft gestuurd is deze afwachtende op een spel, net als bij het
+	 * JOIN commando. Als een client afwachtende is op een spel mag deze geen
+	 * spel meer aanvragen met JOIN, geen andere challenges meer accepteren met
+	 * ACCEPT en de huidige geaccepteerde challenge niet meer afwijzen met
+	 * DECLINE. De client mag dus ook geen ACCEPT meer versturen als deze al
+	 * afwachtende is op een spel dat is aangevraagd met het JOIN commando. De
+	 * client mag pas weer aan andere spellen meedoen als het huidige
+	 * geaccepteerde spel is afgelopen of de client een DECLINED bericht van de
+	 * server heeft ontvangen.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>
@@ -1133,6 +1217,8 @@ public class Protocol {
 	 * <p>
 	 * De client wijst een uitnodiging af, de server zal vervolgens alle andere
 	 * client hiervan op de hoogte brengen door middel van een DECLINED bericht.
+	 * Dit bericht mag niet verstuurd worden als een client de uitnodiging al
+	 * heeft geaccepteerd door middel van het ACCEPT commando.
 	 * </p>
 	 * 
 	 * <h2>VOORBEELD</h2>

@@ -179,7 +179,7 @@ public class Lobby {
 		for (ClientHandler ch : clients) {
 			ch.leaveLobby();
 		}
-		server.removeLobby(slots, this);
+		server.removeLobby(this); //TODO dit testen
 		//TODO gameover stats sturen
 		game = null;
 		
