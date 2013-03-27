@@ -5,6 +5,10 @@ import java.util.ArrayList;
 
 /**
  * The Player class for the RINGZ.
+ * contains name, playerColor and inventory instance variables.
+ * Inventory holds all Pieces this player can use, when placed
+ * a piece is removed from the inventory.
+ * 
  * @author martijnbruning
  *
  */
@@ -68,11 +72,9 @@ public class Player {
 	 * @return Piece from inventory with sleceted type and color
 	 */
 	public Piece getPiece(final int typ, final int colr) {
-		//System.out.println(inventory);
-		//System.out.println("Getting piece: T"+typ+"C"+colr);
 		Piece output = null;
-		for(Piece p : inventory){
-			if(p.getType()==typ && p.getColor()==colr){
+		for (Piece p : inventory) {
+			if (p.getType() == typ && p.getColor() == colr) {
 				output = p;
 			}
 		}

@@ -94,6 +94,7 @@ public class Game extends Observable {
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
 		board.startStone(x, y);
+		
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
 				for (int t = 0; t < 5; t++) { // Piece type loop
@@ -133,15 +134,16 @@ public class Game extends Observable {
 	 * @param y Coordinate of the cell
 	 * @param type of the piece
 	 * @param color of the piece
+	 * @throws InvalidMoveException
 	 */
 	public void move(final int x, final int y, final int type, final int color) throws InvalidMoveException {
-		//TODO hier canMove laten doen, crashed als speler gewenst stuk niet heeft, InvalidMoveException throwen
+
 		Piece movpc = players.get(turn).getPiece(type, color);
 		board.move(x, y, movpc);
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
 		players.get(turn).getPieces().remove(pindex);
 		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
-		turn = (turn+1)%players.size();
+		turn = (turn + 1) % players.size();
 		
 		
 		setChanged();
