@@ -3,132 +3,229 @@ package server;
 import java.util.ArrayList;
 import game.*;
 import java.util.Collections;
-import java.util.Observable;
-import java.util.Observer;
 
 import exceptions.InvalidMoveException;
 
-public class Lobby{
+/**
+ * A Lobby is basically a group of clients put together, to wait for or play a
+ * game. Once the Lobby has filled up enough slots (given on construction) it
+ * will start a Game and inform the clients. The game will the be played out
+ * where ClientHandler will receive the commands from the client and parse them
+ * to Lobby, which will check the game if those commands are valid and if so
+ * will send it to the other clients in the Lobby.
+ * 
+ * @author I3anaan
+ * 
+ */
+public class Lobby {
 
-	private ArrayList<ClientHandler> clients;
-	private int slots;
-	private Server server;
-	private int status;
-	private Game game;
-	private String turn;
-	
 	/**
-	 * @param slots
-	 * @param player
-	 * @require 2<=slots<=4
-	 * 			player != null
+	 * Array of clients in this lobby
+	 * 
+	 * @invariant ClientHandlers cannot be null
 	 */
-	public Lobby(int slots, ClientHandler client,Server server)
-	{
+	private ArrayList<ClientHandler> clients;
+	/**
+	 * Maximum Number of slots this lobby has
+	 */
+	private int slots;
+	/**
+	 * The server to which this Lobby belongs
+	 */
+	private Server server;
+	/**
+	 * The status of the lobby
+	 * 
+	 * @invariant Each ClientHandler in clients will have the same status as
+	 *            this lobby
+	 */
+	private int status;
+	/**
+	 * The Game which the lobby uses to check things like moves and winners
+	 */
+	private Game game;
+	/**
+	 * Name of the player whos turn it is
+	 */
+	private String turn;
+
+	/**
+	 * Makes a new lobby, and adds the first client
+	 * 
+	 * @param slots
+	 * @param client
+	 *            first client to be connected
+	 * @require 2<=slots<=4 client != null
+	 * @ensure clients.size()>0
+	 */
+	public Lobby(int slots, ClientHandler client, Server server) {
 		this.server = server;
 		this.slots = slots;
-		Server.out.println("Made new Lobby with "+slots +" slots");
+		Server.out.println("Made new Lobby with " + slots + " slots");
 		clients = new ArrayList<ClientHandler>();
 		addClient(client);
 		status = ClientHandler.INLOBBY;
 	}
-	
+
 	/**
-	 * Geeft een zet door aan de game bijgehouden door de server, en geeft vervolgens het MOVED command door.
+	 * Forwards the move command into the game, which will check if it is a
+	 * valid move and if so will update its board accordingly
+	 * 
 	 * @param args
+	 *            the move to be done (x,y,type,color)
 	 * @throws InvalidMoveException
-	 * @require		Deze move is gedaan door degene die aan de beurt is
+	 * @require This is a real move coming from someone whos turn it is
+	 *          args.size()==4
+	 * @ensure If the move is valid, every client in the lobby will be informed
+	 *         of that move, and the next turn will be given out
+	 * 
 	 */
-	public void move(ArrayList<Integer> args) throws InvalidMoveException
-	{
-		try{
-			//TODO move exceptie laten gooien als niet kan
+	public void move(ArrayList<Integer> args) throws InvalidMoveException {
+		try {
+			// TODO move exceptie laten gooien als niet kan
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
-			broadcastMessage(util.Protocol.CMD_MOVED +" " + util.Util.concatArrayList(args));
+			broadcastMessage(util.Protocol.CMD_MOVED + " "
+					+ util.Util.concatArrayList(args));
 			giveTurn();
-		}catch(InvalidMoveException e){
+		} catch (InvalidMoveException e) {
 			throw new exceptions.InvalidMoveException();
 		}
 	}
 
-	
-	private void startLobby()
-	{
-		//TODO startsteen positie bepalen;
-		
-		Collections.shuffle(clients);
-		
-		game = new Game(2,2,util.Util.makePlayerNameList(clients));
-		
-		for(ClientHandler i : clients){
-			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+util.Util.concatArrayList(clients));
-		}
-		
-		status = ClientHandler.INGAME;
-		Server.out.println("Starting Lobby Game");
-		giveTurn();
-	}
-	
-	private void giveTurn(){
+	/**
+	 * Gives the turn over to the next person, meaning it will send a TURN
+	 * command to everyone
+	 */
+	private void giveTurn() {
+		// TODO Blijft eeuwig wachten als de client dced (zonder dc bericht) na
+		// het ontvangen van TURN command
+		// TODO checken of game nog wel bezig is
 		turn = clients.get(game.getTurn()).getClientName();
-		broadcastMessage(util.Protocol.CMD_TURN + " "+turn);
-		//System.out.println(clients.get(game.getTurn()).getStatus());
+		broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
 	}
-	
-	public String getTurn(){
-		return turn;
-	}
-	
-	
-	protected synchronized void broadcastMessage(String command){
-		for(ClientHandler i : clients){
-			i.sendCommand(command);
-		}
-	}
-	
-	public synchronized boolean addClient(ClientHandler client)
-	{
+
+	/**
+	 * Adds a client to this lobby, ie letting him join.
+	 * 
+	 * @param client
+	 * @return true if succesful
+	 * @require client!=null
+	 * @ensure client is now in clients clients.size()++ client.getLobby() ==
+	 *         this if clients.size()==slots > will start the game
+	 */
+	public synchronized boolean addClient(ClientHandler client) {
 		boolean out = false;
-		if(!isFull()){
+		if (!isFull()) {
 			clients.add(client);
 			client.joinLobby(this);
 			out = true;
-			
-			Server.out.println(client+ " has joined the lobby, "+slotsLeft() + " slots left.");
-			Server.out.println("Clients:  "+clients.size()+"  Max slots: "+slots);
+
+			Server.out.println(client + " has joined the lobby, " + slotsLeft()
+					+ " slots left.");
+			Server.out.println("Clients:  " + clients.size() + "  Max slots: "
+					+ slots);
 		}
-		
-		if(out==true && isFull()){
+
+		if (out == true && isFull()) {
 			startLobby();
 		}
 		return out;
 	}
-	
-	public synchronized void removeClientFromLobby(ClientHandler ch)
-	{
+
+	/**
+	 * Removes the given client from this lobby
+	 * 
+	 * @param ch
+	 *            client
+	 * @ensure if clients.size()==0 > will remove this lobby
+	 */
+	public synchronized void removeClientFromLobby(ClientHandler ch) {
 		clients.remove(ch);
-		if(clients.size()==0){
-			server.removeLobby(slots,this);
-			game = null;
-			//TODO gameover stats sturen?
-			System.out.println("Removed lobby");
+		ch.leaveLobby();
+		
+		if (clients.size() == 0 || this.status==ClientHandler.INGAME) {
+			endLobby();
 		}
 	}
-	
-	private synchronized void endLobby(){
-		for(ClientHandler ch : clients){
-			removeClientFromLobby(ch);
+
+	/**
+	 * Starts the lobby, meaning the lobby has al its slots filled up, and the
+	 * game is starting
+	 * 
+	 * @ensure this.game!=null status = ClientHandler.INGAME
+	 * @require clients.size()==slots status = ClientHandler.INLOBBY
+	 */
+	private void startLobby() {
+		// TODO startsteen positie bepalen;
+
+		Collections.shuffle(clients);
+
+		game = new Game(2, 2, util.Util.makePlayerNameList(clients));
+
+		for (ClientHandler i : clients) {
+			i.lobbySTART(util.Protocol.CMD_START + " 2 2 "
+					+ util.Util.concatArrayList(clients));
 		}
-		//TODO hoe zit het met onverwacht disconnects tijdens de game?
+
+		status = ClientHandler.INGAME;
+		Server.out.println("Starting Lobby Game");
+		giveTurn();
 	}
-	
-	public synchronized boolean isFull()
-	{
-		return slotsLeft()==0;
+
+	/**
+	 * Immediately ends this lobby by removing all clients from it
+	 */
+	private synchronized void endLobby() {
+		for (ClientHandler ch : clients) {
+			ch.leaveLobby();
+		}
+		server.removeLobby(slots, this);
+		//TODO gameover stats sturen
+		game = null;
+		
+		
+		System.out.println("Removed lobby");
+		//TODO testen of lobby enden goed gaat
 	}
-	
-	public synchronized int slotsLeft()
-	{
+
+	/**
+	 * Sends a message to everyone in this lobby
+	 * 
+	 * @param message
+	 */
+	protected synchronized void broadcastMessage(String message) {
+		for (ClientHandler i : clients) {
+			i.sendCommand(message);
+		}
+	}
+
+	/**
+	 * @return whether the lobby is full or not
+	 * @ensure result = slots==clients.size()
+	 */
+	public synchronized boolean isFull() {
+		return slotsLeft() == 0;
+	}
+
+	/**
+	 * @return Amount of slots left in this lobby
+	 * @ensure 0<=result<=slots
+	 */
+	public synchronized int slotsLeft() {
 		return slots - clients.size();
+	}
+
+	/**
+	 * @return The name of the player whos turn it currently is
+	 */
+	public String getTurn() {
+		return turn;
+	}
+
+	/**
+	 * @return The status the lobby is in
+	 */
+	public int getStatus() {
+		return status;
 	}
 }

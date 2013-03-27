@@ -262,10 +262,9 @@ public class ClientHandler extends Thread {
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
-				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
+				lobby.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
-				// TODO protocol vaag over of dit naar iedereen van de server,
-				// of iedereen van de huidige game (max 4) moet
+				//TODO moet naar iedereen in lobby EN iedereen die chat/challenge feature ondersteund
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -285,6 +284,11 @@ public class ClientHandler extends Thread {
 		if (this.status >= INLOBBY) {
 			lobby.removeClientFromLobby(this);
 		}// TODO testen of dit alles is;
+	}
+	
+	public void leaveLobby(){
+		this.lobby = null;
+		this.status = HANDSHAKE_SUCCESFULL;
 	}
 
 	public void lobbySTART(String command) {
@@ -326,6 +330,10 @@ public class ClientHandler extends Thread {
 	
 	public int getStatus(){
 		return status;
+	}
+	
+	public Lobby getLobby(){
+		return lobby;
 	}
 
 }
