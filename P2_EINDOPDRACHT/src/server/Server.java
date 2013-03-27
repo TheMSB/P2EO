@@ -7,63 +7,77 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Server extends Thread{
+/**
+ * Server is after start up constantly checking for new connections to his
+ * appointed socket, once a connection has been established, it will be given a
+ * ClientHandler to handle any further communication. Server also keeps track of
+ * the lobbies in which clients will be put to play games.
+ * 
+ * @author I3anaan
+ * 
+ */
+public class Server extends Thread {
 
 	/**
-	 * De te gebruiken encoding voor de server;
+	 * The encoding used by the protocol
 	 */
-	public static final String ENCODING = "UTF-8";
-	
+	public static final String ENCODING = util.Protocol.ENCODING;
+
 	/**
-	 * De ServerSocket waarna clients kunnen connecten
+	 * The ServerSocket used for the server
 	 */
 	private ServerSocket ssock;
 	/**
-	 * Geeft aan of de server het moet blijven doen
+	 * Whether the server is on or off
 	 */
 	private boolean running = true;
 	/**
-	 * ArrayList van ClientHandlers die het protocol ook hebben
+	 * ArrayList of ClientHandlers, who are confirmed to have the protocol
 	 */
 	private ArrayList<ClientHandler> clientHandlers;
 	/**
-	 * ArrayList van ClientHandlers die het protocol NOG NIET hebben
+	 * ArrayList of ClientHandlers who havent handshaken yet
 	 */
 	private ArrayList<ClientHandler> newlyConnected;
 	/**
-	 * Waar het debug spul te printen
+	 * Output of debug stuff
 	 */
 	public static final PrintStream out = System.out;
-	
-	private int port;
-	private String name;
-	
-	/** 
-	 * Houd lobbies bij
-	 */
-	private static ArrayList<Lobby> lobbies2;
-	private static ArrayList<Lobby> lobbies3;
-	private static ArrayList<Lobby> lobbies4;
-	public static ArrayList<ArrayList<Lobby>> lobbies;
-	
-	
-	
-	
-	
+
 	/**
-	 * Start server op
-	 * @param port	Poort om server op te starten
-	 * @param name	Naam van server
-	 * @throws IOException	Wordt gethrowed als het maken van de ServerSocket mislukt
+	 * Which port the Server should be on
 	 */
-	public Server(int port, String name) throws IOException{
+	private int port;
+	/**
+	 * Name of the server
+	 */
+	private String name;
+
+	/**
+	 * ArrayList with lobbies
+	 */
+	private ArrayList<Lobby> lobbies2;
+	private ArrayList<Lobby> lobbies3;
+	private ArrayList<Lobby> lobbies4;
+	public ArrayList<ArrayList<Lobby>> lobbies;
+
+	/**
+	 * Starts up the server
+	 * 
+	 * @param port
+	 *            Port to start the server on
+	 * @param name
+	 *            Name of the server
+	 * @throws IOException
+	 *             Throwed if making the socket fails
+	 */
+	public Server(int port, String name) throws IOException {
 		this.port = port;
 		this.name = name;
-		
+
 		ssock = new ServerSocket(port);
 		clientHandlers = new ArrayList<ClientHandler>();
 		newlyConnected = new ArrayList<ClientHandler>();
-		
 
 		lobbies2 = new ArrayList<Lobby>();
 		lobbies3 = new ArrayList<Lobby>();
@@ -73,179 +87,206 @@ public class Server extends Thread{
 		lobbies.add(lobbies3);
 		lobbies.add(lobbies4);
 	}
+
 	/**
-	 * De start methode van dit thread, blijft kijken of er nieuwe dingen connecten,
-	 * voegt het dan toe aan newlyConnected
+	 * Aslong as running==true it will continue to check if clients want to
+	 * connect If it gets a connection, it will make a new ClientHandler for it
+	 * and adds it to newlyConnected
 	 */
-	public void run()
-	{
-		while(running)
-		{
+	public void run() {
+		while (running) {
 			try {
 				Socket sock = ssock.accept();
 				ClientHandler ch = new ClientHandler(this, sock);
 				ch.start();
 				out.println("Iets heeft verbinding gemaakt");
 				newlyConnected.add(ch);
-				//TODO kunt nu nog eeuwing in newlyCOnnected blijven
-				
+
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
-				out.println(Server.ENCODING+" encoding required.");
+				out.println(Server.ENCODING + " encoding required.");
 			} catch (IOException e) {
-				// TODO: check protocol wat te doen als iets faalt te connecten
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	
-	
-	
-	
+
 	/**
-	 * Sluit de server af
+	 * Shutsdown the server
 	 */
-	public void shutDown()
-	{
+	public void shutDown() {
 		running = false;
 	}
-	
+
 	/**
-	 * Upgraded de verbonden clienthandler van 'iets' naar iemand met hetzelfde protocol
-	 * @param ch	De te upgraden ClientHandler
-	 * @ensure	Protocol van ch is gelijk aan dat van de server.
+	 * Starts up the server again
 	 */
-	protected synchronized void approve(ClientHandler ch)
-	{
-		if(ch!=null)
-		{
-			if(newlyConnected.remove(ch)) //TODO eerst adden?
-			{
+	public void startUp() {
+		running = true;
+	}
+
+	/**
+	 * Moves a ClientHandler from newlyConnected to clientHandlers, meaning the
+	 * ClientHandler has completed the handshake
+	 * 
+	 * @param ch
+	 *            the ClientHandler to upgrade
+	 */
+	protected synchronized void approve(ClientHandler ch) {
+		if (ch != null) {
+			if (newlyConnected.remove(ch)) {
 				clientHandlers.add(ch);
-				out.println("ClientHandler approved:  "+ch);
-				//out.println(this.getLobbies());
+				out.println("ClientHandler approved:  " + ch);
 			}
 		}
 	}
-	
+
 	/**
-	 * Haalt een client weg uit de lijst met verbonden clients
-	 * @param ch	De clienthandler van de client
+	 * Removes a ClientHandler from the server
+	 * 
+	 * @param ch
+	 *            ClientHandler to remove
+	 * @ensure ch is not in clientHandlers or newlyConnected
 	 */
-	protected synchronized void removeClient(ClientHandler ch){
+	protected synchronized void removeClient(ClientHandler ch) {
 		clientHandlers.remove(ch);
 		newlyConnected.remove(ch);
 	}
-	
+
 	/**
-	 * Haalt een lobby weg uit de lijst met lobbies
-	 * @param slots		Hoeveel slots de weg te halen lobby heeft
-	 * @param lobby		Welke lobby weg te halen
+	 * Removes a Lobby from the server
+	 * 
+	 * @param lobby
+	 *            which Lobby to remove
+	 * @ensure the lobby is not in any of the lobbies lists
 	 */
-	protected synchronized void removeLobby(int slots, Lobby lobby){
-		lobbies.get(slots-2).remove(lobby);
+	protected synchronized void removeLobby(Lobby lobby) {
+		lobbies.get(0).remove(lobby);
+		lobbies.get(1).remove(lobby);
+		lobbies.get(2).remove(lobby);
 	}
-	
+
 	/**
-	 * Laat een ClientHandler een lobby joinen, met het meegegeven aantal slots.
-	 * Als er geen openstaande lobby is van het aantal slots wordt een nieuwe lobby aangemaakt
-	 * @param slots		Hoeveel spelers de lobby moet toestaan
-	 * @param ch		de toe te voegen ClientHandler
-	 * @return			De lobby waar de ClientHandler aan toegevoegd is
+	 * Lets a ClientHandler join a lobby, if there is no lobby with the wanted
+	 * slots yet, it will make one
+	 * 
+	 * @param slots
+	 *            max amount of players in the lobby
+	 * @param ch
+	 *            the joining ClientHandler
+	 * @return The Lobby in which the ClientHandler is placed
+	 * @ensure ch is placed in a lobby
+	 * @require ch!=null
 	 */
-	public synchronized Lobby getLobby(int slots, ClientHandler ch){
-		ArrayList<Lobby> queue = lobbies.get(slots-2);
+	public synchronized Lobby getLobby(int slots, ClientHandler ch) {
+		ArrayList<Lobby> queue = lobbies.get(slots - 2);
 		Lobby lobby = null;
-		if (queue!=null && !queue.isEmpty()) {
+		if (queue != null && !queue.isEmpty()) {
 			lobby = queue.get(queue.size() - 1);
 			if (!lobby.addClient(ch)) {
 				Server.out.println("No empty Lobby, making new one");
 				lobby = new Lobby(slots, ch, this);
-				lobby.start();
 				queue.add(lobby);
 			}
-		}else{
+		} else {
 			Server.out.println("No current lobbies, making new one");
 			lobby = new Lobby(slots, ch, this);
-			lobby.start();
 			queue.add(lobby);
 		}
-		
+
 		return lobby;
 	}
-	
-	protected synchronized void broadcastMessage(String command){
-		for(ClientHandler i : clientHandlers){
-			i.sendCommand(command);
+
+	/**
+	 * Sends a message to every client (from clientHandlers) on the server
+	 * 
+	 * @param message
+	 */
+	protected synchronized void broadcastMessage(String message) {
+		for (ClientHandler i : clientHandlers) {
+			i.sendCommand(message);
 		}
 	}
-	
-	//TODO overleggen of martijn eens is met static maken server, rest ook static maken
+
 	/**
-	 * @return het aantal spelers waarvoor de lobby het meest gevorderd is
+	 * @return Gives the amount of slots for the best lobby type to join
+	 * @ensure 2<=result<=4
 	 */
-	public static synchronized int getBestLobby(){
+	public synchronized int getBestLobby() {
 		int output = 2;
-		for(int i=0;i<3;i++){
-			if(lobbies.get(i).size()>0 && lobbies.get(i).get(lobbies.get(i).size()-1).slotsLeft()<=(i+1) && !lobbies.get(i).get(lobbies.get(i).size()-1).isFull())
-			{
-				output = i+2;
+		for (int i = 0; i < 3; i++) {
+			if (lobbies.get(i).size() > 0
+					&& lobbies.get(i).get(lobbies.get(i).size() - 1)
+							.slotsLeft() <= (i + 1)
+					&& !lobbies.get(i).get(lobbies.get(i).size() - 1).isFull()) {
+				output = i + 2;
 				break;
 			}
 		}
-		
+
 		return output;
 	}
-	
-	
+
 	/**
-	 * @return Een lijst met ondersteunde features door de server
+	 * @return ArrayList with Features from the server
 	 */
-	public ArrayList<String> getFeatures()
-	{
+	public ArrayList<String> getFeatures() {
 		return new ArrayList<String>();
 	}
-	
-	public boolean nameInUse(String name){
+
+	/**
+	 * Checks whether or not the given name is already in use
+	 * 
+	 * @param name
+	 * @return true if the name is already in use on this server
+	 */
+	public boolean nameInUse(String name) {
 		int count = 0;
-		for(ClientHandler ch : newlyConnected){
-			if(ch.getClientName().equals(name)){
+		for (ClientHandler ch : newlyConnected) {
+			if (ch.getClientName().equals(name)) {
 				count++;
 			}
 		}
-		for(ClientHandler ch : clientHandlers){
-			if(ch.getClientName().equals(name)){
+		for (ClientHandler ch : clientHandlers) {
+			if (ch.getClientName().equals(name)) {
 				count = 2;
 			}
 		}
-		
-		//System.out.println(count);
-		return count!=1;
+		return count != 1;
 	}
-	
-	
-	//TODO dit naar andere class
-	
-	
-	
-	public boolean isRunning(){
+
+	/**
+	 * @return if the server is running or not
+	 */
+	public boolean isRunning() {
 		return running;
 	}
-	public int getPort(){
+
+	/**
+	 * @return the port this server is hosted on
+	 */
+	public int getPort() {
 		return port;
 	}
-	public String getServerName(){
+
+	/**
+	 * @return the name of the server
+	 */
+	public String getServerName() {
 		return name;
 	}
-	
-	public ArrayList<ClientHandler> getClients()
-	{
+
+	/**
+	 * @return ArrayList of ClientHandlers who have completed the handshake
+	 */
+	public ArrayList<ClientHandler> getClients() {
 		return clientHandlers;
 	}
-	
-	public ArrayList<ArrayList<Lobby>> getLobbies()
-	{
+
+	/**
+	 * @return ArrayList of ArrayList of lobbies
+	 */
+	public ArrayList<ArrayList<Lobby>> getLobbies() {
 		return lobbies;
 	}
 }
