@@ -148,7 +148,7 @@ public class Game extends Observable {
 		
 		setChanged();
 		notifyObservers();
-		System.out.println("Notify observers!   " + this.countObservers());
+		//System.out.println("Notify observers!   " + this.countObservers());
 	}
 	// Game over idee:
 	// Iteratieve loop die alle velden afgaat met canMove, check of inventory leeg is.

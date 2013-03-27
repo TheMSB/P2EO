@@ -93,6 +93,8 @@ public class ClientHandler extends Thread {
 			e.printStackTrace();
 			// TODO hier afluisten?
 		}
+		
+		System.out.println("Shutting down");
 	}
 
 	private void readCommand(Scanner scanner) {
@@ -249,6 +251,22 @@ public class ClientHandler extends Thread {
 		arr.add(message);
 		cmdDISCONNECT(arr);
 	}
+	
+	public void stopThread(){
+		System.out.println("Stopping thread...  "+name);
+		alive = false;
+		try {
+			System.out.println("Should be closing1");
+			in.close(); //TODO hoe dit te stoppen?
+			System.out.println("Should be closing2");
+			out.close();
+			System.out.println("Should be closing3");
+			sock.close();
+			System.out.println("Should be closing4");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Geeft aan dat de client wil disconnecting, als de client de handshake
@@ -276,6 +294,7 @@ public class ClientHandler extends Thread {
 		try {
 			in.close();
 			out.close();
+			sock.close(); //TODO klopt dit?
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

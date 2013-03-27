@@ -365,7 +365,7 @@ public class Client extends Thread {
 	 */
 	private void processMove(int x, int y, int type, int color) throws InvalidMoveException {
 		game.move(x,y,type,color);
-		System.out.println("Adding ring at: "+ x+" , "+y);
+		//System.out.println("Adding ring at: "+ x+" , "+y);
 	}
 
 	/**
@@ -375,7 +375,7 @@ public class Client extends Thread {
 	 * @param slots
 	 */
 	public void joinLobby(final int slots) {
-		System.out.println("Joining, status:  "+status);
+		//System.out.println("Joining lobby);
 		if (status == HANDSHAKE_SUCCESFULL) {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
