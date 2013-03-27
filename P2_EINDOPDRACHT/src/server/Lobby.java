@@ -8,7 +8,7 @@ import java.util.Observer;
 
 import exceptions.InvalidMoveException;
 
-public class Lobby extends Thread implements Observer{
+public class Lobby{
 
 	private ArrayList<ClientHandler> clients;
 	private int slots;
@@ -50,12 +50,7 @@ public class Lobby extends Thread implements Observer{
 			throw new exceptions.InvalidMoveException();
 		}
 	}
-	
-	public void run()
-	{
-		//TODO iets doen
-		while(true){}
-	}
+
 	
 	private void startLobby()
 	{
@@ -64,7 +59,6 @@ public class Lobby extends Thread implements Observer{
 		Collections.shuffle(clients);
 		
 		game = new Game(2,2,util.Util.makePlayerNameList(clients));
-		game.addObserver(this);
 		
 		for(ClientHandler i : clients){
 			i.lobbySTART(util.Protocol.CMD_START+" 2 2 "+util.Util.concatArrayList(clients));
@@ -136,18 +130,5 @@ public class Lobby extends Thread implements Observer{
 	public synchronized int slotsLeft()
 	{
 		return slots - clients.size();
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		//TODO daadwerkelijke gameOver boolean uit game halen
-		System.out.println("Lobby.update()");
-		boolean gameOver = false;
-		//giveTurn();
-		
-		if(gameOver){
-			this.broadcastMessage(util.Protocol.CMD_END+" 1 2"); //TODO score implementeren
-			endLobby();
-		}
 	}
 }

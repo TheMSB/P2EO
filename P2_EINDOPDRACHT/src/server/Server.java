@@ -162,13 +162,11 @@ public class Server extends Thread{
 			if (!lobby.addClient(ch)) {
 				Server.out.println("No empty Lobby, making new one");
 				lobby = new Lobby(slots, ch, this);
-				lobby.start();
 				queue.add(lobby);
 			}
 		}else{
 			Server.out.println("No current lobbies, making new one");
 			lobby = new Lobby(slots, ch, this);
-			lobby.start();
 			queue.add(lobby);
 		}
 		
