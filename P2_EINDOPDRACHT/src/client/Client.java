@@ -300,9 +300,8 @@ public class Client extends Thread {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}catch(InvalidMoveException e){
 					sendError(util.Protocol.ERR_INVALID_MOVE);
-					sendDisconnect(" Desync detected, disconnecting");					
+					sendDisconnect("Desync detected, disconnecting");					
 				}
-				
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

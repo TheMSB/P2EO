@@ -1,30 +1,33 @@
 package game;
 
+import exceptions.InvalidCellException;
+import exceptions.InvalidMoveException;
+
 /**
- * The Board used to play the RINGZ game.
- * Contains dimensions of the board and an arraylist
- * with all the cells. Can determine if a move is valid
- * for a certain player.
+ * The Board used to play the RINGZ game. Contains dimensions of the board and
+ * an arraylist with all the cells. Can determine if a move is valid for a
+ * certain player.
+ * 
  * @author martijnbruning
- *
+ * 
  */
 public class Board {
 
-	//---- Constants
+	// ---- Constants
 
 	/**
 	 * The DIMension of the board.
 	 */
 	public static final int DIM = 5;
-	//private static final int AREA = DIM*DIM;
+	// private static final int AREA = DIM*DIM;
 	/**
 	 * The X coordinate length of the board.
 	 */
-	public static final int	  X = DIM;
+	public static final int X = DIM;
 	/**
 	 * The Y coordinate length of the board.
 	 */
-	public static final int	  Y = DIM;
+	public static final int Y = DIM;
 
 	// -- Instance variables -----------------------------------------
 
@@ -43,7 +46,7 @@ public class Board {
 		for (int x = 0; x < X; x++) {
 			for (int y = 0; y < Y; y++) {
 				cells[x][y] = new Cell(x, y);
-				//System.out.println(x+" "+y);
+				// System.out.println(x+" "+y);
 			}
 		}
 	}
@@ -51,30 +54,32 @@ public class Board {
 	// -- Queries -----------------------------------------
 
 	/**
-	 * Returns true if (x,y)-address is a valid Cell
-	 * on the Board.
+	 * Returns true if (x,y)-address is a valid Cell on the Board.
+	 * 
 	 * @require cells[x][y] != null
-	 * @ensure  <code>result == 0 <= x,y < DIM</code>
-	 * @return  true if <code>0 <= x < DIM && 0 <= y < DIM</code>
+	 * @ensure <code>result == 0 <= x,y < DIM</code>
+	 * @return true if <code>0 <= x < DIM && 0 <= y < DIM</code>
 	 */
 	public boolean isCell(final int x, final int y) {
 		return 0 <= x && x < X && 0 <= y && y < Y;
 	}
 
-
 	/**
 	 * Returns Cell <code>X</code><code>Y</code>.
+	 * 
 	 * @require <code>this.isCell(X,Y)</code>
-	 * @param   x
-	 * @param   y Valid coordinates of the Cell.
-	 * @return  the state of the Cell
+	 * @param x
+	 * @param y
+	 *            Valid coordinates of the Cell.
+	 * @return the state of the Cell
 	 */
 	public Cell getCell(final int x, final int y) {
 		return cells[x][y];
 	}
-	
+
 	/**
 	 * Returns the array of cells for this board.
+	 * 
 	 * @return cells Array
 	 */
 	public Cell[][] getCells() {
@@ -82,60 +87,65 @@ public class Board {
 	}
 
 	// -- Methods -----------------------------------------
-	
+
 	/**
 	 * Method used to place the starting stone.
-	 * @param x coordinate of the cell
-	 * @param y coordinate of the cell
+	 * 
+	 * @param x
+	 *            coordinate of the cell
+	 * @param y
+	 *            coordinate of the cell
 	 */
-	protected void startStone(final int x, final int y) {
-		cells[x][y].addPiece(new Piece(0, 0));
-		cells[x][y].addPiece(new Piece(1, 1));
-		cells[x][y].addPiece(new Piece(2, 2));
-		cells[x][y].addPiece(new Piece(3, 3));
+	protected void startStone(final int x, final int y) throws InvalidMoveException {
+			cells[x][y].addPiece(new Piece(0, 0));
+			cells[x][y].addPiece(new Piece(1, 1));
+			cells[x][y].addPiece(new Piece(2, 2));
+			cells[x][y].addPiece(new Piece(3, 3));
 	}
+
 	/**
 	 * Finds the designated cell and places the piece.
-	 * @param x Coordinate of the cell
-	 * @param y Coordinate of the cell
-	 * @param piece The piece to place
+	 * 
+	 * @param x
+	 *            Coordinate of the cell
+	 * @param y
+	 *            Coordinate of the cell
+	 * @param piece
+	 *            The piece to place
 	 */
-	protected void move(final int x, final int y, final Piece piece) {
-		if (canMove(x, y, piece)) {
+	protected void move(final int x, final int y, final Piece piece) throws InvalidMoveException{
+		if(0<=x && x<=Board.DIM && 0<=y && y<=Board.DIM && canMove(x,y,piece)){
 			cells[x][y].addPiece(piece);
-		} //TODO else invalid move exception
+		}else{
+			throw new InvalidCellException();
+		}
 	}
-	
+
 	/**
 	 * Checks if the piece can be placed in the selected cell.
-	 * @param x Coordinate of the cell
-	 * @param y Coordinate of the cell
-	 * @param piece Piece to place
+	 * 
+	 * @param x
+	 *            Coordinate of the cell
+	 * @param y
+	 *            Coordinate of the cell
+	 * @param piece
+	 *            Piece to place
 	 * @return true if valid move else false
 	 */
 	public boolean canMove(final int x, final int y, final Piece piece) {
+		//TODO test dit.
 		boolean canMove = false;
-		if (isCell(x - 1, y)) {
-			if (getCell(x - 1, y).hasPieces(piece)) {
+		boolean megaStoneAllowed = true;
+		for (int Off = -1; Off < 0; Off = Off + 2) {
+			if (getCell(x + Off, y).hasPieces(piece)
+					|| getCell(x, y + Off).hasPieces(piece)) {
 				canMove = true;
 			}
-		} 
-		if (isCell(x + 1, y)) {
-			if (getCell(x + 1, y).hasPieces(piece)) {
-				canMove = true;
-			}
-		}
-		if (isCell(x, y - 1)) {
-			if (getCell(x, y - 1).hasPieces(piece)) {
-				canMove = true;
+			if (!getCell(x + Off, y).megaStoneCheck(piece)
+					|| !getCell(x, y + Off).megaStoneCheck(piece)) {
+				megaStoneAllowed = false;
 			}
 		}
-		if (isCell(x, y + 1)) {
-			if (getCell(x, y + 1).hasPieces(piece)) {
-				canMove = true;
-			}
-		}
-		
-		return canMove;
+		return canMove && megaStoneAllowed;
 	}
 }

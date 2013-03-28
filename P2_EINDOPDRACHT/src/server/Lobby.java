@@ -80,15 +80,14 @@ public class Lobby {
 	 *         of that move, and the next turn will be given out
 	 * 
 	 */
-	public void move(ArrayList<Integer> args) throws InvalidMoveException {
-		try {
-			// TODO move exceptie laten gooien als niet kan
+	public void move(ArrayList<Integer> args) {
+		try{
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
 			broadcastMessage(util.Protocol.CMD_MOVED + " "
 					+ util.Util.concatArrayList(args));
 			giveTurn();
-		} catch (InvalidMoveException e) {
-			throw new exceptions.InvalidMoveException();
+		}catch (InvalidMoveException e) {
+			endLobby();
 		}
 	}
 
