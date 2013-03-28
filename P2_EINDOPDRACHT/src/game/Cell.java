@@ -140,6 +140,9 @@ public class Cell {
 		}else{
 			throw new InvalidRingException();
 		}
+		if(pieces[4]!=null ||(pieces[0]!=null && pieces[1]!=null && pieces[2]!=null && pieces[3]!=null)){
+			full = true;
+		}
 	}
 	/**
 	 * Determines the owner of the Cell by determining the owner of

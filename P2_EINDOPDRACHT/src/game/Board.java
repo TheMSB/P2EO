@@ -74,6 +74,7 @@ public class Board {
 	 * @return the state of the Cell
 	 */
 	public Cell getCell(final int x, final int y) {
+		//TODO wat te doen als x en y ongeldig zijn
 		return cells[x][y];
 	}
 
@@ -136,16 +137,17 @@ public class Board {
 		//TODO test dit.
 		boolean canMove = false;
 		boolean megaStoneAllowed = true;
+		
 		for (int Off = -1; Off < 0; Off = Off + 2) {
-			if (getCell(x + Off, y).hasPieces(piece)
-					|| getCell(x, y + Off).hasPieces(piece)) {
+			if ((isCell(x + Off, y) && getCell(x + Off, y).hasPieces(piece))
+					|| (isCell(x, y + Off) && getCell(x, y + Off).hasPieces(piece))) {
 				canMove = true;
 			}
-			if (!getCell(x + Off, y).megaStoneCheck(piece)
-					|| !getCell(x, y + Off).megaStoneCheck(piece)) {
+			if ((isCell(x, y + Off) && !getCell(x + Off, y).megaStoneCheck(piece))
+					|| (isCell(x + Off, y) && !getCell(x, y + Off).megaStoneCheck(piece))) {
 				megaStoneAllowed = false;
 			}
 		}
-		return canMove && megaStoneAllowed;
+		return isCell(x,y) && !getCell(x, y).isFull() && canMove && megaStoneAllowed;
 	}
 }

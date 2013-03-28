@@ -96,7 +96,6 @@ public class Lobby {
 	 * command to everyone
 	 */
 	private void giveTurn() {
-		// TODO checken of game nog wel bezig is
 		turn = clients.get(game.getTurn()).getClientName();
 		broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
 	}

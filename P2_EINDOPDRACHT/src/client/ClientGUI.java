@@ -98,8 +98,8 @@ public class ClientGUI {
 		// Adds drawn cells to the Board
 		for (Cell[] cell : cells) {
 			for (Cell cel : cell) {
-				JPanel cellPanel = new CellPanel(cel);
-				board.add(cellPanel);
+				//JPanel cellPanel = new CellPanel(cel);
+				//board.add(cellPanel);
 			}	
 		}
 
