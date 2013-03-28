@@ -2,7 +2,7 @@ package ai;
 
 import java.util.ArrayList;
 
-public class Path extends ArrayList<CellPoint>{
+public class Path extends ArrayList<CellPoint> implements Comparable<Path>{
 	
 	public Path(CellPoint start){
 		super();
@@ -19,5 +19,26 @@ public class Path extends ArrayList<CellPoint>{
 	}
 	public double getAverageWorth(){
 		return getTotalWorth()/super.size();
+	}
+
+	public Path copy(){
+		Path copy = new Path(this.get(0));
+		for(int i=1;i<this.size();i++){
+			copy.add(this.get(i));
+		}
+		
+		return copy;
+	}
+	
+	@Override
+	public int compareTo(Path o) {
+		int compared=0;
+		if(this.getAverageWorth()>=o.getAverageWorth()){
+			compared = 1;
+		}else{
+			compared = -1;
+		}
+		
+		return compared;
 	}
 }
