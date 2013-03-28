@@ -152,7 +152,7 @@ public class Game extends Observable {
 
 		setChanged();
 		notifyObservers();
-		System.out.println("Notify observers!   " + this.countObservers());
+		//System.out.println("Notify observers!   " + this.countObservers());
 	}
 	//isFull ook daadwerkelijk aanzetten in cell, gebeurt nog niet
 	// methode doet verder niets met conclusie, dit bespreken met Derk wat

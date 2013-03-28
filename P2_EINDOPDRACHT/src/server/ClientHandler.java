@@ -93,6 +93,8 @@ public class ClientHandler extends Thread {
 			e.printStackTrace();
 			// TODO hier afluisten?
 		}
+		
+		System.out.println("Shutting down");
 	}
 
 	private void readCommand(Scanner scanner) {
@@ -249,6 +251,17 @@ public class ClientHandler extends Thread {
 		arr.add(message);
 		cmdDISCONNECT(arr);
 	}
+	
+	public void stopThread(){
+		System.out.println("Stopping thread...  "+name);
+		alive = false;
+		try {
+			sock.close();
+			System.out.println("Should be closing4");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Geeft aan dat de client wil disconnecting, als de client de handshake
@@ -262,10 +275,9 @@ public class ClientHandler extends Thread {
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
-				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
+				lobby.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
-				// TODO protocol vaag over of dit naar iedereen van de server,
-				// of iedereen van de huidige game (max 4) moet
+				//TODO moet naar iedereen in lobby EN iedereen die chat/challenge feature ondersteund
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -277,6 +289,7 @@ public class ClientHandler extends Thread {
 		try {
 			in.close();
 			out.close();
+			sock.close(); //TODO klopt dit?
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -285,6 +298,11 @@ public class ClientHandler extends Thread {
 		if (this.status >= INLOBBY) {
 			lobby.removeClientFromLobby(this);
 		}// TODO testen of dit alles is;
+	}
+	
+	public void leaveLobby(){
+		this.lobby = null;
+		this.status = HANDSHAKE_SUCCESFULL;
 	}
 
 	public void lobbySTART(String command) {
@@ -326,6 +344,10 @@ public class ClientHandler extends Thread {
 	
 	public int getStatus(){
 		return status;
+	}
+	
+	public Lobby getLobby(){
+		return lobby;
 	}
 
 }
