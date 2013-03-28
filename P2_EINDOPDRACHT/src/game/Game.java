@@ -53,7 +53,7 @@ public class Game extends Observable {
 		//Creates players depending on the playerCount
 		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
-		
+
 		if (playerCount > 2) {
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 		}
@@ -98,7 +98,7 @@ public class Game extends Observable {
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
 		board.startStone(x, y);
-		
+
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
 				for (int t = 0; t < 5; t++) { // Piece type loop
@@ -148,14 +148,45 @@ public class Game extends Observable {
 		players.get(turn).getPieces().remove(pindex);
 		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
 		turn = (turn + 1) % players.size();
-		
-		
+
+
 		setChanged();
 		notifyObservers();
 		//System.out.println("Notify observers!   " + this.countObservers());
 	}
-	// Game over idee:
-	// Iteratieve loop die alle velden afgaat met canMove, check of inventory leeg is.
-	// als beide voor alle spelers of als eerste voor alle dan gameover.
-	//TODO gameOver, hasWinner, methods
+	//isFull ook daadwerkelijk aanzetten in cell, gebeurt nog niet
+	// methode doet verder niets met conclusie, dit bespreken met Derk wat
+	// te doen.
+	/**
+	 * Checks if the game has ended, this is achieved
+	 * by running an iterative loop over all the cells
+	 * in the game and checking if a player canMove
+	 * there. Additionally it also checks if a players
+	 * inventory is empty, meaning he can no longer perform a move
+	 * either. Lastly this method also checks if all fields are full
+	 * so that no player can perform a move. SHOULD be impossible with
+	 * current playercount and field size but is still included for scale ability.
+	 */
+	protected void gameOver() {
+		boolean over = true;
+		for (int x = 0; x < Board.X; x++) {
+			for (int y = 0; y < Board.Y; y++) {
+				if (board.getCell(x, y).isFull()) {
+					over = false;
+				}
+				for (int c = 0; c < 4; c++) {
+					for (int t = 0; t < 4; t++) {
+						if (board.canMove(x, y, players.get(turn).getPiece(t, c))) {
+							over = false;
+						}
+					}
+				}
+			} for (int p = 0; p < players.size(); p++) {
+				if (players.get(p).getPieces() != null) {
+					over = false;
+				}
+			}
+		}
+	}
 }
+//TODO hasWinner, methods
