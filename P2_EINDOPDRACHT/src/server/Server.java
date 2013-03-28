@@ -103,26 +103,32 @@ public class Server extends Thread {
 				newlyConnected.add(ch);
 
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 				out.println(Server.ENCODING + " encoding required.");
 			} catch (IOException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
+
+		System.out.println("Server stopped");
 	}
 
 	/**
-	 * Shutsdown the server
+	 * Shutdowns the server
 	 */
-	public void shutDown() {
+	public synchronized void shutDown() {
 		running = false;
-	}
-
-	/**
-	 * Starts up the server again
-	 */
-	public void startUp() {
-		running = true;
+		//for (ClientHandler ch : newlyConnected) {
+		//	ch.unexpectedDisconnect("Server shutting down");
+		//}
+		for (ClientHandler ch : clientHandlers) {
+			ch.stopThread();
+		}
+		try {
+			ssock.close();
+		} catch (IOException e) {
+			// e.printStackTrace();
+		}
 	}
 
 	/**
