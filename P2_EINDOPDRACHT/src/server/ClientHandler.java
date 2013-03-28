@@ -131,6 +131,27 @@ public class ClientHandler extends Thread {
 		System.out.println("Shutting down");
 	}
 
+	/**
+	 * Stops this thread
+	 * 
+	 * @ensure thread will be closed
+	 */
+	public void stopThread() {
+		System.out.println("Stopping thread...  " + name);
+		try {
+			sock.close();
+			System.out.println("Should be closing4");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Reads a command from the scanner
+	 * 
+	 * @param scanner
+	 *            The scanner which contains the line to read
+	 */
 	private void readCommand(Scanner scanner) {
 		if (scanner.hasNext()) {
 			String command = scanner.next();
@@ -148,11 +169,11 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * Checked of het meegegeven command herkent wordt
+	 * Checks if the received command is recognized
 	 * 
 	 * @param command
 	 * @param args
-	 *            De argumenten die met het command meekwamen
+	 *            Possible arguments for the command
 	 */
 	public void checkCommand(String command, ArrayList<String> args) {
 		if (command.equals(util.Protocol.CMD_CONNECT)) {
@@ -173,10 +194,11 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * Eerste command verstuurd vanaf de client, server reageert
+	 * First command to be received from the client (according to protocol) will
+	 * then initiate handshake
 	 * 
 	 * @param args
-	 *            de argumenten meegegeven met het command
+	 *            name
 	 */
 	public void cmdCONNECT(ArrayList<String> args) {
 		if (status == EXPECTING_CONNECT) {
@@ -202,18 +224,18 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * 2e command verstuurd vanaf de client verwacht na CONNECT, server reageert
+	 * Second command received from client, server will then complete the
+	 * handshake
 	 * 
 	 * @param args
-	 *            de argumenten meegegeven met het command
+	 *            Features the client has
 	 */
 	public void cmdFEATURED(ArrayList<String> args) {
 		if (status == EXPECTING_FEATURED) {
 			if (args.size() >= 0) {
 				for (String a : args) {
 					for (String b : serverFeatures) {
-						if (a.equals(b)) // TODO: kan dit ook met contains?
-						{
+						if (a.equals(b)) {
 							clientFeatures.add(a);
 							// TODO: iets over het accepteren van features in
 							// protocol?
@@ -230,6 +252,12 @@ public class ClientHandler extends Thread {
 		}
 	}
 
+	/**
+	 * Puts the client in a lobby, to play a game
+	 * 
+	 * @param args
+	 *            Size of game the client wants
+	 */
 	public void cmdJOIN(ArrayList<String> args) {
 		if (status == HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0 && args.size() <= 1) {
@@ -251,12 +279,17 @@ public class ClientHandler extends Thread {
 		}
 	}
 
+	/**
+	 * The move the client wants to do.
+	 * 
+	 * @param args
+	 *            Data for the move (x,y,type,color)
+	 */
 	public void cmdMOVE(ArrayList<String> args) {
 		if (status == INGAME && lobby.getTurn().equals(getClientName())) {
 			if (args.size() == 4) {
 				try {
 					lobby.move(util.Util.ConvertToInt(args));
-					// TODO wordt de exception automatisch doorgegeven?
 				} catch (exceptions.InvalidMoveException e) {
 					sendError(util.Protocol.ERR_INVALID_MOVE);
 				} catch (NumberFormatException e) {
@@ -272,38 +305,13 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * Uit te voeren als de disconnect niet aangegeven is door de client, maar
-	 * opgemerkt door een error in de verbinding
-	 * 
-	 * @param message
-	 *            Mogelijk bericht om mee te geven bij het melden van de
-	 *            disconnect
-	 */
-	public void unexpectedDisconnect(String message) {
-		System.out.println("UNEXPECTED DISCONNECT");
-		ArrayList<String> arr = new ArrayList<String>();
-		arr.add(message);
-		cmdDISCONNECT(arr);
-	}
-
-	public void stopThread() {
-		System.out.println("Stopping thread...  " + name);
-		try {
-			sock.close();
-			System.out.println("Should be closing4");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Geeft aan dat de client wil disconnecting, als de client de handshake
-	 * heeft gedaan wordt de disconnect gebroadcast als de client nog niet de
-	 * handshake heeft gedaan wordt alleen een bericht naar de client zelf
-	 * gestuurd
+	 * This command indicates that the client wants to do a correct disconnect,
+	 * will be broadcasted across the server if the client has completed the
+	 * handshake
 	 * 
 	 * @param args
-	 *            Een mogelijk bericht
+	 *            Possible message
+	 * @ensure client gets removed from server and lobby
 	 */
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
@@ -331,29 +339,69 @@ public class ClientHandler extends Thread {
 		}// TODO testen of dit alles is;
 	}
 
-	public void leaveLobby() {
-		this.lobby = null;
-		this.status = HANDSHAKE_SUCCESFULL;
+	/**
+	 * Method to call when a sudden disconnect occurs.
+	 * 
+	 * @param message
+	 *            Possible message to be included
+	 */
+	public void unexpectedDisconnect(String message) {
+		System.out.println("UNEXPECTED DISCONNECT");
+		ArrayList<String> arr = new ArrayList<String>();
+		arr.add(message);
+		cmdDISCONNECT(arr);
 	}
 
-	public void lobbySTART(String command) {
-		sendCommand(command);
-		status = INGAME;
-		System.out.println("Status: INGAME     " + this.getClientName());
-	}
-
+	/**
+	 * Joins the given lobby
+	 * 
+	 * @param lobby
+	 */
 	public void joinLobby(Lobby lobby) {
 		this.lobby = lobby;
 		status = INLOBBY;
 		System.out.println("Status: INLOBBY     " + this.getClientName());
 	}
 
+	/**
+	 * Let this client leaves the lobby he is currently in
+	 * 
+	 * @ensure this.getLobby()==null this.getStats()==HANDSHAKE_SUCCESFULL
+	 */
+	public void leaveLobby() {
+		this.lobby = null;
+		this.status = HANDSHAKE_SUCCESFULL;
+	}
+
+	/**
+	 * Invoked by the lobby to let this clienthandler know the game will start
+	 * 
+	 * @param command
+	 *            The start command
+	 * @ensure this.getStatus()==INGAME
+	 */
+	public void lobbySTART(String command) {
+		sendCommand(command);
+		status = INGAME;
+		System.out.println("Status: INGAME     " + this.getClientName());
+	}
+
+	/**
+	 * Sends an error to the client
+	 * 
+	 * @param errorCode
+	 */
 	public void sendError(int errorCode) {
 		System.out.println("STATUS: " + status);
 		System.out.println("Last input: " + lastInput);
 		sendCommand(util.Protocol.CMD_ERROR + " " + errorCode);
 	}
 
+	/**
+	 * Sends a command to the client
+	 * 
+	 * @param command
+	 */
 	public void sendCommand(String command) {
 		try {
 			out.write(command + "\n");
