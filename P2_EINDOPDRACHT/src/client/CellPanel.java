@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.*;
@@ -17,7 +18,6 @@ public class CellPanel extends JPanel {
 
 	//---- Instance Variables -----------------
 	private Cell cell;
-	final int PAD = 20;
 
 	//---- Constructor ------------------------
 
@@ -36,29 +36,25 @@ public class CellPanel extends JPanel {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g2.setColor(Color.BLUE);
-
-		// heel bord hier tekenen?
-		/**
-		int w = getWidth();
-		int h = getHeight();
-		double xInc = (double) (w - 2 * PAD) / Board.X;
-		double yInc = (double) (h - 2 * PAD) / Board.Y;
-		for (int i = 0; i < Board.Y; i++) {
-			double y = PAD + i * yInc;
-			for (int j = 0; j < Board.X; j++) {
-				double x = PAD + j * xInc;
-				Rectangle2D.Double r = new Rectangle2D.Double(x, y, xInc, yInc);
-				
-			}
-		}
-		*/
-		// Kheb padding nodig, aka. teken grid lijnen.
-		
 		g2.setColor(Color.LIGHT_GRAY);
-		Rectangle2D rect = new Rectangle2D.Double(10, 10, 85, 85);
-		//g2.fill(rect);
-		g2.draw(rect);
+		//---- Position determination ----------
+		
+		int xWidth = this.getWidth();
+		int yHeight = this.getHeight();
+		int xCenter = xWidth / 2;
+		int yCenter = yHeight / 2;
+		
+		//---- lines ---------------------------
+
+		if (cell.getX() != 0) {
+			Line2D.Double line = new Line2D.Double(xCenter, yCenter, xCenter - 15, yHeight);
+			g2.draw(line);
+		}
+		
+		//---- center point --------------------
+		Ellipse2D.Double circle = new Ellipse2D.Double(xCenter, yCenter, 5, 5);
+		g2.fill(circle);
+		g2.draw(circle);
 		
 		g2.setColor(Color.GRAY);
 		//g2.draw(new Ellipse2D.Double(r.width / 2, r.height / 2, 5, 5));
