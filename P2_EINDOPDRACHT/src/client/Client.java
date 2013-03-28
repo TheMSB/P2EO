@@ -96,7 +96,12 @@ public class Client extends Thread {
 					if (lastInput != null) {
 						readCommand(new Scanner(lastInput));
 					} else {
-						sendError(util.Protocol.ERR_INVALID_COMMAND);
+						//Verbinding gebroken als hij hier komt.
+						sock.close();
+						serverAlive = false;
+						connected = false;
+						System.out.println("Socket closed");
+						//sendError(util.Protocol.ERR_INVALID_COMMAND);
 					}
 
 				}

@@ -256,11 +256,6 @@ public class ClientHandler extends Thread {
 		System.out.println("Stopping thread...  "+name);
 		alive = false;
 		try {
-			System.out.println("Should be closing1");
-			in.close(); //TODO hoe dit te stoppen?
-			System.out.println("Should be closing2");
-			out.close();
-			System.out.println("Should be closing3");
 			sock.close();
 			System.out.println("Should be closing4");
 		} catch (IOException e) {
