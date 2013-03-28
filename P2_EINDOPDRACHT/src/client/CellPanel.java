@@ -39,6 +39,7 @@ public class CellPanel extends JPanel {
 		g2.setColor(Color.BLUE);
 
 		// heel bord hier tekenen?
+		/**
 		int w = getWidth();
 		int h = getHeight();
 		double xInc = (double) (w - 2 * PAD) / Board.X;
@@ -51,12 +52,15 @@ public class CellPanel extends JPanel {
 				
 			}
 		}
+		*/
 		// Kheb padding nodig, aka. teken grid lijnen.
-
-		//g2.setColor(Color.BLUE);
-		//g2.draw(new Rectangle2D.Double(cell.getX(), cell.getY(), 100, 100));
-		//g2.fillRect(getSize().width + 100, getSize().height + 100, 100, 100);
-		//g2.setColor(Color.GRAY);
+		
+		g2.setColor(Color.LIGHT_GRAY);
+		Rectangle2D rect = new Rectangle2D.Double(10, 10, 85, 85);
+		//g2.fill(rect);
+		g2.draw(rect);
+		
+		g2.setColor(Color.GRAY);
 		//g2.draw(new Ellipse2D.Double(r.width / 2, r.height / 2, 5, 5));
 
 		// Fill werkt niet goed, rect opslaan in variable en dan toepassen?
