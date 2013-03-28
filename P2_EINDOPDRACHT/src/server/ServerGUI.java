@@ -9,6 +9,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Visual representation of Server
+ * @author I3anaan
+ *
+ */
 public class ServerGUI {
 
 	/**
