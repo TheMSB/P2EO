@@ -11,30 +11,61 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * 
+ * ClientHandler extends Thread and is running for each separate connection to
+ * the server. It will perform the handshake as described in the protocol with
+ * the client, and after that be waiting for other commands from the client such
+ * as joining games, or moves. Upon receiving such commands, ClientHandler first
+ * checks if it recognizes the commands and if they are valid, if not it will
+ * send the correct error message. If the command gets validated it will then
+ * proceed to call the neccessary methods for that command. Those methods
+ * usually are withing ClientHandler itself for connection/disconnection, in
+ * Server to join a lobby, or in Lobby if they have to do with a (running) Game.
+ * 
+ * @author I3anaan
+ */
 public class ClientHandler extends Thread {
 
+	/**
+	 * This clients name
+	 */
 	private String name;
+	/**
+	 * The socket which holds the connection to the client
+	 */
 	private Socket sock;
+	/**
+	 * The server to which this ClientHandler belongs
+	 */
 	private Server server;
+	/**
+	 * The inputstream received from the client
+	 */
 	private BufferedReader in;
+	/**
+	 * The output which is used to send data to the client
+	 */
 	private BufferedWriter out;
+	/**
+	 * The last received message
+	 */
 	private String lastInput;
-	private boolean alive = true; // TODO kijken of dit beter kan
 
 	/**
-	 * Features van clients/servers, clientFeatures kan alleen features bevaten
-	 * die ook in serverFeatures zitten
+	 * Features for client and server, client can only has features which the
+	 * server also has
 	 */
 	private ArrayList<String> clientFeatures;
 	private ArrayList<String> serverFeatures;
 
 	/**
-	 * De lobby waar een client in zit, indien niet in lobby = null
+	 * The lobby this client has joined, no lobby joined if lobby==null
 	 */
 	private Lobby lobby;
 
 	/**
-	 * Status van handshake
+	 * Possible statusses
 	 */
 	public static final int EXPECTING_CONNECT = 0;
 	public static final int EXPECTING_FEATURED = 1;
@@ -42,19 +73,21 @@ public class ClientHandler extends Thread {
 	public static final int INLOBBY = 3;
 	public static final int INGAME = 4;
 
+	/**
+	 * The current status of this ClientHandler
+	 */
 	private int status = EXPECTING_CONNECT;
 
 	/**
-	 * Maakt CLientHandler
+	 * Makes CLientHandler
 	 * 
 	 * @param server
-	 *            De Server
 	 * @param sock
-	 *            De Socket waarmee de Client verbonden is met de Server
+	 *            The socket which contains the connection to the client
 	 * @throws UnsupportedEncodingException
-	 *             Als de encoding niet gesupport is
+	 *             If the encoding is not supported
 	 * @throws IOException
-	 *             Als er iets anders mis gaat
+	 *             Incase something goes wrong with the connection
 	 */
 	public ClientHandler(Server server, Socket sock)
 			throws UnsupportedEncodingException, IOException {
@@ -69,12 +102,13 @@ public class ClientHandler extends Thread {
 	}
 
 	/**
-	 * Blijft klaarstaan om commands te ontvangen
+	 * Keeps checking if a client sends a command, if so it will send the
+	 * command to a method to read it. Will attempt a reconnect incase of 1
+	 * disconnect, stops trying to reconnect if this also fails
 	 */
 	public void run() {
 		try {
-			while (alive) {
-
+			while (true) {
 				lastInput = in.readLine();
 				System.out.println(lastInput);
 				if (lastInput != null) {
@@ -93,7 +127,7 @@ public class ClientHandler extends Thread {
 			e.printStackTrace();
 			// TODO hier afluisten?
 		}
-		
+
 		System.out.println("Shutting down");
 	}
 
@@ -205,10 +239,10 @@ public class ClientHandler extends Thread {
 						slots = Integer.parseInt(args.get(0));
 					}
 				} catch (NumberFormatException e) {
-					//slots zo laten;
+					// slots zo laten;
 				}
 				server.getLobby(slots, this);
-				//TODO controleren of multithread issue gefixed is;
+				// TODO controleren of multithread issue gefixed is;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -222,7 +256,7 @@ public class ClientHandler extends Thread {
 			if (args.size() == 4) {
 				try {
 					lobby.move(util.Util.ConvertToInt(args));
-					//TODO wordt de exception automatisch doorgegeven?
+					// TODO wordt de exception automatisch doorgegeven?
 				} catch (exceptions.InvalidMoveException e) {
 					sendError(util.Protocol.ERR_INVALID_MOVE);
 				} catch (NumberFormatException e) {
@@ -232,7 +266,7 @@ public class ClientHandler extends Thread {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
-			System.out.println(lobby.getTurn()+"   "+getClientName());
+			System.out.println(lobby.getTurn() + "   " + getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
@@ -251,10 +285,9 @@ public class ClientHandler extends Thread {
 		arr.add(message);
 		cmdDISCONNECT(arr);
 	}
-	
-	public void stopThread(){
-		System.out.println("Stopping thread...  "+name);
-		alive = false;
+
+	public void stopThread() {
+		System.out.println("Stopping thread...  " + name);
 		try {
 			sock.close();
 			System.out.println("Should be closing4");
@@ -277,7 +310,8 @@ public class ClientHandler extends Thread {
 			if (args.size() >= 0) {
 				lobby.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
-				//TODO moet naar iedereen in lobby EN iedereen die chat/challenge feature ondersteund
+				// TODO moet naar iedereen in lobby EN iedereen die
+				// chat/challenge feature ondersteund
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -287,20 +321,17 @@ public class ClientHandler extends Thread {
 		}
 
 		try {
-			in.close();
-			out.close();
-			sock.close(); //TODO klopt dit?
+			sock.close(); // TODO klopt dit?
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		alive = false;
 		server.removeClient(this);
 		if (this.status >= INLOBBY) {
 			lobby.removeClientFromLobby(this);
 		}// TODO testen of dit alles is;
 	}
-	
-	public void leaveLobby(){
+
+	public void leaveLobby() {
 		this.lobby = null;
 		this.status = HANDSHAKE_SUCCESFULL;
 	}
@@ -308,13 +339,13 @@ public class ClientHandler extends Thread {
 	public void lobbySTART(String command) {
 		sendCommand(command);
 		status = INGAME;
-		System.out.println("Status: INGAME     "+this.getClientName());
+		System.out.println("Status: INGAME     " + this.getClientName());
 	}
 
 	public void joinLobby(Lobby lobby) {
 		this.lobby = lobby;
 		status = INLOBBY;
-		System.out.println("Status: INLOBBY     "+this.getClientName());
+		System.out.println("Status: INLOBBY     " + this.getClientName());
 	}
 
 	public void sendError(int errorCode) {
@@ -341,12 +372,12 @@ public class ClientHandler extends Thread {
 	public String getClientName() {
 		return this.name;
 	}
-	
-	public int getStatus(){
+
+	public int getStatus() {
 		return status;
 	}
-	
-	public Lobby getLobby(){
+
+	public Lobby getLobby() {
 		return lobby;
 	}
 

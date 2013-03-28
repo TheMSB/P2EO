@@ -97,8 +97,6 @@ public class Lobby {
 	 * command to everyone
 	 */
 	private void giveTurn() {
-		// TODO Blijft eeuwig wachten als de client dced (zonder dc bericht) na
-		// het ontvangen van TURN command
 		// TODO checken of game nog wel bezig is
 		turn = clients.get(game.getTurn()).getClientName();
 		broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
