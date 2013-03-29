@@ -232,18 +232,59 @@ public class SmartAI implements AI {
 	}
 
 	public double calculateWorth(int x, int y) {
-		return effortToWin() + connections() + blocking() + (int)(Math.random() * 10);
+		double points = 0;
+		Cell cell = board.getCell(x, y);
+		
+		if(!board.getCell(x, y).isFull()){
+			points = effortToWin(cell) + connections() + blocking() + (int)(Math.random() * 10);
+		}
+		return points;
 	}
 
-	private double effortToWin() {
+	private double effortToWin(Cell cell) {
+		double points = 0;
+		ArrayList<Integer> list = cell.getOwnerList();
+		//0 punten als:
+		//	iemand 3 punten.
+		// 	iemand 2 punten, iemand 1 punt.
+		//1 punt als:
+		//	iemand 2 punten, verder leeg.
+		//	1 stuk om te winnen, dat niemand meer heeft. (als goed is moet dit uiteindelijk wel gedaan worden, omdat niet veel anders avaible is)
+		//2 punten als:
+		//	leeg
+		//	1 stuk iemand
+		//	2 stukken iemand, 1 stuk eigen
+		//3 punten als:
+		//	1 stuk eigen
+		//10 puntent als:
+		//	2 eigen stukken, 1 ander stuk.
+		//	1 eigen, 1 iemand, 1 iemand
+		
 		return 0;
 	}
 
 	private double connections() {
+		
+		//0 punten als:
+		//	niks toevoegd
+		//1 punten als:
+		//	1 extra stuk
+		//2 punten als:
+		//	2 extra stukken
+		//3 punten als:
+		//	4 extra stukken
+		
+		// + 2-afstand tot (2,2),     hoe meer in het midden, hoe meer waard.
+		
 		return 0;
 	}
 
 	private double blocking() {
+		//	1 punt als het vak dicht gooit voor elke aangrenzende speler
+		//	1 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
+		
+		
+		
 		return 0;
 	}
 }

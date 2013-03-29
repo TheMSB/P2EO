@@ -158,7 +158,7 @@ public class Cell {
 	 * each individual Piece placed in the Cell.
 	 * @return Player with most Pieces in Cell
 	 */
-	public int determOwner() {
+	public ArrayList<Integer> getOwnerList() {
 		int p0 = 0;
 		int p1 = 0;
 		int p2 = 0;
@@ -175,14 +175,19 @@ public class Cell {
 				p3++;
 			}
 		}
-		List<Integer> list = new ArrayList<Integer>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		list.add(p0);
 		list.add(p1);
 		list.add(p2);
 		list.add(p3);
-		Collections.sort(list);
 
-		return list.get(list.size() - 1);
+		return list;
+	}
+	
+	public int determOwner(){
+		ArrayList<Integer> list = getOwnerList();
+		Collections.sort(list);
+		return list.get(list.size()-1);
 	}
 
 }
