@@ -14,11 +14,11 @@ public class Piece {
 	//---- Constants ----------------
 	//TODO evt updaten naar protocol referentie
 	//CHECKSTYLE:OFF
-	static final int RING_0 = 0;
-	static final int RING_1 = 1;
-	static final int RING_2 = 2;
-	static final int RING_3 = 3;
-	static final int RING_4 = 4;
+	public static final int RING_0 = 0;
+	public static final int RING_1 = 1;
+	public static final int RING_2 = 2;
+	public static final int RING_3 = 3;
+	public static final int RING_4 = 4;
 	//CHECKSTYLE:ON
 	
 	//---- Instant Variables ----------

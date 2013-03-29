@@ -10,10 +10,10 @@ public class PlayerColor {
 
 	//---- Constants ----------------
 	//CHECKSTYLE:OFF
-	static final int COLOR_0 = 0;
-	static final int COLOR_1 = 1;
-	static final int COLOR_2 = 2;
-	static final int COLOR_3 = 3;
+	public static final int COLOR_0 = 0;
+	public static final int COLOR_1 = 1;
+	public static final int COLOR_2 = 2;
+	public static final int COLOR_3 = 3;
 	
 	//---- Instance Variables ---------
 	private Player PLAYER_0;

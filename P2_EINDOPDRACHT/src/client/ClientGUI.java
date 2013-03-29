@@ -3,6 +3,8 @@ package client;
 import game.Board;
 import game.Cell;
 import game.Game;
+import game.Piece;
+import game.Player;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -36,9 +38,14 @@ import server.Server;
 public class ClientGUI {
 
 	//CHECKSTYLE:OFF
+	//---- Constants -----------------------------------
+	Dimension settingA = new Dimension (800, 600);
 	//---- Instance Variables --------------------------
 
-
+	//---- Game related variables ----------------------
+	private Game game;
+	private static String name;
+	private static int pnumber;
 	// Windows and Panels
 	private JFrame window = new JFrame("RINGZ");
 	private JPanel menu = new JPanel();
@@ -46,6 +53,7 @@ public class ClientGUI {
 	private JPanel chatbox = new JPanel();
 
 	private JPanel board = new JPanel();
+	private JPanel inventory = new JPanel();
 	//private JPanel cells[] = new JPanel[25];
 	private Cell[][] cells;
 	//CHECKSTYLE:ON
@@ -53,13 +61,17 @@ public class ClientGUI {
 	//---- Constructor ---------------------------------
 
 	public ClientGUI(Game game) {
-
+		this.game = game;
 		cells = game.getBoard().getCells();
 
 		//---- Create a new application window
-
-		window.setSize(440, 320);
+//TODO resolution support implementen
+		window.setPreferredSize(new Dimension(800, 600));
+		window.setMinimumSize(new Dimension(800, 600));
 		board.setPreferredSize(new Dimension(500, 500));
+		board.setMinimumSize(new Dimension(500, 500));
+		inventory.setPreferredSize(new Dimension(500, 200));
+		inventory.setMinimumSize(new Dimension(500, 200));
 
 		//---- Defines Border styles
 		Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
@@ -85,23 +97,23 @@ public class ClientGUI {
 
 		window.setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
+		inventory.setLayout(new GridLayout(15, 2));
 
 		//---- Adds the panels to the frame
 		Container contentPane = window.getContentPane();
 		contentPane.add(board, BorderLayout.LINE_START);
+		contentPane.add(inventory, BorderLayout.LINE_END);
 		contentPane.add(menu, BorderLayout.LINE_END);     	
 
 		if (turndisp != null) {
 			menu.add(turndisp);
 		}
-
-		// Adds drawn cells to the Board
-		for (Cell[] cell : cells) {
-			for (Cell cel : cell) {
-				JPanel cellPanel = new CellPanel(cel);
-				board.add(cellPanel);
-			}	
-		}
+		
+		//---- Draws cells to the board
+		drawCells();
+		
+		//---- Draws pieces to inventory
+		drawPieces(pnumber);
 
 
 		//---- Makes the window visible
@@ -110,23 +122,54 @@ public class ClientGUI {
 		window.setVisible(true);
 
 	}
+	
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		// Alleen voor testen, verwijder na implementatie
 		ArrayList<String> names = new ArrayList<String>();
-		  names.add(args[0]);
-		  names.add(args[1]);
-		  names.add(args[2]);
-		  names.add(args[3]);
-		  
+		names.add(args[0]);
+		names.add(args[1]);
+		names.add(args[2]);
+		names.add(args[3]);
+		
+		name = args[0];
+
 		ClientGUI gui = new ClientGUI(new Game(2, 2, names));
-		Client client = new Client("Derk"+Math.random());
+		Client client = new Client(name + Math.random());
 		client.start();
 
 	}
 
+	/**
+	 * Draws the pieces for a certain player in 
+	 * inventory.
+	 * @param p
+	 */
+	//TODO start command geeft lijst van spelers mee dit aanpassen!
+	public void drawPieces(final int p) {
+		for (Piece piece : game.getPlayer(p).getPieces()) {
+			JPanel piecePanel = new PiecePainter(piece);
+			piecePanel.setOpaque(true);
+			
+			inventory.add(piecePanel);
+		}
+			
+		
+	}
+	/**
+	 * Draws all of the cells onto the board.
+	 */
+	public void drawCells() {
+		for (int y = 0; y < Board.Y; y++) {
+			for (int x = 0; x < Board.X; x++) {
+				JPanel cellPanel = new CellPainter(game.getBoard().getCell(x, y));
+				cellPanel.setOpaque(true);
+				cellPanel.setBackground(new Color(0, 0, 153));
+				board.add(cellPanel);
+			}
+		}
 
-
+	}
 }

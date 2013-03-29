@@ -14,20 +14,26 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.*;
 
-public class CellPanel extends JPanel {
+public class CellPainter extends JPanel {
 
+	//---- Constants --------------------------
+	
+	private int LINESTART = 15;
+	private int LINEEND = 50;
+	
 	//---- Instance Variables -----------------
+	
 	private Cell cell;
 
 	//---- Constructor ------------------------
 
-	public CellPanel(Cell c) {
+	public CellPainter(Cell c) {
 		cell = c;
 	}
 
 	//---- Methods ----------------------------
 	/**
-	 * Draws the CellPanel, sollid background with
+	 * Draws the CellPanel, solid background with
 	 * a circle in the middle to indicate it's a usable field.
 	 */
 	protected void paintComponent(final Graphics g) {
@@ -36,31 +42,39 @@ public class CellPanel extends JPanel {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g2.setColor(Color.LIGHT_GRAY);
+		g2.setColor(Color.WHITE);
 		//---- Position determination ----------
 		
-		int xWidth = this.getWidth();
-		int yHeight = this.getHeight();
-		int xCenter = xWidth / 2;
-		int yCenter = yHeight / 2;
+		int xCenter = this.getWidth() / 2;
+		int yCenter = this.getHeight() / 2;
 		
 		//---- lines ---------------------------
 
 		if (cell.getX() != 0) {
-			Line2D.Double line = new Line2D.Double(xCenter, yCenter, xCenter - 15, yHeight);
+			Line2D.Double line = new Line2D.Double(xCenter - LINESTART, 
+					yCenter, xCenter - LINEEND, yCenter);
 			g2.draw(line);
 		}
-		
+		if (cell.getX() != 4) {
+			Line2D.Double line = new Line2D.Double(xCenter + LINESTART, 
+					yCenter, xCenter + LINEEND, yCenter);
+			g2.draw(line);
+		}
+		if (cell.getY() != 0) {
+			Line2D.Double line = new Line2D.Double(xCenter, 
+					yCenter - LINESTART, xCenter, yCenter - LINEEND);
+			g2.draw(line);
+		}
+		if (cell.getY() != 4) {
+			Line2D.Double line = new Line2D.Double(xCenter, 
+					yCenter + LINESTART, xCenter, yCenter + LINEEND);
+			g2.draw(line);
+		}
 		//---- center point --------------------
+		
 		Ellipse2D.Double circle = new Ellipse2D.Double(xCenter, yCenter, 5, 5);
 		g2.fill(circle);
 		g2.draw(circle);
-		
-		g2.setColor(Color.GRAY);
-		//g2.draw(new Ellipse2D.Double(r.width / 2, r.height / 2, 5, 5));
-
-		// Fill werkt niet goed, rect opslaan in variable en dan toepassen?
-		// Ellipse ook fillen en centreren
 
 	}
 
