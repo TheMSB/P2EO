@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 
 import exceptions.InvalidMoveException;
+import exceptions.InvalidPieceException;
 
 /**
  * Main Game class for the RINGZ game.
@@ -97,7 +98,11 @@ public class Game extends Observable {
 	 */
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
-		board.startStone(x, y);
+		try{
+			board.startStone(x, y);
+		}catch(InvalidMoveException e){
+			//TODO kijken wat te doen als startsteen verkeerd i
+		}
 
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
@@ -148,12 +153,8 @@ public class Game extends Observable {
 		players.get(turn).getPieces().remove(pindex);
 		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
 		turn = (turn + 1) % players.size();
-
-
-		setChanged();
-		notifyObservers();
-		//System.out.println("Notify observers!   " + this.countObservers());
 	}
+	
 	//isFull ook daadwerkelijk aanzetten in cell, gebeurt nog niet
 	// methode doet verder niets met conclusie, dit bespreken met Derk wat
 	// te doen.
@@ -176,8 +177,12 @@ public class Game extends Observable {
 				}
 				for (int c = 0; c < 4; c++) {
 					for (int t = 0; t < 4; t++) {
-						if (board.canMove(x, y, players.get(turn).getPiece(t, c))) {
-							over = false;
+						try{
+							if (board.canMove(x, y, players.get(turn).getPiece(t, c))) {
+								over = false;
+							}
+						}catch(InvalidPieceException e){
+							System.out.println("GameOver heeft fout in methode");
 						}
 					}
 				}

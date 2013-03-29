@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import exceptions.InvalidMoveException;
+import exceptions.InvalidRingException;
+
 /**
  * One Cell on the board of the RINGZ game.
  * Contains it's own location and an array list
@@ -44,7 +47,7 @@ public class Cell {
 		this.X = x;
 		this.Y = y;
 		full = false;
-		pieces = new Piece[4];
+		pieces = new Piece[5];
 	}
 
 	//---- Querries ------------------------------------------
@@ -73,11 +76,28 @@ public class Cell {
 		return full;
 	}
 	/**
+	 * Returns whether or not the Cell is empty
+	 * @return	true if empty else false
+	 */
+	public boolean isEmpty(){
+		return pieces[0]==null && pieces[1]==null && pieces[2]==null && pieces[3]==null;
+	}
+	
+	/**
 	 * Returns the list of Pieces present on this cell.
 	 * @return pieces
 	 */
 	public Piece[] getPieces() {
 		return pieces;
+	}
+	
+	/**
+	 * Returns true if there is place for the given piece on this cell
+	 * @param piece
+	 * @return
+	 */
+	public boolean pieceAllowed(Piece piece){
+		return piece.getType()>=0 && piece.getType()<=4 && pieces[piece.getType()]==null && (piece.getType()!=4 || isEmpty());
 	}
 
 	/**
@@ -87,7 +107,6 @@ public class Cell {
 	public boolean hasPieces(final Piece piece) {
 		boolean hasPiece = false;
 		for (int i = 0; i < 4; i++) {
-			//System.out.println("Piece: "+pieces[i]);
 			if (pieces[i] != null && pieces[i].getColor() == piece.getColor()) {
 				hasPiece = true;
 			}
@@ -95,27 +114,43 @@ public class Cell {
 
 		return hasPiece;
 	}
+	
+	/**
+	 * Checks if the given piece is allowed to place himself next to this Cell (checking for megastones)
+	 * @arg piece	The piece you want to place next to this cell
+	 * @return  True if it is allowed to place next to this cell
+	 */
+	public boolean megaStoneCheck(final Piece piece){
+		boolean output = true;
+		if(piece.getType()==util.Protocol.RING_4){
+			if(pieces[4]!=null && pieces[4].getColor()==piece.getColor()){
+				output = false;
+			}
+		}
+		
+		return output;
+	}
+
 
 	//---- Methods ------------------------------------------
 
 	/**
 	 * adds a Piece to this Cell.
 	 * @ensure pieces[i] does not contain piece.getType()
+	 * @require piece!=null
 	 * @param piece The Piece to be placed
 	 */
-	protected void addPiece(final Piece piece) {
-		if (piece.getType() == Piece.RING_0 && pieces[0] == null) {
-			pieces[0] = piece;
-		} else if (piece.getType() == Piece.RING_1 && pieces[1] == null) {
-			pieces[1] = piece;
-		} else if (piece.getType() == Piece.RING_2 && pieces[2] == null) {
-			pieces[2] = piece;
-		} else if (piece.getType() == Piece.RING_3 && pieces[3] == null) {
-			pieces[3] = piece;
-		} else if (piece.getType() == Piece.RING_4 && pieces[0] == null) {
-			for (int i = 0; i < 4; i++) {
-				pieces[i] = piece;
-			}
+	protected void addPiece(final Piece piece) throws InvalidMoveException {
+		
+		if(piece.getType()<4 && pieces[piece.getType()]==null){
+			pieces[piece.getType()] = piece;
+		}else if (piece.getType() == Piece.RING_4 && isEmpty()) {
+			pieces[4] = piece;
+		}else{
+			throw new InvalidRingException();
+		}
+		if(pieces[4]!=null ||(pieces[0]!=null && pieces[1]!=null && pieces[2]!=null && pieces[3]!=null)){
+			full = true;
 		}
 	}
 	/**

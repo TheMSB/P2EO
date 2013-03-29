@@ -5,8 +5,6 @@ import game.*;
 import java.util.ArrayList;
 
 public class RandomAI implements AI {
-
-	//TODO client een ai laten gebruiken
 	
 	private Game game;
 	private Board board;

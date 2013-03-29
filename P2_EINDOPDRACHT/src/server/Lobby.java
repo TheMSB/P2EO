@@ -80,15 +80,16 @@ public class Lobby {
 	 *         of that move, and the next turn will be given out
 	 * 
 	 */
-	public void move(ArrayList<Integer> args) throws InvalidMoveException {
-		try {
-			// TODO move exceptie laten gooien als niet kan
+	public void move(ArrayList<Integer> args) {
+		try{
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
 			broadcastMessage(util.Protocol.CMD_MOVED + " "
 					+ util.Util.concatArrayList(args));
 			giveTurn();
-		} catch (InvalidMoveException e) {
-			throw new exceptions.InvalidMoveException();
+		}catch (InvalidMoveException e) {
+			System.out.println("InvalidMoveDetected");
+			e.printStackTrace();
+			endLobby();
 		}
 	}
 
@@ -97,7 +98,6 @@ public class Lobby {
 	 * command to everyone
 	 */
 	private void giveTurn() {
-		// TODO checken of game nog wel bezig is
 		turn = clients.get(game.getTurn()).getClientName();
 		broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
 	}

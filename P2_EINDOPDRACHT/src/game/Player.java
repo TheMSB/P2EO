@@ -3,6 +3,8 @@ package game;
 
 import java.util.ArrayList;
 
+import exceptions.InvalidPieceException;
+
 /**
  * The Player class for the RINGZ.
  * contains name, playerColor and inventory instance variables.
@@ -71,17 +73,17 @@ public class Player {
 	 * @param colr Color of the piece to return
 	 * @return Piece from inventory with sleceted type and color
 	 */
-	public Piece getPiece(final int typ, final int colr) {
+	public Piece getPiece(final int typ, final int colr) throws InvalidPieceException{
 		Piece output = null;
 		for (Piece p : inventory) {
 			if (p.getType() == typ && p.getColor() == colr) {
 				output = p;
 			}
 		}
-		
-		//TODO dit is gehotfixed, kan nu null teruggeven.
+		if(output==null){
+			throw new InvalidPieceException();
+		}
 		return output;
-		//}//TODO else no such piece exception
 	}
 	
 	// -- Methods -----------------------------------------

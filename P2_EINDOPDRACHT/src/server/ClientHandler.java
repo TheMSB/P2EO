@@ -290,9 +290,8 @@ public class ClientHandler extends Thread {
 			if (args.size() == 4) {
 				try {
 					lobby.move(util.Util.ConvertToInt(args));
-				} catch (exceptions.InvalidMoveException e) {
-					sendError(util.Protocol.ERR_INVALID_MOVE);
-				} catch (NumberFormatException e) {
+					//TODO mogelijk vriendelijk nog een keer een move vragen
+				}catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
 			} else {

@@ -245,7 +245,7 @@ public class Client extends Thread {
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
 		//System.out.println(player.getPieces());
-		ai = new RandomAI(game,player);
+		ai = new SmartAI(game,player);
 	}
 
 	/**
@@ -300,9 +300,8 @@ public class Client extends Thread {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}catch(InvalidMoveException e){
 					sendError(util.Protocol.ERR_INVALID_MOVE);
-					sendDisconnect(" Desync detected, disconnecting");					
+					sendDisconnect("Desync detected, disconnecting");					
 				}
-				
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
