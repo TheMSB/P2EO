@@ -87,6 +87,8 @@ public class Lobby {
 					+ util.Util.concatArrayList(args));
 			giveTurn();
 		}catch (InvalidMoveException e) {
+			System.out.println("InvalidMoveDetected");
+			e.printStackTrace();
 			endLobby();
 		}
 	}

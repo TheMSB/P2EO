@@ -135,19 +135,22 @@ public class Board {
 	 */
 	public boolean canMove(final int x, final int y, final Piece piece) {
 		//TODO test dit.
+		boolean pieceAllowed = isCell(x, y) && getCell(x, y).pieceAllowed(piece);
 		boolean canMove = false;
 		boolean megaStoneAllowed = true;
 		
-		for (int Off = -1; Off < 0; Off = Off + 2) {
-			if ((isCell(x + Off, y) && getCell(x + Off, y).hasPieces(piece))
-					|| (isCell(x, y + Off) && getCell(x, y + Off).hasPieces(piece))) {
+		for (int off = -1; off <= 1; off+=2) {
+			//Is dezelfde kleur in een aanliggende cell
+			if ((isCell(x + off, y) && getCell(x + off, y).hasPieces(piece))
+					|| (isCell(x, y + off) && getCell(x, y + off).hasPieces(piece))) {
 				canMove = true;
 			}
-			if ((isCell(x, y + Off) && !getCell(x + Off, y).megaStoneCheck(piece))
-					|| (isCell(x + Off, y) && !getCell(x, y + Off).megaStoneCheck(piece))) {
+			//Mag ik een megasteen plaatsen (altijd true als piece geen megasteen is)
+			if ((isCell(x + off, y) && !getCell(x + off, y).megaStoneCheck(piece))
+					|| (isCell(x, y + off) && !getCell(x, y + off).megaStoneCheck(piece))) {
 				megaStoneAllowed = false;
 			}
 		}
-		return isCell(x,y) && !getCell(x, y).isFull() && canMove && megaStoneAllowed;
+		return pieceAllowed && canMove && megaStoneAllowed;
 	}
 }

@@ -90,6 +90,15 @@ public class Cell {
 	public Piece[] getPieces() {
 		return pieces;
 	}
+	
+	/**
+	 * Returns true if there is place for the given piece on this cell
+	 * @param piece
+	 * @return
+	 */
+	public boolean pieceAllowed(Piece piece){
+		return piece.getType()>=0 && piece.getType()<=4 && pieces[piece.getType()]==null && (piece.getType()!=4 || isEmpty());
+	}
 
 	/**
 	 * Returns true if the player has a piece on this cell.

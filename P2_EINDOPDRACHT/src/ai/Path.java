@@ -41,4 +41,8 @@ public class Path extends ArrayList<CellPoint> implements Comparable<Path>{
 		
 		return compared;
 	}
+	
+	public String toString(){
+		return "Avr Worth:  "+Math.round(getAverageWorth())+"    "+super.toString();
+	}
 }

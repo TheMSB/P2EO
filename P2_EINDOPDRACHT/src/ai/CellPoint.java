@@ -16,7 +16,7 @@ public class CellPoint implements Comparable<CellPoint>{
 		return x;
 	}
 	public int getY(){
-		return x;
+		return y;
 	}
 	public double getW(){
 		return worth;
