@@ -23,6 +23,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
@@ -54,6 +56,10 @@ public class ClientGUI {
 
 	private JPanel board = new JPanel();
 	private JPanel inventory = new JPanel();
+	
+	private JTextField	myMessage;
+    private JTextArea   taMessages;
+    private Server      server;
 	//private JPanel cells[] = new JPanel[25];
 	private Cell[][] cells;
 	//CHECKSTYLE:ON
@@ -66,12 +72,12 @@ public class ClientGUI {
 
 		//---- Create a new application window
 //TODO resolution support implementen
-		window.setPreferredSize(new Dimension(800, 600));
-		window.setMinimumSize(new Dimension(800, 600));
-		board.setPreferredSize(new Dimension(500, 500));
-		board.setMinimumSize(new Dimension(500, 500));
-		inventory.setPreferredSize(new Dimension(500, 200));
-		inventory.setMinimumSize(new Dimension(500, 200));
+		window.setPreferredSize(new Dimension(600, 600));
+		window.setMinimumSize(new Dimension(600, 600));
+		board.setPreferredSize(new Dimension(400, 500));
+		board.setMinimumSize(new Dimension(400, 500));
+		inventory.setPreferredSize(new Dimension(200, 200));
+		inventory.setMinimumSize(new Dimension(200, 200));
 
 		//---- Defines Border styles
 		Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
@@ -81,7 +87,7 @@ public class ClientGUI {
 
 		menu.setOpaque(true);
 		menu.setBackground(new Color(154, 165, 127));
-		menu.setPreferredSize(new Dimension(130, 320));
+		menu.setPreferredSize(new Dimension(200, 320));
 		menu.setBorder(paneEdge);
 
 		//---- sets up the turn display
@@ -97,12 +103,12 @@ public class ClientGUI {
 
 		window.setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
-		inventory.setLayout(new GridLayout(15, 2));
+		inventory.setLayout(new GridLayout(2, 9));
 
 		//---- Adds the panels to the frame
 		Container contentPane = window.getContentPane();
 		contentPane.add(board, BorderLayout.LINE_START);
-		contentPane.add(inventory, BorderLayout.LINE_END);
+		contentPane.add(inventory, BorderLayout.SOUTH);
 		contentPane.add(menu, BorderLayout.LINE_END);     	
 
 		if (turndisp != null) {
@@ -133,7 +139,7 @@ public class ClientGUI {
 		names.add(args[1]);
 		names.add(args[2]);
 		names.add(args[3]);
-		
+		// eigen naam zoeken, hoe te implementeren?
 		name = args[0];
 
 		ClientGUI gui = new ClientGUI(new Game(2, 2, names));
@@ -167,6 +173,8 @@ public class ClientGUI {
 				JPanel cellPanel = new CellPainter(game.getBoard().getCell(x, y));
 				cellPanel.setOpaque(true);
 				cellPanel.setBackground(new Color(0, 0, 153));
+				cellPanel.setPreferredSize(new Dimension(10, 10));
+				cellPanel.setMaximumSize(new Dimension(10, 10));
 				board.add(cellPanel);
 			}
 		}
