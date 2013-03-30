@@ -86,6 +86,22 @@ public class Player {
 		return output;
 	}
 	
+	/**
+	 * Returns the availability for each type, in an array where index = type
+	 * @param color
+	 * @return
+	 */
+	public Integer[] getAvailability(int color){
+		Integer[] output = new Integer[5];
+		for(Piece p : inventory){
+			 if(p.getColor()==color){
+				 output[p.getType()] = output[p.getType()] + 1;
+			 }
+		}
+		
+		return output;
+	}
+	
 	// -- Methods -----------------------------------------
 	
 	/**
@@ -96,5 +112,7 @@ public class Player {
 	public void addPiece(final Piece piece) {
 		inventory.add(piece);
 	}
+	
+	
 
 }

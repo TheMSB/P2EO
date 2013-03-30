@@ -4,12 +4,17 @@ public class CellPoint implements Comparable<CellPoint>{
 
 	private int x;
 	private int y;
-	private double worth;
+	private double 	winWorth;
+	private double	connectionWorth;
+	private double	blockWorth;
+	int type;
 	
-	public CellPoint(int x, int y, double worth){
+	public CellPoint(int x, int y, double winWorth, double connectionWorth, double blockWorth){
 		this.x = x;
 		this.y = y;
-		this.worth = worth;
+		this.winWorth = winWorth;
+		this.connectionWorth = connectionWorth;
+		this.blockWorth = blockWorth;
 	}
 	
 	public int getX(){
@@ -19,13 +24,30 @@ public class CellPoint implements Comparable<CellPoint>{
 		return y;
 	}
 	public double getW(){
-		return worth;
+		return getWW()+getCW()+getBW();
+	}
+	public double getWW(){
+		return winWorth;
+	}
+	public double getCW(){
+		return connectionWorth;
+	}
+	public double getBW(){
+		return blockWorth;
+	}
+	
+	public void setBestType(int type){
+		this.type = type;
 	}
 
+	public int getBestType(){
+		return type;
+	}
+	
 	@Override
 	public int compareTo(CellPoint o) {
 		int compared = 0;
-		if(this.worth >= o.getW()){
+		if(getW() >= o.getW()){
 			compared = 1;
 		}else{
 			compared = -1;
@@ -34,7 +56,7 @@ public class CellPoint implements Comparable<CellPoint>{
 	}
 	
 	public String toString(){
-		return x +" "+y+" Worth: "+worth;
+		return x +" "+y+" WW "+winWorth +" CW "+connectionWorth +" BW "+blockWorth + " TW "+getW();
 	}
 	
 	

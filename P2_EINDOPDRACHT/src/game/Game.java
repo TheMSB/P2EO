@@ -74,6 +74,10 @@ public class Game extends Observable {
 	public Player getPlayer(final int p) {
 		return players.get(p);
 	}
+	
+	public int getPlayerCount(){
+		return playerCount;
+	}
 	/**
 	 * Returns the current turn.
 	 * @return turn
@@ -101,7 +105,7 @@ public class Game extends Observable {
 		try{
 			board.startStone(x, y);
 		}catch(InvalidMoveException e){
-			//TODO kijken wat te doen als startsteen verkeerd i
+			//TODO kijken wat te doen als startsteen verkeerd is
 		}
 
 		if (playercount == 4) {
