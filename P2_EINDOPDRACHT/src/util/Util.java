@@ -31,4 +31,13 @@ public class Util {
 		}
 		return names; 
 	}
+	
+	public static int sumArray(ArrayList<Integer> arr){
+		int output = 0;
+		for(int i : arr){
+			output = output+i;
+		}
+		
+		return output;
+	}
 }
