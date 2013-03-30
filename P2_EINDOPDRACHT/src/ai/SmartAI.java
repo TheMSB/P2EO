@@ -272,7 +272,7 @@ public class SmartAI implements AI {
 		//2 punten als:
 		//	2 extra stukken
 		//3 punten als:
-		//	4 extra stukken
+		//	 extra stukken
 		
 		// + 2-afstand tot (2,2),     hoe meer in het midden, hoe meer waard.
 		
@@ -281,7 +281,7 @@ public class SmartAI implements AI {
 
 	private double blocking() {
 		//	1 punt als het vak dicht gooit voor elke aangrenzende speler
-		//	1 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
+		//	2 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
 		
 		
 		
