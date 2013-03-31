@@ -93,8 +93,14 @@ public class Player {
 	 */
 	public Integer[] getAvailability(int color){
 		Integer[] output = new Integer[5];
+		for(int i=0;i<output.length;i++){
+			output[i] = 0;
+		}
 		for(Piece p : inventory){
 			 if(p.getColor()==color){
+				 //System.out.println(p+"   "+p.getType());
+				 //System.out.println(output);
+				 //System.out.println(output[p.getType()]);
 				 output[p.getType()] = output[p.getType()] + 1;
 			 }
 		}
