@@ -88,18 +88,20 @@ public class SmartAI implements AI {
 	@Override
 	public ArrayList<Integer> getMove() {
 		Path bestPath = null;
+		Path bestPath1 = null;
+		Path bestPath2 = null;
 		//TODO	blokkeert eigen 2e kleur
 		//TODO moet ook punten krijgen voor victory blok
 		//TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
 		
 		if(playerCount==2){
 		//TODO voor andere spelers
-			Path bestPath1 = getBestMove(player.getColor());
-			Path bestPath2 = getBestMove(player.getColor()+2);
+			bestPath1 = getBestMove(player.getColor());
+			bestPath2 = getBestMove(player.getColor()+2);
 			bestPath = BestPath(bestPath1,bestPath2);
 		}else if(playerCount ==3){
-			Path bestPath1 = getBestMove(player.getColor());
-			Path bestPath2 = getBestMove(3);
+			bestPath1 = getBestMove(player.getColor());
+			bestPath2 = getBestMove(3);
 			bestPath = BestPath(bestPath1,bestPath2);
 		}else if(playerCount==4){
 			bestPath = getBestMove(player.getColor());
@@ -110,6 +112,10 @@ public class SmartAI implements AI {
 		System.out.println(bestPath);
 		if(bestPath==null){
 			System.out.println("No more moves possible");
+			System.out.println(bestPath1);
+			System.out.println(bestPath2);
+			System.out.println(player.getPieces());
+			System.out.println(game.isGameOver());
 		}
 		// TODO wat te doen als bestPath null is = geen zetten meer mogelijk
 
@@ -143,9 +149,9 @@ public class SmartAI implements AI {
 
 	public Path BestPath(Path p1, Path p2){
 		Path output = p1;
-		if(playerCount!=3 && p2.getAverageWorth()>p1.getAverageWorth()){
+		if(p1==null || (p2!=null && playerCount!=3 && p2.getAverageWorth()>p1.getAverageWorth())){
 			output = p2;
-		}else if(p2.getAverageWorthNeutral()>p1.getAverageWorth()){
+		}else if(p2!=null && p2.getAverageWorthNeutral()>p1.getAverageWorth()){
 			output = p2;
 		}
 		

@@ -98,8 +98,13 @@ public class Lobby {
 	 * command to everyone
 	 */
 	private void giveTurn() {
-		turn = clients.get(game.getTurn()).getClientName();
-		broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
+		//System.out.println("GameOver:  "+game.isGameOver());
+		if(!game.isGameOver()){
+			turn = clients.get(game.getTurn()).getClientName();
+			broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
+		}else{
+			endLobby();
+		}
 	}
 
 	/**
@@ -174,11 +179,13 @@ public class Lobby {
 	 * Immediately ends this lobby by removing all clients from it
 	 */
 	private synchronized void endLobby() {
+		System.out.println("Ending lobby");
+		
+		broadcastMessage(util.Protocol.CMD_END+" "+util.Util.concatArrayList(game.getStats()));
 		for (ClientHandler ch : clients) {
 			ch.leaveLobby();
 		}
 		server.removeLobby(this); //TODO dit testen
-		//TODO gameover stats sturen
 		game = null;
 		
 		

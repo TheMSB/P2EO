@@ -188,8 +188,13 @@ public class Cell {
 	
 	public int determOwner(){
 		ArrayList<Integer> list = getOwnerList();
+		int winner = -1;
 		Collections.sort(list);
-		return list.get(list.size()-1);
+		if(list.get(list.size()-1) != list.get(list.size()-2)){
+			winner = list.get(list.size()-1);
+		}
+		
+		return winner;
 	}
 	
 }

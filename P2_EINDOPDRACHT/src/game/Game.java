@@ -159,7 +159,6 @@ public class Game extends Observable {
 		turn = (turn + 1) % players.size();
 	}
 	
-	//isFull ook daadwerkelijk aanzetten in cell, gebeurt nog niet
 	// methode doet verder niets met conclusie, dit bespreken met Derk wat
 	// te doen.
 	/**
@@ -172,7 +171,65 @@ public class Game extends Observable {
 	 * so that no player can perform a move. SHOULD be impossible with
 	 * current playercount and field size but is still included for scale ability.
 	 */
-	protected void gameOver() {
+	public boolean isGameOver(){
+		boolean gameOver = true;
+		for(Player player : players){
+			if(canDoMove(player)){
+				gameOver = false;
+			}
+		}
+		//TODO kan het bord vol zijn?
+		
+		return gameOver;
+	}
+	
+	/**
+	 * Checks for each cell if the player has a piece that he can place
+	 * If there is 1 or more move available result = true;
+	 * @param player	Player to check if he can do a move
+	 * @return
+	 */
+	public boolean canDoMove(Player player){
+		boolean canMove = false;
+		for (int x = 0; x < Board.X; x++) {
+			for (int y = 0; y < Board.Y; y++) {
+				for(Piece p : player.getPieces()){
+					if(board.canMove(x, y,p)){
+						canMove = true;
+					}
+				}
+			}
+		}
+		
+		return canMove;
+	}
+	
+	/**
+	 * Returns an array of integers, representing the score and pieces available.
+	 * 
+	 * @return
+	 * @ensure	result.size() = 2n
+	 * 			result.get(n) = score
+	 * 			result.get(n+1) = stones left
+	 * 			(n being an integer)
+	 */
+	public ArrayList<Integer> getStats(){
+		ArrayList<Integer> results = new ArrayList<Integer>();
+		Integer[] score = board.getScore();
+		for(int i =0;i<players.size();i++){
+			if(players.size()==2){
+				results.add(score[i] + score[i+2]);
+				results.add(players.get(i).getPieces().size());
+			}else{
+				results.add(score[i]);
+				results.add(players.get(i).getPieces().size());
+			}
+			
+		}
+		return results;
+	}
+	
+	/*protected void gameOver() {
 		boolean over = true;
 		for (int x = 0; x < Board.X; x++) {
 			for (int y = 0; y < Board.Y; y++) {
@@ -196,6 +253,6 @@ public class Game extends Observable {
 				}
 			}
 		}
-	}
+	} */
 }
 //TODO hasWinner, methods
