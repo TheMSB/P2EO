@@ -44,7 +44,6 @@ public class Game extends Observable {
 	 * newly created players and runs the setUp method.
 	 * @param playernames List with the name of players
 	 */
-	//TODO observable maken
 	public Game(final int x, final int y, final ArrayList<String> playernames) {
 
 		playerCount = playernames.size();
@@ -192,15 +191,28 @@ public class Game extends Observable {
 	 * either. Lastly this method also checks if all fields are full
 	 * so that no player can perform a move. SHOULD be impossible with
 	 * current playercount and field size but is still included for scale ability.
+	 * 
+	 * @require		The Player who has the turn (turn is his name) has not yet made a move
 	 */
 	public boolean isGameOver(){
-		boolean gameOver = true;
+		boolean gameOver = false;
+		ArrayList<Player> newPlayerList = new ArrayList<Player>();
+		
+		//Make a new list of players, without those who cant do a move
 		for(Player player : players){
 			if(canDoMove(player)){
-				gameOver = false;
+				newPlayerList.add(player);
 			}
 		}
-		//TODO kan het bord vol zijn?
+		//Checks if any of those players in the new list indexes are before or equal to the one having the turn, if so lower turn by 1 for each
+		for(int i=0;i<newPlayerList.size();i++){
+			if(players.indexOf(newPlayerList.get(i))<=turn){
+				turn--;				
+			}
+		}
+		
+		players = newPlayerList;
+		turn = turn%players.size();
 		
 		return gameOver;
 	}
@@ -240,7 +252,7 @@ public class Game extends Observable {
 		Integer[] score = board.getScore();
 		for(int i =0;i<players.size();i++){
 			if(players.size()==2){
-				results.add(score[i] + score[i+2]);
+				results.add(score[i*2] + score[i*2+1]);
 				results.add(players.get(i).getPieces().size());
 			}else{
 				results.add(score[i]);

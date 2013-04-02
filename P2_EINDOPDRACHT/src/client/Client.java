@@ -73,7 +73,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(4242, InetAddress.getByName("130.89.130.105"));
+			connectToServer(4242, InetAddress.getByName("localhost"));
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();

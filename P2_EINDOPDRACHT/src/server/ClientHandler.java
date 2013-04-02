@@ -179,9 +179,9 @@ public class ClientHandler extends Thread {
 	public void checkCommand(String command, ArrayList<String> args) {
 		if (command.equals(util.Protocol.CMD_CONNECT)) {
 			cmdCONNECT(args);
-		} else if (command.equals(util.Protocol.CMD_FEATURED)) {
+		} else if (command.equals(util.Protocol.CMD_FEATURED)) { //TODO featured mag altijd
 			cmdFEATURED(args);
-		} else if (command.equals(util.Protocol.CMD_JOIN)) {
+		} else if (command.equals(util.Protocol.CMD_JOIN)) { 
 			cmdJOIN(args);
 		} else if (command.equals(util.Protocol.CMD_MOVE)) {
 			cmdMOVE(args);
@@ -211,7 +211,8 @@ public class ClientHandler extends Thread {
 							+ "Goedendag, welkom op onze server");
 					sendCommand(util.Protocol.CMD_FEATURES + " "
 							+ util.Util.concatArrayList(serverFeatures));
-					status = EXPECTING_FEATURED;
+					status = HANDSHAKE_SUCCESFULL;
+					server.approve(this);
 				} else {
 					sendError(util.Protocol.ERR_NAME_IN_USE);
 				}
@@ -232,7 +233,7 @@ public class ClientHandler extends Thread {
 	 *            Features the client has
 	 */
 	public void cmdFEATURED(ArrayList<String> args) {
-		if (status == EXPECTING_FEATURED) {
+		if (status >= EXPECTING_FEATURED) {
 			if (args.size() >= 0) {
 				for (String a : args) {
 					for (String b : serverFeatures) {
@@ -243,8 +244,8 @@ public class ClientHandler extends Thread {
 						}
 					}
 				}
-				server.approve(this);
-				status = HANDSHAKE_SUCCESFULL;
+				
+				//status = HANDSHAKE_SUCCESFULL;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

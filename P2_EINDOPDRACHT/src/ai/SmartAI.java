@@ -100,6 +100,7 @@ public class SmartAI implements AI {
 		Path bestPath2 = null;
 		//TODO	Legt 2e kleur te laat neer
 		//TODO cellsAvailable is maar van 1 kleur.
+		//TODO maakt cell met 3 eigen zetten af, hoeft niet
 		// TODO blokkeert eigen 2e kleur
 		// TODO moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
@@ -699,7 +700,8 @@ public class SmartAI implements AI {
 														// also doesnt have a
 														// piece from the given
 														// player.
-							points = points + 2 * blocking(p, i);
+							points = points +blocking(p, i);
+							//Mogelijkheid om blocking() *2 te doen
 						}
 					}
 				} else {
