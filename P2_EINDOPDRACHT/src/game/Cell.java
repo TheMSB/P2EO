@@ -106,12 +106,12 @@ public class Cell {
 	 */
 	public boolean hasPieces(final Piece piece) {
 		boolean hasPiece = false;
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 5; i++) {
 			if (pieces[i] != null && pieces[i].getColor() == piece.getColor()) {
 				hasPiece = true;
 			}
 		}
-
+		//System.out.println("HasPiece:  "+hasPiece +"   C: "+piece.getColor());
 		return hasPiece;
 	}
 	

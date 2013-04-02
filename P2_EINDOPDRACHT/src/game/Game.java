@@ -44,7 +44,6 @@ public class Game extends Observable {
 	 * newly created players and runs the setUp method.
 	 * @param playernames List with the name of players
 	 */
-	//TODO observable maken
 	public Game(final int x, final int y, final ArrayList<String> playernames) {
 
 		playerCount = playernames.size();
@@ -52,13 +51,18 @@ public class Game extends Observable {
 		board = new Board();
 		players = new ArrayList<Player>();
 		//Creates players depending on the playerCount
-		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
-		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
-
-		if (playerCount > 2) {
+		//TODO dit beter maken
+		if(playerCount==2){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_2));
+		}else if(playerCount==3){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
-		}
-		if (playerCount > 3) {
+		}else if(playerCount==4){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
+			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
 		}
 		setUpGame(x, y, playerCount);
@@ -116,9 +120,9 @@ public class Game extends Observable {
 	 */
 	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
 		// Creates the starting stone
-		try {
+		try{
 			board.startStone(x, y);
-		} catch(InvalidMoveException e) {
+		}catch(InvalidMoveException e){
 			//TODO kijken wat te doen als startsteen verkeerd is
 		}
 
@@ -146,11 +150,14 @@ public class Game extends Observable {
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
 						// The Xtra piece, players get their color + color of 1 other player
-						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor() + 2));
+						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor() + 1));
 					}
 				}
 			}
 		}
+		
+		System.out.println(players.get(0).getPieces());
+		System.out.println(players.get(1).getPieces());
 		//TODO else invalid player number exception
 	}
 
@@ -184,31 +191,43 @@ public class Game extends Observable {
 	 * either. Lastly this method also checks if all fields are full
 	 * so that no player can perform a move. SHOULD be impossible with
 	 * current playercount and field size but is still included for scale ability.
+	 * 
+	 * @require		The Player who has the turn (turn is his name) has not yet made a move
 	 */
-	public boolean isGameOver() {
-		boolean gameOver = true;
-		for (Player player : players) { 
-			if (canDoMove(player)) {
-				gameOver = false;
+	public boolean isGameOver(){
+		boolean gameOver = false;
+		ArrayList<Player> playersToRemove = new ArrayList<Player>();
+		
+		//Make a new list of players, without those who cant do a move
+		for(Player player : players){
+			if(!canDoMove(player)){
+				playersToRemove.add(player);
 			}
 		}
-		//TODO kan het bord vol zijn?
+		//Checks if any of those players in the new list indexes are before or equal to the one having the turn, if so lower turn by 1 for each
+		for(int i=0;i<playersToRemove.size();i++){
+			if(players.indexOf(playersToRemove.get(i))<turn){
+				turn--;				
+			}
+			players.remove(playersToRemove.get(i));
+		}
+		turn = turn%players.size();
 		
-		return gameOver;
+		return players.size()==1;
 	}
 	
 	/**
 	 * Checks for each cell if the player has a piece that he can place
-	 * If there is 1 or more move available result = true.
+	 * If there is 1 or more move available result = true;
 	 * @param player	Player to check if he can do a move
 	 * @return
 	 */
-	public boolean canDoMove(final Player player) {
+	public boolean canDoMove(Player player){
 		boolean canMove = false;
 		for (int x = 0; x < Board.X; x++) {
 			for (int y = 0; y < Board.Y; y++) {
-				for (Piece p : player.getPieces()) {
-					if (board.canMove(x, y, p)) {
+				for(Piece p : player.getPieces()){
+					if(board.canMove(x, y,p)){
 						canMove = true;
 					}
 				}
@@ -227,14 +246,14 @@ public class Game extends Observable {
 	 * 			result.get(n+1) = stones left
 	 * 			(n being an integer)
 	 */
-	public ArrayList<Integer> getStats() {
+	public ArrayList<Integer> getStats(){
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		Integer[] score = board.getScore();
-		for (int i = 0; i < players.size(); i++) {
-			if (players.size() == 2) {
-				results.add(score[i] + score[i + 2]);
+		for(int i =0;i<players.size();i++){
+			if(players.size()==2){
+				results.add(score[i*2] + score[i*2+1]);
 				results.add(players.get(i).getPieces().size());
-			} else {
+			}else{
 				results.add(score[i]);
 				results.add(players.get(i).getPieces().size());
 			}
@@ -242,5 +261,31 @@ public class Game extends Observable {
 		}
 		return results;
 	}
+	
+	/*protected void gameOver() {
+		boolean over = true;
+		for (int x = 0; x < Board.X; x++) {
+			for (int y = 0; y < Board.Y; y++) {
+				if (board.getCell(x, y).isFull()) {
+					over = false;
+				}
+				for (int c = 0; c < 4; c++) {
+					for (int t = 0; t < 4; t++) {
+						try{
+							if (board.canMove(x, y, players.get(turn).getPiece(t, c))) {
+								over = false;
+							}
+						}catch(InvalidPieceException e){
+							System.out.println("GameOver heeft fout in methode");
+						}
+					}
+				}
+			} for (int p = 0; p < players.size(); p++) {
+				if (players.get(p).getPieces() != null) {
+					over = false;
+				}
+			}
+		}
+	} */
 }
 //TODO hasWinner, methods

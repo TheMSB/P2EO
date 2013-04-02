@@ -90,7 +90,6 @@ public class Client extends Thread {
 	public void run() {
 		while (true) { // TODO clientGUI moet client kunnen afsluiten
 			try {
-				String lastInput;
 
 				while (connected) {
 					lastInput = in.readLine();
@@ -99,6 +98,8 @@ public class Client extends Thread {
 						readCommand(new Scanner(lastInput));
 					} else {
 						//Verbinding gebroken als hij hier komt.
+						//TODO kreeg TURN, toern null, toen error.
+						System.out.println("socket closing");
 						sock.close();
 						serverAlive = false;
 						connected = false;
@@ -248,7 +249,7 @@ public class Client extends Thread {
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
 		//System.out.println(player.getPieces());
-		ai = new RandomAI(game,player);
+		ai = new SmartAI(game,player);
 	}
 
 	/**
@@ -396,7 +397,7 @@ public class Client extends Thread {
 	public void sendError(final int errorCode) {
 		System.out.println(">>>>>>>ERROR, Last input: " + lastInput);
 		System.out.println("##>STATUS<##  " + status);
-		sendCommand(util.Protocol.CMD_ERROR + " " + errorCode);
+		System.out.println(util.Protocol.CMD_ERROR + " " + errorCode);
 	}
 
 	/**
@@ -404,6 +405,7 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
+		System.out.println("Send command: "+command);
 		try {
 			out.write(command + "\n");
 			out.flush();

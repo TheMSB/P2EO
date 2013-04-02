@@ -110,12 +110,13 @@ public class ClientHandler extends Thread {
 		try {
 			while (true) {
 				lastInput = in.readLine();
-				System.out.println(lastInput);
+				System.out.println("Command gelezen: "+lastInput);
 				if (lastInput != null) {
 					readCommand(new Scanner(lastInput));
 				} else {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 					unexpectedDisconnect("Expecting_input");
+					break;
 				}
 			}
 		} catch (SocketException e) {
@@ -178,9 +179,9 @@ public class ClientHandler extends Thread {
 	public void checkCommand(String command, ArrayList<String> args) {
 		if (command.equals(util.Protocol.CMD_CONNECT)) {
 			cmdCONNECT(args);
-		} else if (command.equals(util.Protocol.CMD_FEATURED)) {
+		} else if (command.equals(util.Protocol.CMD_FEATURED)) { //TODO featured mag altijd
 			cmdFEATURED(args);
-		} else if (command.equals(util.Protocol.CMD_JOIN)) {
+		} else if (command.equals(util.Protocol.CMD_JOIN)) { 
 			cmdJOIN(args);
 		} else if (command.equals(util.Protocol.CMD_MOVE)) {
 			cmdMOVE(args);
@@ -210,7 +211,8 @@ public class ClientHandler extends Thread {
 							+ "Goedendag, welkom op onze server");
 					sendCommand(util.Protocol.CMD_FEATURES + " "
 							+ util.Util.concatArrayList(serverFeatures));
-					status = EXPECTING_FEATURED;
+					status = HANDSHAKE_SUCCESFULL;
+					server.approve(this);
 				} else {
 					sendError(util.Protocol.ERR_NAME_IN_USE);
 				}
@@ -231,19 +233,16 @@ public class ClientHandler extends Thread {
 	 *            Features the client has
 	 */
 	public void cmdFEATURED(ArrayList<String> args) {
-		if (status == EXPECTING_FEATURED) {
+		if (status >= EXPECTING_FEATURED) {
 			if (args.size() >= 0) {
+				clientFeatures = new ArrayList<String>();
 				for (String a : args) {
 					for (String b : serverFeatures) {
 						if (a.equals(b)) {
 							clientFeatures.add(a);
-							// TODO: iets over het accepteren van features in
-							// protocol?
 						}
 					}
 				}
-				server.approve(this);
-				status = HANDSHAKE_SUCCESFULL;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -315,8 +314,9 @@ public class ClientHandler extends Thread {
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
-				lobby.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
+				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
+				//TODO lobby is null als iemand dced in lobby;
 				// TODO moet naar iedereen in lobby EN iedereen die
 				// chat/challenge feature ondersteund
 			} else {
