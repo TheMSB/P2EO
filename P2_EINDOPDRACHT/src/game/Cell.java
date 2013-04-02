@@ -111,7 +111,7 @@ public class Cell {
 				hasPiece = true;
 			}
 		}
-		System.out.println("HasPiece:  "+hasPiece +"   C: "+piece.getColor());
+		//System.out.println("HasPiece:  "+hasPiece +"   C: "+piece.getColor());
 		return hasPiece;
 	}
 	

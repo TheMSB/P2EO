@@ -184,6 +184,7 @@ public class SmartAI implements AI {
 		cellsAvailable = new ArrayList<CellPoint>();
 		cellPointsList = new TreeSet<CellPoint>();
 		this.playerColor = playerColor;
+		
 		for (Piece p : player.getPieces()) {
 			if (p.getColor() == playerColor) {
 				pieces.add(p);

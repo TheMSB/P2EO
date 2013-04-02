@@ -235,17 +235,14 @@ public class ClientHandler extends Thread {
 	public void cmdFEATURED(ArrayList<String> args) {
 		if (status >= EXPECTING_FEATURED) {
 			if (args.size() >= 0) {
+				clientFeatures = new ArrayList<String>();
 				for (String a : args) {
 					for (String b : serverFeatures) {
 						if (a.equals(b)) {
 							clientFeatures.add(a);
-							// TODO: iets over het accepteren van features in
-							// protocol?
 						}
 					}
 				}
-				
-				//status = HANDSHAKE_SUCCESFULL;
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

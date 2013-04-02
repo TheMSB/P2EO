@@ -196,25 +196,24 @@ public class Game extends Observable {
 	 */
 	public boolean isGameOver(){
 		boolean gameOver = false;
-		ArrayList<Player> newPlayerList = new ArrayList<Player>();
+		ArrayList<Player> playersToRemove = new ArrayList<Player>();
 		
 		//Make a new list of players, without those who cant do a move
 		for(Player player : players){
-			if(canDoMove(player)){
-				newPlayerList.add(player);
+			if(!canDoMove(player)){
+				playersToRemove.add(player);
 			}
 		}
 		//Checks if any of those players in the new list indexes are before or equal to the one having the turn, if so lower turn by 1 for each
-		for(int i=0;i<newPlayerList.size();i++){
-			if(players.indexOf(newPlayerList.get(i))<=turn){
+		for(int i=0;i<playersToRemove.size();i++){
+			if(players.indexOf(playersToRemove.get(i))<turn){
 				turn--;				
 			}
+			players.remove(playersToRemove.get(i));
 		}
-		
-		players = newPlayerList;
 		turn = turn%players.size();
 		
-		return gameOver;
+		return players.size()==1;
 	}
 	
 	/**
