@@ -110,12 +110,13 @@ public class ClientHandler extends Thread {
 		try {
 			while (true) {
 				lastInput = in.readLine();
-				System.out.println(lastInput);
+				System.out.println("Command gelezen: "+lastInput);
 				if (lastInput != null) {
 					readCommand(new Scanner(lastInput));
 				} else {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 					unexpectedDisconnect("Expecting_input");
+					break;
 				}
 			}
 		} catch (SocketException e) {
@@ -315,8 +316,9 @@ public class ClientHandler extends Thread {
 	public void cmdDISCONNECT(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 0) {
-				lobby.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
+				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
+				//TODO lobby is null als iemand dced in lobby;
 				// TODO moet naar iedereen in lobby EN iedereen die
 				// chat/challenge feature ondersteund
 			} else {

@@ -78,7 +78,7 @@ public class Lobby {
 	 *          args.size()==4
 	 * @ensure If the move is valid, every client in the lobby will be informed
 	 *         of that move, and the next turn will be given out
-	 * 
+ 	 * 
 	 */
 	public void move(ArrayList<Integer> args) {
 		try{
@@ -88,8 +88,9 @@ public class Lobby {
 			giveTurn();
 		}catch (InvalidMoveException e) {
 			System.out.println("InvalidMoveDetected");
+			//TODO invalid move error sturen
 			e.printStackTrace();
-			endLobby();
+			giveTurn();
 		}
 	}
 
@@ -181,6 +182,7 @@ public class Lobby {
 	private synchronized void endLobby() {
 		System.out.println("Ending lobby");
 		
+		//TODO speler die crashed 0 punten geven
 		broadcastMessage(util.Protocol.CMD_END+" "+util.Util.concatArrayList(game.getStats()));
 		for (ClientHandler ch : clients) {
 			ch.leaveLobby();

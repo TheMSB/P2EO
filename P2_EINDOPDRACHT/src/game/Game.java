@@ -52,13 +52,18 @@ public class Game extends Observable {
 		board = new Board();
 		players = new ArrayList<Player>();
 		//Creates players depending on the playerCount
-		players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
-		players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
-
-		if (playerCount > 2) {
+		//TODO dit beter maken
+		if(playerCount==2){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_2));
+		}else if(playerCount==3){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
-		}
-		if (playerCount > 3) {
+		}else if(playerCount==4){
+			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
+			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
+			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
 		}
 		setUpGame(x, y, playerCount);
@@ -146,11 +151,14 @@ public class Game extends Observable {
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
 						// The Xtra piece, players get their color + color of 1 other player
-						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor() + 2));
+						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor() + 1));
 					}
 				}
 			}
 		}
+		
+		System.out.println(players.get(0).getPieces());
+		System.out.println(players.get(1).getPieces());
 		//TODO else invalid player number exception
 	}
 

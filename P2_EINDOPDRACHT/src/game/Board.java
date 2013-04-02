@@ -117,6 +117,7 @@ public class Board {
 	 *            The piece to place
 	 */
 	protected void move(final int x, final int y, final Piece piece) throws InvalidMoveException{
+		System.out.println(""+ (0<=x) + " " + (x<=Board.DIM) + " "+ (0<=y) + " "+ (y<=Board.DIM) + " "+ canMove(x,y,piece));
 		if(0<=x && x<=Board.DIM && 0<=y && y<=Board.DIM && canMove(x,y,piece)){
 			cells[x][y].addPiece(piece);
 		}else{
@@ -137,6 +138,7 @@ public class Board {
 	 */
 	public boolean canMove(final int x, final int y, final Piece piece) {
 		//TODO test dit.
+		//TODO dikke steen geeft geen toegang
 		boolean pieceAllowed = isCell(x, y) && getCell(x, y).pieceAllowed(piece);
 		boolean canMove = false;
 		boolean megaStoneAllowed = true;
@@ -153,6 +155,7 @@ public class Board {
 				megaStoneAllowed = false;
 			}
 		}
+		System.out.println(pieceAllowed +" "+ canMove  + " "+ megaStoneAllowed);
 		return pieceAllowed && canMove && megaStoneAllowed;
 	}
 	

@@ -9,18 +9,20 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
- * This AI calculates the best set to do
- * It does this by first assigning points to each cell, based on:
- * EffortToWin, how easy it is to get the point for this cell
- * Connectiveness, How much this cell will improve the connection this color has
- * Blocking, How much this move will hinder the enemy.
+ * This AI calculates the best set to do It does this by first assigning points
+ * to each cell, based on: EffortToWin, how easy it is to get the point for this
+ * cell Connectiveness, How much this cell will improve the connection this
+ * color has Blocking, How much this move will hinder the enemy.
  * 
- * After calculating those values, it will calculate the best series of moves to make, saved in a Path.
- * This is done by calculating the best path (by checking all paths) to the ponit with the highest score.
- * If the average score from this path is higher than the next best point, it will make these moves (starting with one)
- * If not, it will check the average worth of the next best point, recursively going further
+ * After calculating those values, it will calculate the best series of moves to
+ * make, saved in a Path. This is done by calculating the best path (by checking
+ * all paths) to the ponit with the highest score. If the average score from
+ * this path is higher than the next best point, it will make these moves
+ * (starting with one) If not, it will check the average worth of the next best
+ * point, recursively going further
+ * 
  * @author I3anaan
- *
+ * 
  */
 public class SmartAI implements AI {
 	/**
@@ -44,7 +46,8 @@ public class SmartAI implements AI {
 	 */
 	private Player player;
 	/**
-	 * A list of pieces from a given color, used to decide which moves are possible
+	 * A list of pieces from a given color, used to decide which moves are
+	 * possible
 	 */
 	private ArrayList<Piece> pieces;
 	/**
@@ -60,11 +63,13 @@ public class SmartAI implements AI {
 	 */
 	private ArrayList<CellPoint> cellsAvailable;
 	/**
-	 * All possible paths, without detour, from point A to B (all paths have A en B equal)
+	 * All possible paths, without detour, from point A to B (all paths have A
+	 * en B equal)
 	 */
 	private TreeSet<Path> currentPaths;
 	/**
-	 * Cells the ai checked for blocking purposes (ie, contains the current wall)
+	 * Cells the ai checked for blocking purposes (ie, contains the current
+	 * wall)
 	 */
 	private ArrayList<Point> checkedCells;
 	/**
@@ -74,8 +79,11 @@ public class SmartAI implements AI {
 
 	/**
 	 * Constructor
-	 * @param game		Game to which the ai belongs
-	 * @param player	Player to which the ai belongs
+	 * 
+	 * @param game
+	 *            Game to which the ai belongs
+	 * @param player
+	 *            Player to which the ai belongs
 	 */
 	public SmartAI(Game game, Player player) {
 		this.game = game;
@@ -90,27 +98,28 @@ public class SmartAI implements AI {
 		Path bestPath = null;
 		Path bestPath1 = null;
 		Path bestPath2 = null;
-		//TODO	blokkeert eigen 2e kleur
-		//TODO moet ook punten krijgen voor victory blok
-		//TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
-		
-		if(playerCount==2){
-		//TODO voor andere spelers
+		//TODO	Legt 2e kleur te laat neer
+		//TODO cellsAvailable is maar van 1 kleur.
+		// TODO blokkeert eigen 2e kleur
+		// TODO moet ook punten krijgen voor victory blok
+		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
+
+		if (playerCount == 2) {
+			// TODO voor andere spelers
 			bestPath1 = getBestMove(player.getColor());
-			bestPath2 = getBestMove(player.getColor()+2);
-			bestPath = BestPath(bestPath1,bestPath2);
-		}else if(playerCount ==3){
+			bestPath2 = getBestMove(player.getColor() + 1);
+			bestPath = BestPath(bestPath1, bestPath2);
+		} else if (playerCount == 3) {
 			bestPath1 = getBestMove(player.getColor());
 			bestPath2 = getBestMove(3);
-			bestPath = BestPath(bestPath1,bestPath2);
-		}else if(playerCount==4){
+			bestPath = BestPath(bestPath1, bestPath2);
+		} else if (playerCount == 4) {
 			bestPath = getBestMove(player.getColor());
-		}else{
+		} else {
 			System.out.println("PlayerCount invalid");
 		}
-		//getBestMove((player.getColor() + 2) % 4);
 		System.out.println(bestPath);
-		if(bestPath==null){
+		if (bestPath == null) {
 			System.out.println("No more moves possible");
 			System.out.println(bestPath1);
 			System.out.println(bestPath2);
@@ -130,10 +139,12 @@ public class SmartAI implements AI {
 			x = bestPath.get(0).getX();
 			y = bestPath.get(0).getY();
 			try {
-				piece = player.getPiece(bestPath.get(0).getBestType(), player.getColor());
+				piece = player.getPiece(bestPath.get(0).getBestType(),
+						player.getColor());
 			} catch (InvalidPieceException e) {
 				e.printStackTrace();
-				System.out.println("SMART AI BUG, wil niet bestaand Piece gebruiken");
+				System.out
+						.println("SMART AI BUG, wil niet bestaand Piece gebruiken");
 			}
 			validMoveFound = board.canMove(x, y, piece);
 		} while (!validMoveFound);
@@ -147,17 +158,20 @@ public class SmartAI implements AI {
 		return arr;
 	}
 
-	public Path BestPath(Path p1, Path p2){
+	public Path BestPath(Path p1, Path p2) {
 		Path output = p1;
-		if(p1==null || (p2!=null && playerCount!=3 && p2.getAverageWorth()>p1.getAverageWorth())){
+		if (p1 == null
+				|| (p2 != null && playerCount != 3 && p2.getAverageWorth() > p1
+						.getAverageWorth())) {
 			output = p2;
-		}else if(p2!=null && p2.getAverageWorthNeutral()>p1.getAverageWorth()){
+		} else if (p2 != null
+				&& p2.getAverageWorthNeutral() > p1.getAverageWorth()) {
 			output = p2;
 		}
-		
+
 		return output;
 	}
-	
+
 	/**
 	 * Will return the best path of moves for the given color
 	 * 
@@ -299,54 +313,61 @@ public class SmartAI implements AI {
 	private Path getPath(CellPoint point1, CellPoint point2) {
 		currentPaths = new TreeSet<Path>();
 		piecesUsed = new ArrayList<Piece>();
-		
-		//TODO piecesUsed zou teveel Pieces kunnen bevatten, moet mogelijk gereset worden
+
+		// TODO piecesUsed zou teveel Pieces kunnen bevatten, moet mogelijk
+		// gereset worden
 		int dx = point2.getX() - point1.getX();
 		int dy = point2.getY() - point1.getY();
 
-		Path currentPath = new Path(point1);
-		
-		int bestType = getBestType(point1);
-		point1.setBestType(bestType); // Best type for the cell
-		boolean pieceFound = false;
+		if (!board.getCell(point1.getX(), point1.getY()).isFull()) {
+			// TODO kijken of ik op point1 kan zetten, kan nu de steen niet
+			// hebben
+			Path currentPath = new Path(point1);
 
-		for (int i = 0; i < pieces.size() && !pieceFound; i++) {
-			if (pieces.get(i).getType() == bestType) {
-				piecesUsed.add(pieces.get(i));
-				pieceFound = true;
-			}
-		} // Get a piece with that type and reserve it from further moves
-		
-		if (pieceFound) { // If there is a piece available to place on that cell
-							// System.out.println("GetPath from:  "+
-							// point1+"  TO: "+point2);
-			int x = point1.getX();
-			int y = point1.getY();
+			int bestType = getBestType(point1);
+			point1.setBestType(bestType); // Best type for the cell
+			boolean pieceFound = false;
 
-			if (Math.abs(dx) > 0) {
-				Path pathX = currentPath.copy();
-				CellPoint cell = cellPoints[x + (int) (Math.signum(dx))][y];
-				if (!cellsAvailable.contains(cell)
-						&& !board.getCell(cell.getX(), cell.getY()).isFull()) {
-					pathX.add(cell);
-					continuePath(pathX, point2);
-				}// else{ System.out.println("Detour detected");}
-			} else if (dy == 0) {
-				// System.out.println("BASECASE:  "+currentPath);
-				System.out.println(piecesUsed);
-				currentPaths.add(currentPath); // BaseCase
-			}
-			if (Math.abs(dy) > 0) {
-				Path pathY = currentPath.copy();
-				CellPoint cell = cellPoints[x][y + (int) (Math.signum(dy))];
-				if (!cellsAvailable.contains(cell)
-						&& !board.getCell(cell.getX(), cell.getY()).isFull()) {
-					pathY.add(cell);
-					continuePath(pathY, point2);
-				}// else{ System.out.println("Detour detected");}
+			for (int i = 0; i < pieces.size() && !pieceFound; i++) {
+				if (pieces.get(i).getType() == bestType) {
+					piecesUsed.add(pieces.get(i));
+					pieceFound = true;
+				}
+			} // Get a piece with that type and reserve it from further moves
+
+			if (pieceFound) { // If there is a piece available to place on that
+								// cell
+								// System.out.println("GetPath from:  "+
+								// point1+"  TO: "+point2);
+				int x = point1.getX();
+				int y = point1.getY();
+
+				if (Math.abs(dx) > 0) {
+					Path pathX = currentPath.copy();
+					CellPoint cell = cellPoints[x + (int) (Math.signum(dx))][y];
+					if (!cellsAvailable.contains(cell)
+							&& !board.getCell(cell.getX(), cell.getY())
+									.isFull()) {
+						pathX.add(cell);
+						continuePath(pathX, point2);
+					}// else{ System.out.println("Detour detected");}
+				} else if (dy == 0) {
+					// System.out.println("BASECASE:  "+currentPath);
+					System.out.println(piecesUsed);
+					currentPaths.add(currentPath); // BaseCase
+				}
+				if (Math.abs(dy) > 0) {
+					Path pathY = currentPath.copy();
+					CellPoint cell = cellPoints[x][y + (int) (Math.signum(dy))];
+					if (!cellsAvailable.contains(cell)
+							&& !board.getCell(cell.getX(), cell.getY())
+									.isFull()) {
+						pathY.add(cell);
+						continuePath(pathY, point2);
+					}// else{ System.out.println("Detour detected");}
+				}
 			}
 		}
-
 		Path output = null;
 
 		if (currentPaths.size() > 0) {
@@ -375,7 +396,7 @@ public class SmartAI implements AI {
 		int bestType = getBestType(point1);
 		point1.setBestType(bestType); // Best type for the cell
 		boolean pieceFound = false;
-		
+
 		for (int i = 0; i < pieces.size() && !pieceFound; i++) {
 			if (pieces.get(i).getType() == bestType) {
 				piecesUsed.add(pieces.get(i));
@@ -383,8 +404,9 @@ public class SmartAI implements AI {
 			}
 		} // Get a piece with that type and reserve it from further moves
 		if (pieceFound) { // If there is a piece available to place on that cell
-			
-			// if there still needs to be done a step on the X axis it will do so
+
+			// if there still needs to be done a step on the X axis it will do
+			// so
 			// and
 			// reinvoke this method
 			if (Math.abs(dx) > 0) {
@@ -432,23 +454,25 @@ public class SmartAI implements AI {
 				possiblePieces.add(a);
 			}
 		}
-		// Check for each Piece in pieces if they are in piecesUsed, if not will add to possiblePieces
+		// Check for each Piece in pieces if they are in piecesUsed, if not will
+		// add to possiblePieces
 
 		int type = -1;
 
 		boolean typeFound = false;
 		while (!typeFound && possiblePieces.size() > 0) {
 			if (board.getCell(cell.getX(), cell.getY()).isEmpty()
-					&& cell.getBW() > cell.getWW() && getPieceOfType(possiblePieces,4)!=null) {
+					&& cell.getBW() > cell.getWW()
+					&& getPieceOfType(possiblePieces, 4) != null) {
 				type = 4;
 			} else {
 				type = getMostCommonType(possiblePieces);
 			}
-			//System.out.println(type);
-			
+			// System.out.println(type);
+
 			possiblePieces.remove(getPieceOfType(possiblePieces, type));
 			// Removes the just used piece from possible pieces so that in the
-				// next iteration it will not try the same Piece
+			// next iteration it will not try the same Piece
 
 			typeFound = board.canMove(cell.getX(), cell.getY(), new Piece(type,
 					playerColor));
@@ -456,48 +480,55 @@ public class SmartAI implements AI {
 
 		return type;
 	}
+
 	/**
 	 * Gets a piece with the given type from the array
-	 * @param arr		Array to get the Piece from
-	 * @param type		The type of the piece wanted
+	 * 
+	 * @param arr
+	 *            Array to get the Piece from
+	 * @param type
+	 *            The type of the piece wanted
 	 * @return
 	 */
-	private Piece getPieceOfType(ArrayList<Piece> arr, int type){
+	private Piece getPieceOfType(ArrayList<Piece> arr, int type) {
 		Piece pieceFound = null;
-		for (int i = 0; i < arr.size() && pieceFound==null; i++) {
+		for (int i = 0; i < arr.size() && pieceFound == null; i++) {
 			if (arr.get(i).getType() == type) {
 				pieceFound = arr.get(i);
 			}
 		}
-		
+
 		return pieceFound;
 	}
+
 	/**
 	 * Gets the most common type in the given ArrayList
+	 * 
 	 * @param arr
 	 * @return
 	 */
-	private int getMostCommonType(ArrayList<Piece> arr){
+	private int getMostCommonType(ArrayList<Piece> arr) {
 		int[] result = new int[5];
-		for(int i=0;i<arr.size();i++){
-			result[arr.get(i).getType()] = result[arr.get(i).getType()]+1;
+		for (int i = 0; i < arr.size(); i++) {
+			result[arr.get(i).getType()] = result[arr.get(i).getType()] + 1;
 		}
-		
+
 		int max = 0;
-		for(int i=1;i<result.length;i++){
-			if(result[i]>result[max]){
+		for (int i = 1; i < result.length; i++) {
+			if (result[i] > result[max]) {
 				max = i;
 			}
 		}
-		
+
 		return max;
 	}
 
 	/**
 	 * Calculates the worth of the given coordinates
+	 * 
 	 * @param x
 	 * @param y
-	 * @return	CellPoint containing the different values
+	 * @return CellPoint containing the different values
 	 */
 	public CellPoint calculateWorth(int x, int y) {
 		CellPoint cellReturn = new CellPoint(x, y, 0, 0, 0);
@@ -619,7 +650,7 @@ public class SmartAI implements AI {
 	private double blocking(int x, int y) {
 		// 1 punt als het vak dicht gooit voor elke aangrenzende speler
 		// 2 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
-		//TODO lategame veel te veel waard
+		// TODO lategame veel te veel waard
 
 		double points = 0;
 		ArrayList<Integer> list = board.getCell(x, y).getOwnerList();
@@ -655,12 +686,14 @@ public class SmartAI implements AI {
 										.get(i) == 0// the given player has no
 													// pieces in the
 													// neighbouring cell
-								&& board.isCell(arr[(a + 2) % 4].x,
-										arr[(a + 2) % 4].y)// the cell across
-															// the neighbouring
-															// cell exists
-								&& board.getCell(arr[(a + 2) % 4].x,
-										arr[(a + 2) % 4].y).getOwnerList()
+								&& board.isCell(arr[(a + 1) % 2 + a].x,
+										arr[(a + 1) % 2 + a].y)// the cell
+																// across
+																// the
+																// neighbouring
+																// cell exists
+								&& board.getCell(arr[(a + 1) % 2 + a].x,
+										arr[(a + 1) % 2 + a].y).getOwnerList()
 										.get(i) == 0) {// The cell across the
 														// neighbouring cell
 														// also doesnt have a
@@ -729,12 +762,14 @@ public class SmartAI implements AI {
 															// has no pieces in
 															// the neighbouring
 															// cell
-								&& board.isCell(arr[(a + 2) % 4].x,
-										arr[(a + 2) % 4].y)// the cell across
-															// the neighbouring
-															// cell exists
-								&& board.getCell(arr[(a + 2) % 4].x,
-										arr[(a + 2) % 4].y).getOwnerList()
+								&& board.isCell(arr[(a + 1) % 2 + a].x,
+										arr[(a + 1) % 2 + a].y)// the cell
+																// across
+																// the
+																// neighbouring
+																// cell exists
+								&& board.getCell(arr[(a + 1) % 2 + a].x,
+										arr[(a + 1) % 2 + a].y).getOwnerList()
 										.get(playerN) == 0) {// The cell across
 																// the
 																// neighbouring
