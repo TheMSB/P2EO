@@ -61,8 +61,8 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private void buildGUI() {
 		
 		//---- Main window ----
-				setPreferredSize(new Dimension(500, 600));
-				setMinimumSize(new Dimension(500, 600));
+				setPreferredSize(new Dimension(500, 650));
+				setMinimumSize(new Dimension(500, 650));
 		
 		//---- Game Panel -----
 		gamePanel = new GamePanel(game, name);
@@ -79,9 +79,13 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
 				Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 	}
+	protected void setGame(Game g){
+		this.game = g;
+	}
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+	public void actionPerformed(ActionEvent e) {
+		repaint();
+		gamePanel.repaint();
 		
 	}
 
@@ -90,9 +94,12 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		System.out.println(e.getX());
 		int x = e.getX();
 		int y = e.getY();
-		System.out.println(gamePanel.findComponentAt(x, y));
+		//System.out.println(gamePanel.findComponentAt(x, y));
 		System.out.println("Component: " + e.getComponent());
-		System.out.println("Source: " + e.getSource());
+		//System.out.println("Source: " + e.getSource());
+		repaint();
+		gamePanel.repaint();
+		
 		//((CellPanel.)
 	}
 

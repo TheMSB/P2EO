@@ -36,6 +36,7 @@ public class Client extends Thread {
 	private boolean serverAlive;
 	private int status;
 	private Game game;
+	private ClientGUI gui;
 	private Player player;
 	private AI ai;
 	private boolean humanIsPlaying;
@@ -61,7 +62,8 @@ public class Client extends Thread {
 	 * 
 	 * @param name
 	 */
-	public Client(String name) {
+	public Client(final String name, final ClientGUI gu) {
+		this.gui = gu;
 		System.out.println("[Client]   "+name);
 		this.name = name;
 		
@@ -242,6 +244,7 @@ public class Client extends Thread {
 	private void startGame(int x, int y, ArrayList<String> args) {
 		humanIsPlaying = false; //TODO dit variabel maken
 		game = new Game(x,y,args);
+		gui.startGame(game);
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
 		//System.out.println(player.getPieces());

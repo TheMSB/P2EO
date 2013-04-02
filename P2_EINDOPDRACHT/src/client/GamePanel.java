@@ -36,13 +36,7 @@ public class GamePanel extends JPanel {
 		setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
 		this.setBackground(Color.BLUE);
-		//setPreferredSize(new Dimension(500, 600));
-		//setLayout(new GridLayout(5, 5));
-		//setMinimumSize(new Dimension(400, 500));
-		//inventory.setPreferredSize(new Dimension(200, 200));
-		//inventory.setMinimumSize(new Dimension(200, 200));
-		//contentPane.add(board, BorderLayout.LINE_START);
-		//contentPane.add(inventory, BorderLayout.SOUTH);
+	
 		
 		// TODO Auto-generated constructor stub
 		//---- Draws cells to the board ------------------
@@ -73,7 +67,7 @@ public class GamePanel extends JPanel {
 	
 	public void drawInventory() {
 		invent = new InventoryPainter(player.getPieces());
-		inventory.setPreferredSize(new Dimension(500, 100));
+		inventory.setPreferredSize(new Dimension(500, 150));
 		inventory.add(invent);
 		
 	}

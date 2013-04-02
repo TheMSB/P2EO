@@ -90,25 +90,12 @@ public class CellPanel extends JPanel {
 					
 					PiecePainter paint = new PiecePainter();
 					paint.paintComponent(g2, piece, this.getWidth());
-					/**
-					 PiecePainter paint = new PiecePainter();
 					
-					paint.setOpaque(true);
-					this.add(paint);
-					paint.setDrawPiece(piece);
-					*/
-					// g2 meegeven methode
-					
-					System.out.println(cell.getX() + " " + cell.getY());
-					System.out.println(piece);
-					System.out.println(cell.getPieces());
-					//paint.repaint();
 				}
 				
 			}
 		}
 		
-		//this.repaint();
 
 	}
 

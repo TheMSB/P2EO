@@ -56,13 +56,21 @@ public class ClientGUI {
 
 	//---- Constructor ---------------------------------
 
-	public ClientGUI(Game game) {
+    //TODO client GUI geven, dan client game laten maken en laten starten.
+    //TODO off: sandbox starten, dan connect optie game laten veranderen.
+	public ClientGUI() {
 		aWindow = new ActionWindow(game, name);
 		aWindow.pack();
 		aWindow.validate();
 		aWindow.setVisible(true);
+		Client client = new Client(name + Math.random(), this);
+		client.start();
 	}
 	
+	protected void startGame(final Game g) {
+		this.game = g;
+		
+	}
 	/**
 	 * @param args
 	 */
@@ -74,9 +82,9 @@ public class ClientGUI {
 		// eigen naam zoeken, hoe te implementeren?
 		name = args[0];
 
-		ClientGUI gui = new ClientGUI(new Game(2, 2, names));
-		Client client = new Client(name + Math.random());
-		client.start();
+		
+		ClientGUI gui = new ClientGUI();
+		
 
 	}
 
