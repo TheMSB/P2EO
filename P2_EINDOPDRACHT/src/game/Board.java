@@ -157,11 +157,11 @@ public class Board {
 	}
 	
 	/**
-	 * Returns the score where indes is equal to color
+	 * Returns the score where index is equal to color.
 	 * @return
 	 * @ensure	result.length==4;
 	 */
-	public Integer[] getScore(){
+	public Integer[] getScore() {
 		Integer[] scores = new Integer[4];
 		scores[0] = 0;
 		scores[1] = 0;
@@ -169,8 +169,8 @@ public class Board {
 		scores[3] = 0;
 		for (int x = 0; x < X; x++) {
 			for (int y = 0; y < Y; y++) {
-				if(cells[x][y].determOwner()!=-1){
-					scores[cells[x][y].determOwner()] = scores[cells[x][y].determOwner()]+1;
+				if (cells[x][y].determOwner() != -1) {
+					scores[cells[x][y].determOwner()] = scores[cells[x][y].determOwner()] + 1;
 				}
 				
 			}
