@@ -80,7 +80,7 @@ public class Player {
 				output = p;
 			}
 		}
-		if(output==null){
+		if (output == null) {
 			throw new InvalidPieceException();
 		}
 		return output;

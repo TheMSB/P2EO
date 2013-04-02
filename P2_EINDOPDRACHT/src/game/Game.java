@@ -75,6 +75,20 @@ public class Game extends Observable {
 		return players.get(p);
 	}
 	/**
+	 * Returns index of the player with given name from the array.
+	 * @param p Player
+	 * @return Index of player
+	 */
+	public Player getPlayer(final String n) {
+		Player output = null;
+		for (Player p : players) {
+			if (p.getName().equals(n)) {
+				output = p;
+			}
+		}
+		return output;
+	}
+	/**
 	 * Returns the current turn.
 	 * @return turn
 	 */

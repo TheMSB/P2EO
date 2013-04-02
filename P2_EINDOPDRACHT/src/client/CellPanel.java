@@ -2,8 +2,10 @@ package client;
 
 import game.Board;
 import game.Cell;
+import game.Piece;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -14,7 +16,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.*;
 
-public class CellPainter extends JPanel {
+public class CellPanel extends JPanel {
 
 	//---- Constants --------------------------
 	
@@ -27,8 +29,9 @@ public class CellPainter extends JPanel {
 
 	//---- Constructor ------------------------
 
-	public CellPainter(Cell c) {
+	public CellPanel(Cell c) {
 		cell = c;
+		setPreferredSize(new Dimension(100, 100));
 	}
 
 	//---- Methods ----------------------------
@@ -72,9 +75,40 @@ public class CellPainter extends JPanel {
 		}
 		//---- center point --------------------
 		
-		Ellipse2D.Double circle = new Ellipse2D.Double(xCenter, yCenter, 5, 5);
+		Ellipse2D.Double circle = new Ellipse2D.Double(
+				xCenter - 2.5,
+				yCenter + 2.5, 
+				5, 5);
 		g2.fill(circle);
 		g2.draw(circle);
+		
+		//---- Pieces --------------------------
+		
+		if (cell.getPieces() != null) {
+			for (Piece piece : cell.getPieces()) {
+				if (piece != null) {
+					
+					PiecePainter paint = new PiecePainter();
+					paint.paintComponent(g2, piece, this.getWidth());
+					/**
+					 PiecePainter paint = new PiecePainter();
+					
+					paint.setOpaque(true);
+					this.add(paint);
+					paint.setDrawPiece(piece);
+					*/
+					// g2 meegeven methode
+					
+					System.out.println(cell.getX() + " " + cell.getY());
+					System.out.println(piece);
+					System.out.println(cell.getPieces());
+					//paint.repaint();
+				}
+				
+			}
+		}
+		
+		//this.repaint();
 
 	}
 
