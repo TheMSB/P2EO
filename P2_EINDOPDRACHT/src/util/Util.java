@@ -31,4 +31,24 @@ public class Util {
 		}
 		return names; 
 	}
+	
+	public static int sumArray(ArrayList<Integer> arr){
+		int output = 0;
+		for(int i : arr){
+			output = output+i;
+		}
+		
+		return output;
+	}
+	
+	public static int getIndexOfMax(Integer[] arr){
+		int max = 0;
+		for(int i=1;i<arr.length;i++){
+			if(arr[i]>max){
+				max = i;
+			}
+		}
+		
+		return max;
+	}
 }

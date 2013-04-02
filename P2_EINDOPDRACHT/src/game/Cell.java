@@ -156,33 +156,45 @@ public class Cell {
 	/**
 	 * Determines the owner of the Cell by determining the owner of
 	 * each individual Piece placed in the Cell.
-	 * @return Player with most Pieces in Cell
+	 * @return ArrayList with scores (going p1>p4)
 	 */
-	public int determOwner() {
+	public ArrayList<Integer> getOwnerList() {
 		int p0 = 0;
 		int p1 = 0;
 		int p2 = 0;
 		int p3 = 0;
 
 		for (int i = 0; i < 4; i++) {
-			if (pieces[i].getColor() == PlayerColor.COLOR_0) {
-				p0++;
-			} else if (pieces[i].getColor() == PlayerColor.COLOR_1) {
-				p1++;
-			} else if (pieces[i].getColor() == PlayerColor.COLOR_2) {
-				p2++;
-			} else if (pieces[i].getColor() == PlayerColor.COLOR_3) {
-				p3++;
+			if(pieces[i]!=null){
+				if (pieces[i].getColor() == PlayerColor.COLOR_0) {
+					p0++;
+				} else if (pieces[i].getColor() == PlayerColor.COLOR_1) {
+					p1++;
+				} else if (pieces[i].getColor() == PlayerColor.COLOR_2) {
+					p2++;
+				} else if (pieces[i].getColor() == PlayerColor.COLOR_3) {
+					p3++;
+				}
 			}
 		}
-		List<Integer> list = new ArrayList<Integer>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		list.add(p0);
 		list.add(p1);
 		list.add(p2);
 		list.add(p3);
-		Collections.sort(list);
 
-		return list.get(list.size() - 1);
+		return list;
 	}
-
+	
+	public int determOwner(){
+		ArrayList<Integer> list = getOwnerList();
+		int winner = -1;
+		Collections.sort(list);
+		if(list.get(list.size()-1) != list.get(list.size()-2)){
+			winner = list.get(list.size()-1);
+		}
+		
+		return winner;
+	}
+	
 }

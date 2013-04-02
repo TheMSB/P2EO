@@ -20,6 +20,15 @@ public class Path extends ArrayList<CellPoint> implements Comparable<Path>{
 	public double getAverageWorth(){
 		return getTotalWorth()/super.size();
 	}
+	
+	public double getAverageWorthNeutral(){
+		double points = 0;
+		for(int i=0;i<super.size();i++){
+			points = points + super.get(i).getCW()+ super.get(i).getBW();
+		}
+		
+		return points/super.size();
+	}
 
 	public Path copy(){
 		Path copy = new Path(this.get(0));

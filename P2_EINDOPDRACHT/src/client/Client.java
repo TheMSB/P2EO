@@ -245,7 +245,7 @@ public class Client extends Thread {
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
 		//System.out.println(player.getPieces());
-		ai = new SmartAI(game,player);
+		ai = new RandomAI(game,player);
 	}
 
 	/**
