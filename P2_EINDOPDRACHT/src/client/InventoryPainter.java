@@ -63,6 +63,7 @@ public class InventoryPainter extends JList {
 	 */
 	protected void removePiece(final Piece arg) {
 		model.removeElement(arg);
+		System.out.println("A piece has been removed from the model");
 	}
 	
 	/**

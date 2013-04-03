@@ -107,14 +107,27 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 
 	/**
 	 * Updates the entire ActionWindow to reflect
-	 * any changes that may have occured.
+	 * any changes that may have occurred.
+	 * Should only be called by ActionWindow itself.
 	 */
-	void updateAW() {
+	private void updateAW() {
 		repaint();
 		//TODO dit 'refreshed' niet het inventory
 		
 	}
 
+	/**
+	 * Handles a move for both Human
+	 * and AI players. This ensures that Inventory
+	 * is updated when pieces are removed.
+	 * @param x
+	 * @param y
+	 * @param type
+	 * @param color
+	 */
+	void doMove(final int x, final int y, final int type, final int color){
+		updateAW();
+	}
 	@Override
 	public void addMessage(final String name, final String msg) {
 		//taMessages.append("<" + name + "> " + msg +"\n");
@@ -142,6 +155,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 						//TODO do move on cell
 						System.out.println("clicked Cell: " + x + "," + y);
 						try {
+							//TODO make 1 move process command for AW to handle both human and AI moves.
 							game.move(x, y, type, color);
 							gamePanel.removePiece(inventPiece);
 						} catch (InvalidMoveException e1) {
