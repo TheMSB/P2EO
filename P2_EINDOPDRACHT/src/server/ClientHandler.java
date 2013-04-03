@@ -425,6 +425,7 @@ public class ClientHandler extends Thread {
 								.contains(util.Protocol.FEAT_CHALLENGE)))) {
 				out.write(command + "\n");
 				out.flush();
+				System.out.println("Send command:   "+command);
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
