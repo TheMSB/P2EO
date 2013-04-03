@@ -22,6 +22,8 @@ import game.Player;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,6 +42,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	private Game game;
 	private String name;
+	private String[] aiListing = {"None", "SmartAI","RandomAI"};
 
 	// Windows and Panels
 
@@ -49,6 +52,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private JPanel chatbox = new JPanel();
 	private JButton bConnect;
 	private JButton bJoin;
+	private JComboBox aiList;
+	private JCheckBox bFlame;
 
 	private JTextField  tfPort;
 	private JTextField	tfAddress;
@@ -103,7 +108,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		JPanel p1 = new JPanel(new FlowLayout());
 		JPanel pp = new JPanel(new GridLayout(4, 2));
-		JPanel joinPanel = new JPanel(new GridLayout(1, 3));
+		JPanel joinPanel = new JPanel(new GridLayout(4, 2));
 
 		JLabel lbAddress = new JLabel("Address: ");
 		tfAddress = new JTextField("localhost", 12);
@@ -121,6 +126,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
 		nrPlayers = new JTextField("", 1);
 		nrPlayers.addKeyListener(this);
+		
+		JLabel lbAI = new JLabel("Desired AI: ");
+		aiList = new JComboBox(aiListing);
+		aiList.setSelectedIndex(0);
+		aiList.addActionListener(this);
+		
+		JLabel lbSpam = new JLabel("Flame Bot: ");
+		bFlame = new JCheckBox("Enabled");
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -131,6 +144,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		joinPanel.add(lbNrPlayers);
 		joinPanel.add(nrPlayers);
+		joinPanel.add(lbAI);
+		joinPanel.add(aiList);
+		joinPanel.add(lbSpam);
+		joinPanel.add(bFlame);
 
 		bConnect = new JButton("Connect");
 		bConnect.setEnabled(false);
@@ -260,6 +277,21 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			connect();
 		} else if (e.getSource() == bJoin) {
 			join(Integer.parseInt(nrPlayers.getText()));
+		} else if (e.getSource() == aiList) {
+			if (aiList.getSelectedIndex() == 0) {
+				//Set human is playing true
+			}
+			if (aiList.getSelectedIndex() == 1) {
+				//Set human is playing false
+				//Set smartAI
+			}
+			if (aiList.getSelectedIndex() == 2) {
+				//Set human is playing false
+				//Set randomAI
+			}
+			
+		} else if (e.getSource() == bFlame) {
+			//Enable Flame Bot
 		}
 
 	}

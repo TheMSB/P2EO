@@ -84,19 +84,14 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		setMinimumSize(new Dimension(500, 650));
 
 		buildGame();
-		// TODO Auto-generated constructor stub
-
-		//---- Defines Border styles
-		Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
-		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		
 	}
 	/**
 	 * Constructs the Game panel where the player
 	 * can play on.
 	 */
 	protected void buildGame() {
-		//---- Loading the Game ----
-		//setGame(g);
+		
 		//---- Game Panel -----
 		gamePanel = new GamePanel(game, player);
 
@@ -114,6 +109,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 */
 	void updateAW() {
 		repaint();
+		//TODO dit 'refreshed' niet het inventory
 		gamePanel.drawInventory();
 	}
 
