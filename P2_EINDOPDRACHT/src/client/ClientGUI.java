@@ -1,5 +1,6 @@
 package client;
 
+import exceptions.InvalidMoveException;
 import game.Board;
 import game.Cell;
 import game.Game;
@@ -56,25 +57,13 @@ public class ClientGUI {
 
 	//---- Constructor ---------------------------------
 
-    //TODO client GUI geven, dan client game laten maken en laten starten.
-    //TODO off: sandbox starten, dan connect optie game laten veranderen.
-	public ClientGUI() {
-		new ConnectionWindow();
-		/*
-		aWindow = new ActionWindow(name);
+	public ClientGUI(Game game) {
+		aWindow = new ActionWindow(game, name);
 		aWindow.pack();
 		aWindow.validate();
 		aWindow.setVisible(true);
-		*/
-		//Client client = new Client(name + Math.random(), this);
-		//client.start();
 	}
 	
-	protected void startGame(final Game g) {
-		this.game = g;
-		aWindow.buildGame(game, name);
-		
-	}
 	/**
 	 * @param args
 	 */
@@ -86,9 +75,14 @@ public class ClientGUI {
 		// eigen naam zoeken, hoe te implementeren?
 		name = args[0];
 
-		
-		ClientGUI gui = new ClientGUI();
-		
+		try {
+			ClientGUI gui = new ClientGUI(new Game(2, 2, names));
+		} catch (InvalidMoveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Client client = new Client(name + Math.random());
+		client.start();
 
 	}
 

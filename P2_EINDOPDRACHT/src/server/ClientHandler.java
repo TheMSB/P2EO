@@ -285,7 +285,7 @@ public class ClientHandler extends Thread {
 	 *            Data for the move (x,y,type,color)
 	 */
 	public void cmdMOVE(ArrayList<String> args) {
-		if (status == INGAME && lobby.getTurn().equals(getClientName())) {
+		if (status == INGAME && lobby.getTurnName().equals(getClientName())) {
 			if (args.size() == 4) {
 				try {
 					lobby.move(util.Util.ConvertToInt(args));
@@ -297,7 +297,7 @@ public class ClientHandler extends Thread {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
-			System.out.println(lobby.getTurn() + "   " + getClientName());
+			System.out.println(lobby.getTurnName() + "   " + getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}

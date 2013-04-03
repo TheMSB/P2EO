@@ -7,7 +7,8 @@ public class CellPoint implements Comparable<CellPoint>{
 	private double 	winWorth;
 	private double	connectionWorth;
 	private double	blockWorth;
-	int type;
+	private int type;
+	private int color;
 	
 	public CellPoint(int x, int y, double winWorth, double connectionWorth, double blockWorth){
 		this.x = x;
@@ -42,6 +43,13 @@ public class CellPoint implements Comparable<CellPoint>{
 
 	public int getBestType(){
 		return type;
+	}
+	public void setBestColor(int color){
+		this.color = color;
+	}
+
+	public int getBestColor(){
+		return color;
 	}
 	
 	@Override
