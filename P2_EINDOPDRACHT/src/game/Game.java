@@ -102,6 +102,20 @@ public class Game extends Observable {
 	}
 	
 	/**
+	 * For GUI use only. Converts move command variables
+	 * into a piece from the players inventory.
+	 * @param x
+	 * @param y
+	 * @param type
+	 * @param color
+	 * @return Piece
+	 * @throws InvalidPieceException
+	 */
+	public Piece getMovPiece(final int x, final int y, final int type, final int color) throws InvalidPieceException {
+		return players.get(turn).getPiece(type, color);
+	}
+	
+	/**
 	 * Returns the current turn.
 	 * @return turn
 	 */
