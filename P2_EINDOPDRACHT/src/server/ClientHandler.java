@@ -339,6 +339,7 @@ public class ClientHandler extends Thread {
 	private void cmdSAY(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 1) {
+				System.out.println("Received chat message");
 				if(this.lobby!=null){
 					lobby.broadcastMessage(util.Protocol.CMD_SAID+" "+this.getClientName() +" "+ util.Util.concatArrayList(args));
 				}else{
@@ -415,6 +416,7 @@ public class ClientHandler extends Thread {
 	 * @ensure	Only sends a command starting with CHAT, if the feature is supported by the client
 	 */
 	public void sendCommand(String command) {
+		System.out.println("Received command:   "+command);
 		try {
 			if ((!command.startsWith(util.Protocol.CMD_SAID) || clientFeatures
 					.contains(util.Protocol.FEAT_CHAT))
@@ -423,6 +425,7 @@ public class ClientHandler extends Thread {
 								.contains(util.Protocol.FEAT_CHALLENGE)))) {
 				out.write(command + "\n");
 				out.flush();
+				System.out.println("Send command:   "+command);
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
