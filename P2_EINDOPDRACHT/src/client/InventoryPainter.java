@@ -30,8 +30,6 @@ import javax.swing.ListModel;
  */
 public class InventoryPainter extends JList {
 	
-	//TODO Constructor schrijven om inventory werkend te maken.
-	//Hierna inventory van GUI vervangen met deze.
 	
 	//---- Constructor ------------------------
 	
@@ -40,7 +38,7 @@ public class InventoryPainter extends JList {
 	 * inventory.
 	 * @param arrayList 
 	 */
-	public InventoryPainter(ArrayList<Piece> arrayList) {
+	public InventoryPainter(final ArrayList<Piece> arrayList) {
 		super(arrayList.toArray());
 		
 		//setLayout(new GridLayout(9, 2));
@@ -73,6 +71,15 @@ public class InventoryPainter extends JList {
 		protected MyCellComponent(final Piece p) {
 			this.piece = p;
 		}
+		//---- Query --------------
+		/**
+		 * Returns the piece this component represents.
+		 * @return piece
+		 */
+		protected Piece getPiece() {
+			return piece;
+		}
+		//---- Methods -------------
 		@Override
 		protected void paintComponent(final Graphics g) {
 			Graphics2D g2 = (Graphics2D) g;

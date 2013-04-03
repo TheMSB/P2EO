@@ -5,6 +5,7 @@ import game.Cell;
 import game.Piece;
 import game.PlayerColor;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -23,8 +24,6 @@ public class PiecePainter{
 
 	//---- Constants --------------------------
 
-	private int LINESTART = 15;
-	private int LINEEND = 50;
 
 	//---- Instance Variables -----------------
 
@@ -48,6 +47,7 @@ public class PiecePainter{
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setStroke(new BasicStroke(5));
 
 		//---- Color determination -------------
 		if (piece.getColor() == PlayerColor.COLOR_0) {
@@ -66,22 +66,22 @@ public class PiecePainter{
 		int width = w;
 		int height = w;
 		//TODO remove obsolete code
-		int xCenter = width / 2;
-		int yCenter = height / 2;
+		int center = width / 2;
+		//int yCenter = height / 2;
 
 		//TODO maybe2
-		double diameter0 = width * 0.50;
-		double diameter1 = width * 0.60;
-		double diameter2 = width * 0.70;
-		double diameter3 = width * 0.80;
-		double diameter4 = width * 0.90;
+		double diameter0 = width * 0.25;
+		double diameter1 = width * 0.35;
+		double diameter2 = width * 0.45;
+		double diameter3 = width * 0.55;
+		double diameter4 = width * 0.75;
 
 		//TODO maybe
-		double start0 = xCenter - (diameter0 / 2);
-		double start1 = xCenter - (diameter1 / 2);
-		double start2 = xCenter - (diameter2 / 2);
-		double start3 = xCenter - (diameter3 / 2);
-		double start4 = xCenter - (diameter4 / 2);
+		double start0 = center - (diameter0 / 2);
+		double start1 = center - (diameter1 / 2);
+		double start2 = center - (diameter2 / 2);
+		double start3 = center - (diameter3 / 2);
+		double start4 = center - (diameter4 / 2);
 
 
 		//---- Type determination --------------

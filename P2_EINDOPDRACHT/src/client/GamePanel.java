@@ -28,9 +28,16 @@ public class GamePanel extends JPanel {
 			
 		
 	//---- Constructor ------------------------------------------		
-	//TODO player en game aanwijzen
-	public GamePanel(final Game game, final Player p) {
-		this.game = game;
+	/**
+	 * Main Constructor for GamePanel
+	 * it represents the elements that
+	 * are essential for the game that is
+	 * being played.
+	 * @param g Game that is being played
+	 * @param p Player that is playing
+	 */
+	public GamePanel(final Game g, final Player p) {
+		this.game = g;
 		this.player = p;
 		//this.player = game.getPlayer(n);
 		

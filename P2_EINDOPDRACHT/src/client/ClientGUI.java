@@ -26,6 +26,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
@@ -48,11 +50,11 @@ public class ClientGUI {
 	//---- Game related variables ----------------------
 	private Game game;
 	private static String name;
-	
+
 	// Windows and Panels
 	private ActionWindow aWindow;
-    private Server      server;
-	
+	private Server      server;
+
 	//CHECKSTYLE:ON
 
 	//---- Constructor ---------------------------------
@@ -63,22 +65,33 @@ public class ClientGUI {
 		aWindow.pack();
 		aWindow.validate();
 		aWindow.setVisible(true);
-		*/
+		 */
 		new ConnectionWindow();
 	}
-	
+
 	/**
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		// Alleen voor testen, verwijder na implementatie
-		ArrayList<String> names = new ArrayList<String>();
-		names.add(args[0]);
-		names.add(args[1]);
-		// eigen naam zoeken, hoe te implementeren?
-		name = args[0];
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			// If Nimbus is not available, fall back to cross-platform
+			try {
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			} catch (Exception ex) {
+				// not worth my time
+			}
+		}
 		new ClientGUI();
-
 	}
 
+
 }
+
+

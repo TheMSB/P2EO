@@ -34,6 +34,10 @@ public class CellPanel extends JPanel {
 		setPreferredSize(new Dimension(100, 100));
 	}
 
+	//---- Querry -----------------------------
+	protected Cell getCell(){
+		return cell;
+	}
 	//---- Methods ----------------------------
 	/**
 	 * Draws the CellPanel, solid background with
@@ -76,8 +80,8 @@ public class CellPanel extends JPanel {
 		//---- center point --------------------
 		
 		Ellipse2D.Double circle = new Ellipse2D.Double(
-				xCenter - 2.5,
-				yCenter + 2.5, 
+				xCenter - 1.25,
+				yCenter + 1.25, 
 				5, 5);
 		g2.fill(circle);
 		g2.draw(circle);
