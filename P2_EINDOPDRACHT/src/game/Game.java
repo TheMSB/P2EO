@@ -218,6 +218,7 @@ public class Game extends Observable {
 		for(Player player : players){
 			if(!canDoMove(player)){
 				playersToRemove.add(player);
+				System.out.println("Player: "+player.getColor()+" Is out of moves, removing");
 			}
 			System.out.println(player.getPieces());
 		}
@@ -228,9 +229,11 @@ public class Game extends Observable {
 			}
 			players.remove(playersToRemove.get(i));
 		}
-		turn = turn%players.size();
+		if(players.size()>0){
+			turn = turn % players.size();
+		}
 		
-		return players.size()==1;
+		return players.size()==0;
 	}
 	
 	/**
