@@ -106,6 +106,10 @@ public class SmartAI implements AI {
 		// FIXED blokkeert eigen 2e kleur		
 		// TODO moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
+		// TODO piecesUsed checken
+		// TODO victory block moet bij blocking ie, van 2-1 naar 2-2 gaan
+		
+		
 
 		if (playerCount == 2) {
 			bestPath1 = getBestMove(player.getColor());
@@ -123,6 +127,7 @@ public class SmartAI implements AI {
 		System.out.println(bestPath);
 		if (bestPath == null) {
 			System.out.println("No more moves possible");
+			System.out.println(cellsAvailable);
 			System.out.println(bestPath1);
 			System.out.println(bestPath2);
 			System.out.println(player.getPieces());
@@ -136,8 +141,7 @@ public class SmartAI implements AI {
 		int y;
 		Piece piece = null;
 
-		System.out.println("Starting AI loop");
-		do {
+
 			x = bestPath.get(0).getX();
 			y = bestPath.get(0).getY();
 			try {
@@ -149,8 +153,6 @@ public class SmartAI implements AI {
 						.println("SMART AI BUG, wil niet bestaand Piece gebruiken");
 			}
 			validMoveFound = board.canMove(x, y, piece);
-		} while (!validMoveFound);
-		System.out.println("AI loop done");
 
 		ArrayList<Integer> arr = new ArrayList<Integer>();
 		arr.add(x);
@@ -191,8 +193,7 @@ public class SmartAI implements AI {
 				pieces.add(p);
 			}
 		}// pieces now only contains the pieces of the given color
-		System.out.println(pieces);
-		// TODO wat te doen met neutrale kleur
+		//System.out.println(pieces);
 
 		for (int x = 0; x < Board.DIM; x++) {
 			for (int y = 0; y < Board.DIM; y++) {
@@ -262,17 +263,27 @@ public class SmartAI implements AI {
 	 */
 	private Path getBestPathOfTwo(Path path, Iterator<CellPoint> it) {
 		Path output = path;
+		//MAAKT NOOIT NIEW PATH AAN!!!
 		if (it.hasNext()) {
 			CellPoint nextPoint = it.next();
 			if (path != null && path.getAverageWorth() > nextPoint.getW()) {
 				output = path;
+				//	DEBUG dit komt zelden voor
 				// Punt per zet van Path is groter dan daarna beste zet (zonder
 				// pad), base case
 			} else {
-				output = getBestPathOfTwo(path, it);
+				//Pad gemiddelde is niet meteen beter als volgend hoogste punt
+				//dan wil ik pad gemiddelde bekijken met het pad naar dat punt
+				//uiteindleijk is er een pad dat of gemiddeld beter is dan daarna punt, of het laatste pad is
+				//als het het laatste pad is ga je in principe alle paden langs en checked welke beter is
+				
+				output = BestPath(path,getBestPathOfTwo(getBestPathTo(nextPoint), it));
 				// wil het beste path van dat wat je nu hebt, en het path naar
 				// het volgende beste punt(zonder path)
 			}
+		}else{
+			output = path;
+			//Dit gebeurt in meeste gevallen
 		}
 		return output;
 	}
@@ -321,8 +332,9 @@ public class SmartAI implements AI {
 		// gereset worden
 		int dx = point2.getX() - point1.getX();
 		int dy = point2.getY() - point1.getY();
+		System.out.println("dx: "+dx+" dy: "+dy);
 
-		if (!board.getCell(point1.getX(), point1.getY()).isFull()) {
+		if (getBestType(point1)!=-1) {
 			// TODO kijken of ik op point1 kan zetten, kan nu de steen niet
 			// hebben
 			Path currentPath = new Path(point1);
@@ -339,6 +351,7 @@ public class SmartAI implements AI {
 				}
 			} // Get a piece with that type and reserve it from further moves
 
+			System.out.println("PiecesUsed1:  "+piecesUsed +  "CurrentPath:  "+currentPath);
 			if (pieceFound) { // If there is a piece available to place on that
 								// cell
 								// System.out.println("GetPath from:  "+
@@ -357,7 +370,7 @@ public class SmartAI implements AI {
 					}// else{ System.out.println("Detour detected");}
 				} else if (dy == 0) {
 					// System.out.println("BASECASE:  "+currentPath);
-					System.out.println(piecesUsed);
+					System.out.println("PiecesUsed:  "+piecesUsed);
 					currentPaths.add(currentPath); // BaseCase
 				}
 				if (Math.abs(dy) > 0) {
@@ -373,6 +386,7 @@ public class SmartAI implements AI {
 			}
 		}
 		Path output = null;
+		System.out.println("Path returned = "+output+"  CurrentPaths  "+currentPaths.size());
 
 		if (currentPaths.size() > 0) {
 			output = currentPaths.last();
@@ -408,6 +422,7 @@ public class SmartAI implements AI {
 				pieceFound = true;
 			}
 		} // Get a piece with that type and reserve it from further moves
+		System.out.println("PiecesUsed2:  "+piecesUsed +  "CurrentPath:  "+currentPath);
 		if (pieceFound) { // If there is a piece available to place on that cell
 
 			// if there still needs to be done a step on the X axis it will do
@@ -814,7 +829,7 @@ public class SmartAI implements AI {
 			}
 		}
 
-		System.out.println(output);
+		//System.out.println(output);
 		return output;
 	}
 }

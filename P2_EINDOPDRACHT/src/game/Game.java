@@ -157,8 +157,9 @@ public class Game extends Observable {
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
 					}
-					players.get(pl).addPiece(new Piece(t, players.get(3).getColor()));
+					players.get(pl).addPiece(new Piece(t, 3));
 				}
+				System.out.println("Player "+pl+" pieces:  "+players.get(pl).getPieces());
 			}
 		} else if (playerCount == 2) { // 2 Player Game
 			for (int pl = 0; pl < 2; pl++) { // Player loop
