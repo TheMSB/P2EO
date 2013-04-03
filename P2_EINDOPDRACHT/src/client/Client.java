@@ -3,6 +3,7 @@ package client;
 import java.io.BufferedReader;
 
 import exceptions.InvalidMoveException;
+import exceptions.InvalidPieceException;
 import game.*;
 import server.*;
 import java.io.BufferedWriter;
@@ -116,7 +117,7 @@ public class Client extends Thread {
 			} catch (IOException e) {
 				sendDisconnect("Reconnecting");
 				connected = false;
-				serverAlive = false;		//Tijdelijke hotfix
+				serverAlive = false; // Tijdelijke hotfix
 			}
 
 			// Als code hierkomt is er een disconnect
@@ -270,22 +271,24 @@ public class Client extends Thread {
 		try {
 			game = new Game(x, y, args);
 			player = game.getPlayer(args.indexOf(clientName));
-			((ConnectionWindow) mui).setGame(game, player); //TODO dit kan netter
+			((ConnectionWindow) mui).setGame(game, player); // TODO dit kan
+															// netter
 		} catch (InvalidMoveException e) {
 			this.sendDisconnect("Invalid startstone position");
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
 		if (!humanIsPlaying) {
 			if (selectedAI == 1) {
-				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te laten
+				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
+												// laten
 				// passen
-			}
-			else if (selectedAI == 2) {
-				ai = new RandomAI(game, player); // TODO mogelijk ingame aan te laten
+			} else if (selectedAI == 2) {
+				ai = new RandomAI(game, player); // TODO mogelijk ingame aan te
+													// laten
 				// passen
 			}
 		}
-		
+
 	}
 
 	/**
@@ -324,28 +327,39 @@ public class Client extends Thread {
 					+ util.Util.concatArrayList(aiMove));
 		}
 	}
-	
+
 	/**
 	 * Returns the move the ai would do (from the most recent turn given to you)
+	 * 
 	 * @return
 	 */
-	public ArrayList<Integer> getAIMove(){
+	public ArrayList<Integer> getAIMove() {
 		return aiMove;
 	}
-	
+
 	/**
 	 * Sends a move to the server
-	 * @param arr	arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
-	 * @return	True if succesfull (if it was indeed your turn)
+	 * 
+	 * @param arr
+	 *            arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
+	 * @return True if succesfull (if it was indeed your turn)
 	 */
-	public boolean doHumanMove(ArrayList<Integer> arr){
+	public boolean doHumanMove(ArrayList<Integer> arr) {
 		boolean output = false;
-		if(myTurn){
-			output = true;
+		if (myTurn) {
+			try {
+				output = game.getBoard().canMove(arr.get(0), arr.get(1),
+						player.getPiece(arr.get(2), arr.get(3)));
+				if (output) {
 					sendCommand(util.Protocol.CMD_MOVE + " "
-							+ util.Util.concatArrayList(arr));	
+							+ util.Util.concatArrayList(arr));
+				}
+			} catch (InvalidPieceException e) {
+				output = false;
+			}
+
 		}
-		
+
 		return output;
 	}
 
@@ -417,10 +431,10 @@ public class Client extends Thread {
 				if (serverFeatures.contains(util.Protocol.FEAT_CHAT)) {
 					String name = args.remove(0);
 					mui.addMessage(name, util.Util.concatArrayList(args));
-					//System.out.println("addMessaged");
-					//System.out.println(name +" | "+clientName);
+					// System.out.println("addMessaged");
+					// System.out.println(name +" | "+clientName);
 					if (!name.equals(clientName)) {
-						if (autoCrapTalk && Math.random()<0.5) {
+						if (autoCrapTalk && Math.random() < 0.5) {
 							sendMessage(util.CrapTalker
 									.insult(util.CrapTalker.INSULTS_OPPONENT_CHATS));
 						}
@@ -484,18 +498,17 @@ public class Client extends Thread {
 		game.move(x, y, type, color);
 		game.isGameOver();
 		myTurn = false;
-		if(mui instanceof ActionWindow){
-			//((ActionWindow) mui).doMove(x,y,type,color);
-		}else{
+		if (mui instanceof ActionWindow) {
+			// ((ActionWindow) mui).doMove(x,y,type,color);
+		} else {
 			System.out.println("mui fail");
 		}
-				
+
 		// System.out.println("Adding ring at: "+ x+" , "+y);
 	}
-	
-	
-	void setMUI(MessageUI mui){
-		this.mui =mui;
+
+	void setMUI(MessageUI mui) {
+		this.mui = mui;
 	}
 
 	/**
@@ -504,7 +517,7 @@ public class Client extends Thread {
 	 * 
 	 * @param slots
 	 */
-	
+
 	public void joinLobby(final int slots) {
 		// System.out.println("Joining lobby);
 		if (status == HANDSHAKE_SUCCESFULL) {
@@ -512,27 +525,28 @@ public class Client extends Thread {
 			status = INLOBBY;
 		}
 	}
+
 	/**
-	 * Used by the GUI to select an AI.
-	 * 1 being Smart
-	 * 2 being Random
+	 * Used by the GUI to select an AI. 1 being Smart 2 being Random
+	 * 
 	 * @param i
 	 */
-	public void setAI(final int i){
+	public void setAI(final int i) {
 		selectedAI = i;
 	}
-	
+
 	/**
-	 * Used by the GUI to determine if
-	 * a player plays himself.
+	 * Used by the GUI to determine if a player plays himself.
+	 * 
 	 * @param b
 	 */
 	public void setIsPlaying(final boolean b) {
 		humanIsPlaying = b;
 	}
+
 	/**
-	 * Used by the GUI to enable/disable the
-	 * flame bot crap talker.
+	 * Used by the GUI to enable/disable the flame bot crap talker.
+	 * 
 	 * @param f
 	 */
 	public void setFlame(final boolean f) {
@@ -576,7 +590,8 @@ public class Client extends Thread {
 			out.write(command + "\n");
 			out.flush();
 		} catch (IOException e) {
-			System.out.println("Failed to send message to:  " + this.clientName);
+			System.out
+					.println("Failed to send message to:  " + this.clientName);
 		}
 	}
 
