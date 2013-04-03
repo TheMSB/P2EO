@@ -43,6 +43,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private Game game;
 	private String name;
 	private String[] aiListing = {"None", "SmartAI","RandomAI"};
+	private String[] pnrListing = {"2","3","4"};
 
 	// Windows and Panels
 
@@ -53,17 +54,16 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private JButton bConnect;
 	private JButton bJoin;
 	private JComboBox aiList;
+	private JComboBox nrPlayers;
 	private JCheckBox bFlame;
 
 	private JTextField  tfPort;
 	private JTextField	tfAddress;
 	private JTextField	myName;
-	private JTextField	nrPlayers;
 
 	private boolean  	tfPortChanged;
 	private boolean  	tfAddressChanged;
 	private boolean  	myNameChanged;
-	private boolean		nrPlayersChanged;
 	private JTextField	myMessage;
 	private JTextArea   taMessages;
 	private Server      server;
@@ -124,16 +124,20 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		tfPort.addKeyListener(this);
 
 		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
-		nrPlayers = new JTextField("", 1);
-		nrPlayers.addKeyListener(this);
+		nrPlayers = new JComboBox(pnrListing);
+		nrPlayers.setSelectedIndex(0);
+		nrPlayers.addActionListener(this);
+		nrPlayers.setEnabled(false);
 		
 		JLabel lbAI = new JLabel("Desired AI: ");
 		aiList = new JComboBox(aiListing);
 		aiList.setSelectedIndex(0);
 		aiList.addActionListener(this);
+		aiList.setEnabled(false);
 		
 		JLabel lbSpam = new JLabel("Flame Bot: ");
 		bFlame = new JCheckBox("Enabled");
+		bFlame.setEnabled(false);
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -275,8 +279,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == bConnect) {
 			connect();
+			if (connected) {
+				nrPlayers.setEnabled(true);
+				aiList.setEnabled(true);
+				bFlame.setEnabled(true);
+				bJoin.setEnabled(true);
+			}
 		} else if (e.getSource() == bJoin) {
-			join(Integer.parseInt(nrPlayers.getText()));
+			join(Integer.parseInt((String) nrPlayers.getSelectedItem()));//TODO kan direct?
 		} else if (e.getSource() == aiList) {
 			if (aiList.getSelectedIndex() == 0) {
 				client.setIsPlaying(true);
@@ -331,16 +341,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			tfPortChanged = true;
 
 		}
-		if (event.getSource().equals(nrPlayers)) {
-			nrPlayersChanged = true;
-
-		}
 		if (myNameChanged && tfAddressChanged && tfPortChanged && !connected) {
 			bConnect.setEnabled(true);
 		}
-		if (connected && nrPlayersChanged) {
-			bJoin.setEnabled(true);
-		}
+		
 
 	}
 
