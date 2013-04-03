@@ -417,15 +417,18 @@ public class ClientHandler extends Thread {
 	 */
 	public void sendCommand(String command) {
 		System.out.println("Received command:   "+command);
+		System.out.println(clientFeatures);
 		try {
 			if ((!command.startsWith(util.Protocol.CMD_SAID) || clientFeatures
 					.contains(util.Protocol.FEAT_CHAT))
 					&& (!command.startsWith(util.Protocol.CMD_DISCONNECTED) || (this.lobby != null
 							|| clientFeatures.contains(util.Protocol.FEAT_CHAT) || clientFeatures
 								.contains(util.Protocol.FEAT_CHALLENGE)))) {
+				System.out.println("Send command:   "+command);
 				out.write(command + "\n");
 				out.flush();
-				System.out.println("Send command:   "+command);
+				System.out.println("Send command2:   "+command);
+				
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
