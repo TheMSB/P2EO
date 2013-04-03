@@ -99,11 +99,11 @@ public class SmartAI implements AI {
 		Path bestPath1 = null;
 		Path bestPath2 = null;
 
-		// TODO Legt 2e kleur te laat neer
-		// TODO cellsAvailable is maar van 1 kleur.
-		// TODO maakt cell met 3 eigen zetten af, hoeft niet
-		
-		// TODO blokkeert eigen 2e kleur
+		// FIXED Legt 2e kleur te laat neer FIXED
+		// FIXED cellsAvailable is maar van 1 kleur.	FIXED, maakt nu 2 verschillende cellsAvailable aan
+		// FIXED maakt cell met 3 eigen zetten af, hoeft niet		FIXED
+
+		// FIXED blokkeert eigen 2e kleur		
 		// TODO moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
 
@@ -141,7 +141,8 @@ public class SmartAI implements AI {
 			x = bestPath.get(0).getX();
 			y = bestPath.get(0).getY();
 			try {
-				piece = player.getPiece(bestPath.get(0).getBestType(), bestPath.get(0).getBestColor());
+				piece = player.getPiece(bestPath.get(0).getBestType(), bestPath
+						.get(0).getBestColor());
 			} catch (InvalidPieceException e) {
 				e.printStackTrace();
 				System.out
@@ -550,10 +551,11 @@ public class SmartAI implements AI {
 		double points = 0;
 		ArrayList<Integer> list = cell.getOwnerList();
 		int own = list.remove(player.getColor());
-		if (list.indexOf(3) != -1
+		if (list.indexOf(3) != -1 || own == 3
 				|| (list.indexOf(2) != -1 && list.indexOf(1) != -1)) {
-			points = 0;// 0 punten als:
+			points = -10;// 0 punten als:
 			// iemand 3 punten.
+			// eigen 3 punten
 			// iemand 2 punten, iemand 1 punt.
 		} else if (list.indexOf(2) != -1
 				&& util.Util.sumArray(list) == 2
@@ -613,10 +615,10 @@ public class SmartAI implements AI {
 		// 3 extra stukken
 
 		double points = 4;
-		if(getPiecesOfColor(playerColor).size()==15){
+		if (getPiecesOfColor(playerColor).size() == 15) {
 			points = points + 10;
 		}
-		
+
 		if (board.isCell(x + 1, y)
 				&& board.getCell(x + 1, y).hasPieces(
 						new Piece(0, player.getColor()))) {
@@ -688,20 +690,26 @@ public class SmartAI implements AI {
 								&& i != (player.getColor())// the color being
 															// checked is not
 															// the ai self
+								&& (playerCount != 2 || (i != ((player
+										.getColor() + 1) % 2 + player
+										.getColor()))) // The color being
+														// checked is not the
+														// ai's second color (in
+														// 2p game)
 								&& list.get(i) == 0// the given player has no
 													// pieces in this cell
 								&& board.getCell(p.x, p.y).getOwnerList()
 										.get(i) == 0// the given player has no
 													// pieces in the
 													// neighbouring cell
-								&& board.isCell(arr[(a + 1) % 2 + a].x,
-										arr[(a + 1) % 2 + a].y)// the cell
-																// across
-																// the
-																// neighbouring
-																// cell exists
-								&& board.getCell(arr[(a + 1) % 2 + a].x,
-										arr[(a + 1) % 2 + a].y).getOwnerList()
+								&& board.isCell(arr[(a + 2) % 4].x,
+										arr[(a + 2) % 4].y)// the cell
+															// across
+															// the
+															// neighbouring
+															// cell exists
+								&& board.getCell(arr[(a + 2) % 4].x,
+										arr[(a + 2) % 4].y).getOwnerList()
 										.get(i) == 0) {// The cell across the
 														// neighbouring cell
 														// also doesnt have a
@@ -771,21 +779,21 @@ public class SmartAI implements AI {
 															// has no pieces in
 															// the neighbouring
 															// cell
-								&& board.isCell(arr[(a + 1) % 2 + a].x,
-										arr[(a + 1) % 2 + a].y)// the cell
-																// across
-																// the
-																// neighbouring
-																// cell exists
-								&& board.getCell(arr[(a + 1) % 2 + a].x,
-										arr[(a + 1) % 2 + a].y).getOwnerList()
+								&& board.isCell(arr[(a + 2) % 4].x,
+										arr[(a + 2) % 4].y)// the cell
+															// across
+															// the
+															// neighbouring
+															// cell exists
+								&& board.getCell(arr[(a + 2) % 4].x,
+										arr[(a + 2) % 4].y).getOwnerList()
 										.get(playerN) == 0) {// The cell across
 																// the
 																// neighbouring
 																// cell also
 																// doesnt have a
 																// piece there.
-							points = 2 * blocking(p, playerN);
+							points = points + blocking(p, playerN);
 						}
 					} else {
 						// Neighbouring cell is a wall;
@@ -797,16 +805,15 @@ public class SmartAI implements AI {
 		}
 		return points;
 	}
-	
-	
-	public ArrayList<Piece> getPiecesOfColor(int color){
+
+	public ArrayList<Piece> getPiecesOfColor(int color) {
 		ArrayList<Piece> output = new ArrayList<Piece>();
-		for(Piece p : player.getPieces()){
-			if(p.getColor()==color){
+		for (Piece p : player.getPieces()) {
+			if (p.getColor() == color) {
 				output.add(p);
 			}
 		}
-		
+
 		System.out.println(output);
 		return output;
 	}

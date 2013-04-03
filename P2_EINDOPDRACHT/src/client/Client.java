@@ -20,12 +20,10 @@ import java.util.Scanner;
 import ai.*;
 
 import server.Server;
+import util.CrapTalker;
 
 public class Client extends Thread {
 	// TODO Veel dubbele command leescode, mogelijkheid tot nieuwe klasse
-
-
-
 
 	private String name;
 	private Socket sock;
@@ -40,6 +38,9 @@ public class Client extends Thread {
 	private AI ai;
 	private boolean humanIsPlaying;
 	private MessageUI mui;
+	private boolean autoCrapTalk = true;
+	private boolean convertToCyrillic = true;
+	private boolean myTurn;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -55,21 +56,20 @@ public class Client extends Thread {
 	public static final int INLOBBY = 30;
 	public static final int INGAME = 40;
 
-
 	/**
 	 * Maakt nieuwe client aan met een naam, meestal aangeroepen door clientGUI,
 	 * connect ook al vast
 	 * 
 	 * @param name
 	 */
-	public Client(final String name, final InetAddress adr, final int prt, final MessageUI mui) throws IOException {
+	public Client(final String name, final InetAddress adr, final int prt,
+			final MessageUI mui) throws IOException {
 		InetAddress addr = adr;
 		int port = prt;
-		System.out.println("[Client]   "+name);
+		System.out.println("[Client]   " + name);
 		this.name = name;
 		this.mui = mui;
-		
-		
+
 		clientFeatures = new ArrayList<String>();
 
 		// Ga er vanuit dat de server aan staat in het begin
@@ -98,14 +98,14 @@ public class Client extends Thread {
 					if (lastInput != null) {
 						readCommand(new Scanner(lastInput));
 					} else {
-						//Verbinding gebroken als hij hier komt.
-						//TODO kreeg TURN, toern null, toen error.
+						// Verbinding gebroken als hij hier komt.
+						// TODO kreeg TURN, toern null, toen error.
 						System.out.println("socket closing");
 						sock.close();
 						serverAlive = false;
 						connected = false;
 						System.out.println("Socket closed");
-						//sendError(util.Protocol.ERR_INVALID_COMMAND);
+						// sendError(util.Protocol.ERR_INVALID_COMMAND);
 					}
 
 				}
@@ -117,8 +117,7 @@ public class Client extends Thread {
 			// Als code hierkomt is er een disconnect
 			if (serverAlive) {
 				try {
-					connectToServer(4242,
-							InetAddress.getByName("localhost"));
+					connectToServer(4242, InetAddress.getByName("localhost"));
 					// TODO poort + ip variabel maken
 				} catch (IOException e) {
 					System.out
@@ -131,6 +130,7 @@ public class Client extends Thread {
 
 	/**
 	 * Leest een command met argumenten uit de scanner.
+	 * 
 	 * @param scanner
 	 */
 	private void readCommand(final Scanner scanner) {
@@ -147,7 +147,9 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Checked het command en voert de methode die daarbij hoort uit (indien aanwezig).
+	 * Checked het command en voert de methode die daarbij hoort uit (indien
+	 * aanwezig).
+	 * 
 	 * @param command
 	 * @param args
 	 */
@@ -164,8 +166,10 @@ public class Client extends Thread {
 			cmdMOVED(args);
 		} else if (command.equals(util.Protocol.CMD_END)) {
 			cmdEND(args);
-		} else if (command.equals(util.Protocol.CMD_SAID)){
+		} else if (command.equals(util.Protocol.CMD_SAID)) {
 			cmdSAID(args);
+		} else if (command.equals(util.Protocol.CMD_DISCONNECTED)) {
+			cmdDISCONNECTED(args);
 		} else if (command.equals(util.Protocol.CMD_ERROR)) {
 			cmdERROR(args);
 		} else {
@@ -175,7 +179,9 @@ public class Client extends Thread {
 
 	// TODO kijken naar public/private van zowel client als clienthandler
 	/**
-	 * Behandelt het CONNECTED command van de server, door de handshake verder uit te voeren.
+	 * Behandelt het CONNECTED command van de server, door de handshake verder
+	 * uit te voeren.
+	 * 
 	 * @param args
 	 */
 	private void cmdCONNECTED(final ArrayList<String> args) {
@@ -193,6 +199,7 @@ public class Client extends Thread {
 	/**
 	 * Behandelt het FEATURES command van de server door de features te checken
 	 * en eigen features terug te sturen.
+	 * 
 	 * @param args
 	 */
 	private void cmdFEATURES(final ArrayList<String> args) {
@@ -218,16 +225,18 @@ public class Client extends Thread {
 
 	/**
 	 * Behandeld het start command van de server, stelt de game zodanig in.
+	 * 
 	 * @param args
 	 */
 	private void cmdSTART(ArrayList<String> args) {
 		if (status == INLOBBY) {
 			if (args.size() >= 4 && args.size() <= 6) {
-				try{
-					startGame(Integer.parseInt(args.remove(0)),Integer.parseInt(args.remove(0)),args);
-					//LET OP: args is hier aangepast
+				try {
+					startGame(Integer.parseInt(args.remove(0)),
+							Integer.parseInt(args.remove(0)), args);
+					// LET OP: args is hier aangepast
 					status = INGAME;
-				}catch(NumberFormatException e){
+				} catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
 			} else {
@@ -239,26 +248,37 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Start een game 
-	 * @param x		X coordinaat van startsteen
-	 * @param y		Y coordinaat van startsteen
-	 * @param args	Lijst met namen van spelers
+	 * Start een game
+	 * 
+	 * @param x
+	 *            X coordinaat van startsteen
+	 * @param y
+	 *            Y coordinaat van startsteen
+	 * @param args
+	 *            Lijst met namen van spelers
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
-		humanIsPlaying = false; //TODO dit variabel maken
-		
-		try{
-			game = new Game(x,y,args);
+		if (autoCrapTalk) {
+			sendMessage(util.CrapTalker.insult(util.CrapTalker.INSULTS_START));
+		}
+
+		humanIsPlaying = false; // TODO dit variabel maken
+
+		try {
+			game = new Game(x, y, args);
 			player = game.getPlayer(args.indexOf(name));
-		}catch(InvalidMoveException e){
+		} catch (InvalidMoveException e) {
 			this.sendDisconnect("Invalid startstone position");
 		}
-		System.out.println("PlayerNumber:  "+args.indexOf(name));
-		ai = new SmartAI(game,player); //TODO mogelijk ingame aan te laten passen
+		System.out.println("PlayerNumber:  " + args.indexOf(name));
+		ai = new SmartAI(game, player); // TODO mogelijk ingame aan te laten
+										// passen
 	}
 
 	/**
-	 * Behandelt het turn command van de server, kijkt of deze client aan de beurt is.
+	 * Behandelt het turn command van de server, kijkt of deze client aan de
+	 * beurt is.
+	 * 
 	 * @param args
 	 */
 	private void cmdTURN(final ArrayList<String> args) {
@@ -280,34 +300,46 @@ public class Client extends Thread {
 	 * aan mens of ai om een zet door te geven.
 	 */
 	private void askMove() {
+		myTurn = true;
 		System.out.println("Asking move..");
-		
+
 		// TODO laat GUI aangeven dat het jou beurt is
 		ArrayList<Integer> arr;
-		//arr: 0 = x, 1 = y, 2 = type, 3 = color
-		if(humanIsPlaying){
-			arr = ai.getMove(); //TODO dit door mens laten doen
-		}else{
-			arr = ai.getMove(); 
+		// arr: 0 = x, 1 = y, 2 = type, 3 = color
+		if (humanIsPlaying) {
+			arr = ai.getMove(); // TODO dit door mens laten doen
+		} else {
+			arr = ai.getMove();
 		}
-		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
+		sendCommand(util.Protocol.CMD_MOVE + " "
+				+ util.Util.concatArrayList(arr));
 	}
 
 	/**
 	 * Verwerkt het MOVED command, verkregen van de server.
+	 * 
 	 * @param args
 	 */
 	private void cmdMOVED(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 4) {
-				try{
+				try {
+					if (autoCrapTalk) {
+						if (myTurn) {
+							sendMessage(util.CrapTalker
+									.insult(util.CrapTalker.INSULTS_ME_MOVE));
+						} else {
+							sendMessage(util.CrapTalker
+									.insult(util.CrapTalker.INSULTS_OPPONENT_MOVE));
+						}
+					}
 					ArrayList<Integer> arr = util.Util.ConvertToInt(args);
-					processMove(arr.get(0),arr.get(1),arr.get(2),arr.get(3));
-				}catch(NumberFormatException e){
+					processMove(arr.get(0), arr.get(1), arr.get(2), arr.get(3));
+				} catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
-				}catch(InvalidMoveException e){
+				} catch (InvalidMoveException e) {
 					sendError(util.Protocol.ERR_INVALID_MOVE);
-					sendDisconnect("Desync detected, disconnecting");					
+					sendDisconnect("Desync detected, disconnecting");
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -316,7 +348,7 @@ public class Client extends Thread {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
-	
+
 	private void cmdEND(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() >= 2 && args.size() <= 4) {
@@ -328,14 +360,14 @@ public class Client extends Thread {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
-	
-	private void cmdSAID(ArrayList<String> args) {
-		if (status >=HANDSHAKE_SUCCESFULL) {
-			if (args.size() >= 2) {
-				if(serverFeatures.contains(util.Protocol.FEAT_CHAT)){
-					mui.addMessage(args.remove(0),util.Util.concatArrayList(args));
+
+	private void cmdDISCONNECTED(ArrayList<String> args) {
+		if (status == INGAME) {
+			if (args.size() == 1) {
+				if (autoCrapTalk) {
+					sendMessage(util.CrapTalker
+							.insult(util.CrapTalker.INSULTS_OPPONENT_DISCONNECT));
 				}
-				//WARNING args gets changed here.
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -343,11 +375,34 @@ public class Client extends Thread {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
-	private void displayGameOverScreen(ArrayList<String> args){
-		//TODO game over screen displayen
+
+	private void cmdSAID(ArrayList<String> args) {
+		if (status >= HANDSHAKE_SUCCESFULL) {
+			if (args.size() >= 2) {
+				if (serverFeatures.contains(util.Protocol.FEAT_CHAT)) {
+					String name = args.remove(0);
+					mui.addMessage(name, util.Util.concatArrayList(args));
+					System.out.println("addMessaged");
+					if (name != this.getName()) {
+						if (autoCrapTalk) {
+							sendMessage(util.CrapTalker
+									.insult(util.CrapTalker.INSULTS_OPPONENT_CHATS));
+						}
+					}
+				}
+				// WARNING args gets changed here.
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
 	}
-	
-	
+
+	private void displayGameOverScreen(ArrayList<String> args) {
+		// TODO game over screen displayen
+	}
+
 	/**
 	 * Behandeld een error.
 	 * 
@@ -356,9 +411,9 @@ public class Client extends Thread {
 	private void cmdERROR(final ArrayList<String> args) {
 		int errorCode = 0;
 		if (args.size() == 1) {
-			try{
+			try {
 				errorCode = Integer.parseInt(args.get(0));
-			}catch(NumberFormatException e){
+			} catch (NumberFormatException e) {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
@@ -385,11 +440,14 @@ public class Client extends Thread {
 
 	/**
 	 * Verwerkt een zet op het spel bord.
-	 * @throws InvalidMoveException 
+	 * 
+	 * @throws InvalidMoveException
 	 */
-	private void processMove(int x, int y, int type, int color) throws InvalidMoveException {
-		game.move(x,y,type,color);
-		//System.out.println("Adding ring at: "+ x+" , "+y);
+	private void processMove(int x, int y, int type, int color)
+			throws InvalidMoveException {
+		game.move(x, y, type, color);
+		myTurn = false;
+		// System.out.println("Adding ring at: "+ x+" , "+y);
 	}
 
 	/**
@@ -399,27 +457,31 @@ public class Client extends Thread {
 	 * @param slots
 	 */
 	public void joinLobby(final int slots) {
-		//System.out.println("Joining lobby);
+		// System.out.println("Joining lobby);
 		if (status == HANDSHAKE_SUCCESFULL) {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
 		}
 	}
-	
+
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
-    public void sendMessage(String msg) {
-    	try {
-        	String input = msg;
-    			out.write(util.Protocol.CMD_SAY + " " + input + "\n");
-        		out.flush();
-        	
+	public void sendMessage(String msg) {
+		try {
+			String input = msg;
+			if (convertToCyrillic) {
+				input = util.CrapTalker.toCyrillic(input);
+			}
+			out.write(util.Protocol.CMD_SAY + " " + input + "\n");
+			out.flush();
+
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
-    }
+	}
 
 	/**
 	 * Stuurt een error naar de server.
+	 * 
 	 * @param errorCode
 	 */
 	public void sendError(final int errorCode) {
@@ -430,10 +492,11 @@ public class Client extends Thread {
 
 	/**
 	 * Stuurt een command naar de server.
+	 * 
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
-		System.out.println("Send command: "+command);
+		System.out.println("Send command: " + command);
 		try {
 			out.write(command + "\n");
 			out.flush();
@@ -444,6 +507,7 @@ public class Client extends Thread {
 
 	/**
 	 * Stuurt de server een DISCONNECT command, met de meegegeven message.
+	 * 
 	 * @param msg
 	 */
 	public void sendDisconnect(final String msg) {
@@ -465,7 +529,8 @@ public class Client extends Thread {
 	 *             Als het verbinden fout gaat
 	 * @require Of geen verbinding, Of het eerst versturen van een disconnect
 	 */
-	public void connectToServer(final int port, final InetAddress ip) throws IOException {
+	public void connectToServer(final int port, final InetAddress ip)
+			throws IOException {
 		if (connected) {
 			sendDisconnect("Connecting to a (new) server");
 		}
