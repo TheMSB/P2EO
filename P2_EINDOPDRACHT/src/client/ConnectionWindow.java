@@ -39,7 +39,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	private Game game;
 	private String name;
-	
+
 	// Windows and Panels
 
 	private Container c;
@@ -108,7 +108,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		tfAddress = new JTextField("localhost", 12);
 		tfAddress.addKeyListener(this);
 		tfAddress.setEditable(true);
-		
+
 		JLabel lbMyName = new JLabel("Naam: ");
 		myName = new JTextField("", 10);
 		myName.addKeyListener(this);
@@ -119,6 +119,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
 		nrPlayers = new JTextField("", 1);
+		nrPlayers.addKeyListener(this);
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -126,7 +127,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		pp.add(tfPort);
 		pp.add(lbMyName);
 		pp.add(myName);
-		
+
 		joinPanel.add(lbNrPlayers);
 		joinPanel.add(nrPlayers);
 
@@ -134,7 +135,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		bConnect.setEnabled(false);
 		bConnect.setFocusable(false);
 		bConnect.addActionListener(this);
-		
+
 		bJoin = new JButton("Join");
 		bJoin.setEnabled(false);
 		bJoin.setFocusable(false);
@@ -143,7 +144,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		p1.add(pp, BorderLayout.WEST);
 		p1.add(bConnect, BorderLayout.EAST);
-		
+
 
 		// Panel p2 - Messages
 
@@ -191,30 +192,28 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	 */
 	void setGame(final Game g) {
 		this.game = g;
-	}
-	
-	protected void join(final int slots){
-		client.joinLobby(slots);
-	}
-	
-	@Override
-	public void addMessage(final String name, final String msg) {
-		 taMessages.append("<" + name + "> " + msg +"\n");
+		this.setVisible(false);
+		ActionWindow aWindow;
+		aWindow = new ActionWindow(game, name);
 		
 	}
 
-	//---- Action Events ------------------------
-
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == bConnect) {
-			connect();
-		} else if (e.getSource() == bJoin) {
-			//TODO join
-		}
-
+	/**
+	 * Joins a lobby in the attempt to start a game
+	 * with the specified amount of players.
+	 * @param slots Number of desired player slots.
+	 */
+	protected void join(final int slots) {
+		client.joinLobby(slots);
+		bJoin.setEnabled(false);
 	}
 
+	@Override
+	public void addMessage(final String name, final String msg) {
+		taMessages.append("<" + name + "> " + msg +"\n");
+
+	}
+	
 	/**
 	 * Attempts to create a new socket connection
 	 * with the server, if all connection fields
@@ -250,6 +249,18 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		connected = true;
 		myMessage.setEditable(true);
 		bConnect.setEnabled(false);
+	}
+
+	//---- Action Events ------------------------
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+		if (e.getSource() == bConnect) {
+			connect();
+		} else if (e.getSource() == bJoin) {
+			join(Integer.parseInt(nrPlayers.getText()));
+		}
+
 	}
 
 

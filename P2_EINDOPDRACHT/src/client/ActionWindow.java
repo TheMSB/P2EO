@@ -35,10 +35,10 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	
 	//---- Constructor ---------------------------------
 		
-	public ActionWindow(final String n) {
+	public ActionWindow(final Game g, final String n) {
 		super("Lord of the RINGGZ");
 		
-		//this.game = g;
+		this.game = g;
 		this.name = n;
 		c = getContentPane();
 		buildGUI();
@@ -67,7 +67,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				setPreferredSize(new Dimension(500, 650));
 				setMinimumSize(new Dimension(500, 650));
 		
-		
+		buildGame();
 		// TODO Auto-generated constructor stub
 		
 		//---- Defines Border styles
@@ -79,11 +79,11 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 * can play on.
 	 * @param g Game to draw
 	 */
-	protected void buildGame(final Game g, final String n) {
+	protected void buildGame() {
 		//---- Loading the Game ----
-		setGame(g);
+		//setGame(g);
 		//---- Game Panel -----
-				gamePanel = new GamePanel(game, n);
+				gamePanel = new GamePanel(game, name);
 				
 				gamePanel.setPreferredSize(new Dimension(500, 600));
 				gamePanel.addMouseListener(this);
@@ -92,6 +92,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				
 				gamePanel.setVisible(true);
 	}
+	//TODO legacy code, remove ASAP
 	/**
 	 * Loads a game into the GUI for
 	 * drawing.
