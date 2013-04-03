@@ -11,6 +11,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import game.Game;
+import game.Player;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -24,6 +25,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	
 		private Game game;
 		private String name;
+		private Player player;
 	// Windows and Panels
 		
 		private Container c;
@@ -35,11 +37,12 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	
 	//---- Constructor ---------------------------------
 		
-	public ActionWindow(final Game g, final String n) {
+	public ActionWindow(final Game g, final Player p) {
 		super("Lord of the RINGGZ");
 		
 		this.game = g;
-		this.name = n;
+		//this.name = n;
+		this.player = p;
 		c = getContentPane();
 		buildGUI();
 
@@ -83,7 +86,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		//---- Loading the Game ----
 		//setGame(g);
 		//---- Game Panel -----
-				gamePanel = new GamePanel(game, name);
+				gamePanel = new GamePanel(game, player);
 				
 				gamePanel.setPreferredSize(new Dimension(500, 600));
 				gamePanel.addMouseListener(this);

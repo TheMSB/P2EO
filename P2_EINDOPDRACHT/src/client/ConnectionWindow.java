@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import game.Game;
+import game.Player;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -190,11 +191,11 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	 * drawing.
 	 * @param g Game to load
 	 */
-	void setGame(final Game g) {
+	void setGame(final Game g, final Player p) {
 		this.game = g;
 		this.setVisible(false);
 		ActionWindow aWindow;
-		aWindow = new ActionWindow(game, name);
+		aWindow = new ActionWindow(game, p);
 		
 	}
 

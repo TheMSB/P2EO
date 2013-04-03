@@ -29,9 +29,10 @@ public class GamePanel extends JPanel {
 		
 	//---- Constructor ------------------------------------------		
 	//TODO player en game aanwijzen
-	public GamePanel(final Game game, final String n) {
+	public GamePanel(final Game game, final Player p) {
 		this.game = game;
-		this.player = game.getPlayer(n);
+		this.player = p;
+		//this.player = game.getPlayer(n);
 		
 		setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
