@@ -67,7 +67,7 @@ public class Game extends Observable {
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
 		}
-		playersConnected = players;
+		playersConnected = (ArrayList<Player>) players.clone();
 		
 		setUpGame(x, y, playerCount);
 		turn = 0;
@@ -120,7 +120,7 @@ public class Game extends Observable {
 	 * @return turn
 	 */
 	public int getTurn() {
-		return turn;
+		return playersConnected.indexOf(players.get(turn));
 	}
 	/**
 	 * Returns the board that is currently used by this game.
@@ -188,6 +188,7 @@ public class Game extends Observable {
 	 */
 	public void move(final int x, final int y, final int type, final int color) throws InvalidMoveException {
 
+		System.out.println("Doing move:  "+x+y+type+color+"  Turn: "+turn);
 		Piece movpc = players.get(turn).getPiece(type, color);
 		board.move(x, y, movpc);
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
@@ -231,6 +232,7 @@ public class Game extends Observable {
 		}
 		if(players.size()>0){
 			turn = turn % players.size();
+			System.out.println("TURN = "+players.get(turn).getColor());
 		}
 		
 		return players.size()==0;
@@ -271,8 +273,10 @@ public class Game extends Observable {
 	public ArrayList<Integer> getStats(){
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		Integer[] score = board.getScore();
+		//System.out.println(playersConnected);
 		for(int i =0;i<playersConnected.size();i++){
 			if(playersConnected.size()==2){
+				System.out.println(""+i*2+"  "+i*2+1);
 				results.add(score[i*2] + score[i*2+1]);
 				results.add(playersConnected.get(i).getPieces().size());
 			}else{
