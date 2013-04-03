@@ -250,7 +250,7 @@ public class Client extends Thread {
 		try{
 			game = new Game(x,y,args);
 			player = game.getPlayer(args.indexOf(name));
-			((ConnectionWindow) mui).setGame(game); //TODO dit kan netter
+			((ConnectionWindow) mui).setGame(game, player); //TODO dit kan netter
 		}catch(InvalidMoveException e){
 			this.sendDisconnect("Invalid startstone position");
 		}
