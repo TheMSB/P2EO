@@ -124,8 +124,12 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 * @param y
 	 * @param type
 	 * @param color
+	 * @throws InvalidMoveException 
 	 */
-	void doMove(final int x, final int y, final int type, final int color){
+	void doMove(final int x, final int y, final int type, final int color) throws InvalidMoveException{
+		//game.move(x, y, type, color);
+		inventPiece = game.getMovPiece(x, y, type, color);
+		gamePanel.removePiece(inventPiece);
 		updateAW();
 	}
 	@Override
@@ -154,14 +158,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 					if (((CellPanel) e.getSource()).getCell() == game.getBoard().getCell(x, y)) {
 						//TODO do move on cell
 						System.out.println("clicked Cell: " + x + "," + y);
-						try {
-							//TODO make 1 move process command for AW to handle both human and AI moves.
-							game.move(x, y, type, color);
-							gamePanel.removePiece(inventPiece);
-						} catch (InvalidMoveException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+						client.sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y + " " + type + " " + color);
 						type = 42;
 						color = 42;
 					}
