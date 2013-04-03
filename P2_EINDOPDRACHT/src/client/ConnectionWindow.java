@@ -345,3 +345,5 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	}
 
 }
+
+//TODO Disable Join options until connected.

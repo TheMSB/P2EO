@@ -97,6 +97,7 @@ public class Game extends Observable {
 		}
 		return output;
 	}
+	
 	/**
 	 * Returns the current turn.
 	 * @return turn
