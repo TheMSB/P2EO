@@ -138,7 +138,6 @@ public class Board {
 	 */
 	public boolean canMove(final int x, final int y, final Piece piece) {
 		//TODO test dit.
-		//TODO dikke steen geeft geen toegang
 		boolean pieceAllowed = isCell(x, y) && getCell(x, y).pieceAllowed(piece);
 		boolean canMove = false;
 		boolean megaStoneAllowed = true;

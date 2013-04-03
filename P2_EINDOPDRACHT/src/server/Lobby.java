@@ -47,7 +47,7 @@ public class Lobby {
 	/**
 	 * Name of the player whos turn it is
 	 */
-	private String turn;
+	private ClientHandler turn;
 
 	/**
 	 * Makes a new lobby, and adds the first client
@@ -88,7 +88,7 @@ public class Lobby {
 			giveTurn();
 		}catch (InvalidMoveException e) {
 			System.out.println("InvalidMoveDetected");
-			//TODO invalid move error sturen
+			turn.sendError(util.Protocol.ERR_INVALID_MOVE);
 			e.printStackTrace();
 			giveTurn();
 		}
@@ -101,7 +101,7 @@ public class Lobby {
 	private void giveTurn() {
 		//System.out.println("GameOver:  "+game.isGameOver());
 		if(!game.isGameOver()){
-			turn = clients.get(game.getTurn()).getClientName();
+			turn = clients.get(game.getTurn());
 			broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
 		}else{
 			endLobby();
@@ -163,8 +163,11 @@ public class Lobby {
 		// TODO startsteen positie bepalen;
 
 		Collections.shuffle(clients);
-
-		game = new Game(2, 2, util.Util.makePlayerNameList(clients));
+		try{
+			game = new Game(2, 2, util.Util.makePlayerNameList(clients));
+		}catch(InvalidMoveException e){
+			System.out.println("Error in lobby, startstone is invalid");
+		}
 
 		for (ClientHandler i : clients) {
 			i.lobbySTART(util.Protocol.CMD_START + " 2 2 "
@@ -225,8 +228,8 @@ public class Lobby {
 	/**
 	 * @return The name of the player whos turn it currently is
 	 */
-	public String getTurn() {
-		return turn;
+	public String getTurnName() {
+		return turn.getClientName();
 	}
 
 	/**

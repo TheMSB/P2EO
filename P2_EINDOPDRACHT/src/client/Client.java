@@ -61,11 +61,9 @@ public class Client extends Thread {
 	 * 
 	 * @param name
 	 */
-	public Client(final String name, final InetAddress adr, final int prt, final MessageUI mui) throws IOException {
-		System.out.println("[Client]   " + name);
+	public Client(String name) {
+		System.out.println("[Client]   "+name);
 		this.name = name;
-		InetAddress addr = adr;
-		int port = prt;
 		
 		
 		clientFeatures = new ArrayList<String>();
@@ -75,7 +73,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(port, addr);
+			connectToServer(4242, InetAddress.getByName("localhost"));
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();
@@ -84,13 +82,11 @@ public class Client extends Thread {
 			e.printStackTrace();
 			serverAlive = false;
 		}
-
 	}
 
 	public void run() {
 		while (true) { // TODO clientGUI moet client kunnen afsluiten
 			try {
-				String lastInput;
 
 				while (connected) {
 					lastInput = in.readLine();
@@ -99,6 +95,8 @@ public class Client extends Thread {
 						readCommand(new Scanner(lastInput));
 					} else {
 						//Verbinding gebroken als hij hier komt.
+						//TODO kreeg TURN, toern null, toen error.
+						System.out.println("socket closing");
 						sock.close();
 						serverAlive = false;
 						connected = false;
@@ -164,8 +162,6 @@ public class Client extends Thread {
 			cmdEND(args);
 		} else if (command.equals(util.Protocol.CMD_ERROR)) {
 			cmdERROR(args);
-		} else if (command.equals(util.Protocol.CMD_SAID)){
-			//TODO PRINT MESSAGE BIJ UI
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -245,12 +241,15 @@ public class Client extends Thread {
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
 		humanIsPlaying = false; //TODO dit variabel maken
-		game = new Game(x,y,args);
 		
-		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
+		try{
+			game = new Game(x,y,args);
+			player = game.getPlayer(args.indexOf(name));
+		}catch(InvalidMoveException e){
+			this.sendDisconnect("Invalid startstone position");
+		}
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
-		//System.out.println(player.getPieces());
-		ai = new RandomAI(game,player);
+		ai = new SmartAI(game,player); //TODO mogelijk ingame aan te laten passen
 	}
 
 	/**
@@ -262,7 +261,6 @@ public class Client extends Thread {
 			if (args.size() == 1) {
 				if (args.get(0).equals(this.name)) {
 					askMove();
-					//TODO persoon die niet zet blijft hier in hangen.
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -280,13 +278,12 @@ public class Client extends Thread {
 		System.out.println("Asking move..");
 		
 		// TODO laat GUI aangeven dat het jou beurt is
-		// TODO hoe zit het met de tijd die je hiervoor hebt?
 		ArrayList<Integer> arr;
 		//arr: 0 = x, 1 = y, 2 = type, 3 = color
 		if(humanIsPlaying){
-			arr = ai.getMove();
-		}else{
 			arr = ai.getMove(); //TODO dit door mens laten doen
+		}else{
+			arr = ai.getMove(); 
 		}
 		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
 	}
@@ -359,7 +356,6 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (errorCode == util.Protocol.ERR_INVALID_MOVE) {
 				sendDisconnect("Desync detected");
-				//TODO dit niet met exception?
 			}
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
@@ -391,18 +387,6 @@ public class Client extends Thread {
 		}
 	}
 
-	 /** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
-    public void sendMessage(String msg) {
-    	try {
-        	String input = msg;
-    			out.write(util.Protocol.CMD_SAY + " " + input + "\n");
-        		out.flush();
-        	
-		} catch (IOException e) {
-			//e.printStackTrace();
-		}
-    }
-    
 	/**
 	 * Stuurt een error naar de server.
 	 * @param errorCode
@@ -410,7 +394,7 @@ public class Client extends Thread {
 	public void sendError(final int errorCode) {
 		System.out.println(">>>>>>>ERROR, Last input: " + lastInput);
 		System.out.println("##>STATUS<##  " + status);
-		sendCommand(util.Protocol.CMD_ERROR + " " + errorCode);
+		System.out.println(util.Protocol.CMD_ERROR + " " + errorCode);
 	}
 
 	/**
@@ -418,6 +402,7 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
+		System.out.println("Send command: "+command);
 		try {
 			out.write(command + "\n");
 			out.flush();

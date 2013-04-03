@@ -98,15 +98,16 @@ public class SmartAI implements AI {
 		Path bestPath = null;
 		Path bestPath1 = null;
 		Path bestPath2 = null;
-		//TODO	Legt 2e kleur te laat neer
-		//TODO cellsAvailable is maar van 1 kleur.
-		//TODO maakt cell met 3 eigen zetten af, hoeft niet
+
+		// TODO Legt 2e kleur te laat neer
+		// TODO cellsAvailable is maar van 1 kleur.
+		// TODO maakt cell met 3 eigen zetten af, hoeft niet
+		
 		// TODO blokkeert eigen 2e kleur
 		// TODO moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
 
 		if (playerCount == 2) {
-			// TODO voor andere spelers
 			bestPath1 = getBestMove(player.getColor());
 			bestPath2 = getBestMove(player.getColor() + 1);
 			bestPath = BestPath(bestPath1, bestPath2);
@@ -127,7 +128,6 @@ public class SmartAI implements AI {
 			System.out.println(player.getPieces());
 			System.out.println(game.isGameOver());
 		}
-		// TODO wat te doen als bestPath null is = geen zetten meer mogelijk
 
 		boolean validMoveFound = false;
 
@@ -140,8 +140,7 @@ public class SmartAI implements AI {
 			x = bestPath.get(0).getX();
 			y = bestPath.get(0).getY();
 			try {
-				piece = player.getPiece(bestPath.get(0).getBestType(),
-						player.getColor());
+				piece = player.getPiece(bestPath.get(0).getBestType(), bestPath.get(0).getBestColor());
 			} catch (InvalidPieceException e) {
 				e.printStackTrace();
 				System.out
@@ -184,7 +183,7 @@ public class SmartAI implements AI {
 		cellsAvailable = new ArrayList<CellPoint>();
 		cellPointsList = new TreeSet<CellPoint>();
 		this.playerColor = playerColor;
-		
+
 		for (Piece p : player.getPieces()) {
 			if (p.getColor() == playerColor) {
 				pieces.add(p);
@@ -328,6 +327,7 @@ public class SmartAI implements AI {
 
 			int bestType = getBestType(point1);
 			point1.setBestType(bestType); // Best type for the cell
+			point1.setBestColor(playerColor);
 			boolean pieceFound = false;
 
 			for (int i = 0; i < pieces.size() && !pieceFound; i++) {
@@ -397,6 +397,7 @@ public class SmartAI implements AI {
 
 		int bestType = getBestType(point1);
 		point1.setBestType(bestType); // Best type for the cell
+		point1.setBestColor(playerColor);
 		boolean pieceFound = false;
 
 		for (int i = 0; i < pieces.size() && !pieceFound; i++) {
@@ -611,6 +612,10 @@ public class SmartAI implements AI {
 		// 3 extra stukken
 
 		double points = 4;
+		if(getPiecesOfColor(playerColor).size()==15){
+			points = points + 10;
+		}
+		
 		if (board.isCell(x + 1, y)
 				&& board.getCell(x + 1, y).hasPieces(
 						new Piece(0, player.getColor()))) {
@@ -701,8 +706,8 @@ public class SmartAI implements AI {
 														// also doesnt have a
 														// piece from the given
 														// player.
-							points = points +blocking(p, i);
-							//Mogelijkheid om blocking() *2 te doen
+							points = points + blocking(p, i);
+							// Mogelijkheid om blocking() *2 te doen
 						}
 					}
 				} else {
@@ -790,5 +795,18 @@ public class SmartAI implements AI {
 
 		}
 		return points;
+	}
+	
+	
+	public ArrayList<Piece> getPiecesOfColor(int color){
+		ArrayList<Piece> output = new ArrayList<Piece>();
+		for(Piece p : player.getPieces()){
+			if(p.getColor()==color){
+				output.add(p);
+			}
+		}
+		
+		
+		return output;
 	}
 }
