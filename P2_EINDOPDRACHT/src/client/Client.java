@@ -25,7 +25,7 @@ import util.CrapTalker;
 public class Client extends Thread {
 	// TODO Veel dubbele command leescode, mogelijkheid tot nieuwe klasse
 
-	private String name;
+	private String clientName;
 	private Socket sock;
 	private BufferedReader in;
 	private BufferedWriter out;
@@ -67,10 +67,11 @@ public class Client extends Thread {
 		InetAddress addr = adr;
 		int port = prt;
 		System.out.println("[Client]   " + name);
-		this.name = name;
+		this.clientName = name;
 		this.mui = mui;
 
 		clientFeatures = new ArrayList<String>();
+		clientFeatures.add("CHAT");
 
 		// Ga er vanuit dat de server aan staat in het begin
 		serverAlive = true;
@@ -205,6 +206,7 @@ public class Client extends Thread {
 	private void cmdFEATURES(final ArrayList<String> args) {
 		if (status == HANDSHAKE_PENDING_2) {
 			if (args.size() >= 0) {
+				serverFeatures = new ArrayList<String>();
 				for (String a : args) {
 					for (String b : clientFeatures) {
 						if (a.equals(b)) {
@@ -266,12 +268,12 @@ public class Client extends Thread {
 
 		try {
 			game = new Game(x, y, args);
-			player = game.getPlayer(args.indexOf(name));
+			player = game.getPlayer(args.indexOf(clientName));
 			((ConnectionWindow) mui).setGame(game, player); //TODO dit kan netter
 		} catch (InvalidMoveException e) {
 			this.sendDisconnect("Invalid startstone position");
 		}
-		System.out.println("PlayerNumber:  " + args.indexOf(name));
+		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
 		ai = new SmartAI(game, player); // TODO mogelijk ingame aan te laten
 										// passen
 	}
@@ -285,7 +287,7 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
-				if (args.get(0).equals(this.name)) {
+				if (args.get(0).equals(this.clientName)) {
 					askMove();
 				}
 			} else {
@@ -383,8 +385,9 @@ public class Client extends Thread {
 				if (serverFeatures.contains(util.Protocol.FEAT_CHAT)) {
 					String name = args.remove(0);
 					mui.addMessage(name, util.Util.concatArrayList(args));
-					System.out.println("addMessaged");
-					if (name != this.getName()) {
+					//System.out.println("addMessaged");
+					//System.out.println(name +" | "+clientName);
+					if (!name.equals(clientName)) {
 						if (autoCrapTalk) {
 							sendMessage(util.CrapTalker
 									.insult(util.CrapTalker.INSULTS_OPPONENT_CHATS));
@@ -448,7 +451,18 @@ public class Client extends Thread {
 			throws InvalidMoveException {
 		game.move(x, y, type, color);
 		myTurn = false;
+		if(mui instanceof ActionWindow){
+			((ActionWindow) mui).updateAW();
+		}else{
+			System.out.println("mui fail");
+		}
+				
 		// System.out.println("Adding ring at: "+ x+" , "+y);
+	}
+	
+	
+	void setMUI(MessageUI mui){
+		this.mui =mui;
 	}
 
 	/**
@@ -502,7 +516,7 @@ public class Client extends Thread {
 			out.write(command + "\n");
 			out.flush();
 		} catch (IOException e) {
-			System.out.println("Failed to send message to:  " + this.name);
+			System.out.println("Failed to send message to:  " + this.clientName);
 		}
 	}
 
@@ -547,7 +561,7 @@ public class Client extends Thread {
 						sock.getOutputStream(), Server.ENCODING));
 
 				serverAlive = true;
-				sendCommand(util.Protocol.CMD_CONNECT + " " + name);
+				sendCommand(util.Protocol.CMD_CONNECT + " " + clientName);
 				status = HANDSHAKE_PENDING_1;
 			} catch (UnsupportedEncodingException e1) {
 				System.out

@@ -204,6 +204,7 @@ public class Lobby {
 	 * @param message
 	 */
 	protected synchronized void broadcastMessage(String message) {
+		//TODO geeft nullpointer als disconnect wil zendne naar al disconnected gast
 		for (ClientHandler i : clients) {
 			i.sendCommand(message);
 		}

@@ -237,7 +237,9 @@ public class Server extends Thread {
 	 * @return ArrayList with Features from the server
 	 */
 	public ArrayList<String> getFeatures() {
-		return new ArrayList<String>();
+		ArrayList<String> arr = new ArrayList<String>();
+		arr.add("CHAT");
+		return arr;
 	}
 
 	/**
