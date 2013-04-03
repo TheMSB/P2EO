@@ -390,7 +390,7 @@ public class Client extends Thread {
 	}
 	
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
-    public void sendMessage(String msg) {
+    public void sendMessage(final String msg) {
     	try {
         	String input = msg;
     			out.write(util.Protocol.CMD_SAY + " " + input + "\n");

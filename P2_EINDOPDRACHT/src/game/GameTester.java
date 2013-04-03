@@ -2,6 +2,8 @@ package game;
 
 import java.util.ArrayList;
 
+import exceptions.InvalidMoveException;
+
 public class GameTester {
 
 	//private ArrayList<String> names;
@@ -11,7 +13,7 @@ public class GameTester {
 
 	}
 
-	  public static void main(String[] args){
+	  public static void main(String[] args) throws InvalidMoveException{
 		  ArrayList<String> names = new ArrayList<String>();
 		  System.out.println("eerste arg " + args[0]);
 		  System.out.println("arg " + args[1]);

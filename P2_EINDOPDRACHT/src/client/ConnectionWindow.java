@@ -39,22 +39,25 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	private Game game;
 	private String name;
+	
 	// Windows and Panels
 
 	private Container c;
 	private JPanel menu = new JPanel();
 	private JPanel turndisp = new JPanel();
 	private JPanel chatbox = new JPanel();
-	private JButton connectB = new JButton("JOIN");
 	private JButton bConnect;
+	private JButton bJoin;
 
 	private JTextField  tfPort;
 	private JTextField	tfAddress;
 	private JTextField	myName;
+	private JTextField	nrPlayers;
 
 	private boolean  	tfPortChanged;
 	private boolean  	tfAddressChanged;
 	private boolean  	myNameChanged;
+	private boolean		nrPlayersChanged;
 	private JTextField	myMessage;
 	private JTextArea   taMessages;
 	private Server      server;
@@ -98,20 +101,24 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		menu.setMinimumSize(new Dimension(300, 300));
 
 		JPanel p1 = new JPanel(new FlowLayout());
-		JPanel pp = new JPanel(new GridLayout(3, 2));
+		JPanel pp = new JPanel(new GridLayout(4, 2));
+		JPanel joinPanel = new JPanel(new GridLayout(1, 3));
 
 		JLabel lbAddress = new JLabel("Address: ");
 		tfAddress = new JTextField("localhost", 12);
 		tfAddress.addKeyListener(this);
+		tfAddress.setEditable(true);
+		
+		JLabel lbMyName = new JLabel("Naam: ");
 		myName = new JTextField("", 10);
 		myName.addKeyListener(this);
-		tfAddress.setEditable(true);
 
 		JLabel lbPort = new JLabel("Port:");
 		tfPort        = new JTextField("4242", 5);
 		tfPort.addKeyListener(this);
 
-		JLabel lbMyName = new JLabel("Naam: ");
+		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
+		nrPlayers = new JTextField("", 1);
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -119,14 +126,24 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		pp.add(tfPort);
 		pp.add(lbMyName);
 		pp.add(myName);
+		
+		joinPanel.add(lbNrPlayers);
+		joinPanel.add(nrPlayers);
 
 		bConnect = new JButton("Connect");
 		bConnect.setEnabled(false);
 		bConnect.setFocusable(false);
 		bConnect.addActionListener(this);
+		
+		bJoin = new JButton("Join");
+		bJoin.setEnabled(false);
+		bJoin.setFocusable(false);
+		bJoin.addActionListener(this);
+		joinPanel.add(bJoin, BorderLayout.EAST);
 
 		p1.add(pp, BorderLayout.WEST);
 		p1.add(bConnect, BorderLayout.EAST);
+		
 
 		// Panel p2 - Messages
 
@@ -155,7 +172,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		Container cc = getContentPane();
 		cc.setLayout(new FlowLayout());
-		cc.add(p1); 
+		cc.add(p1);
+		cc.add(joinPanel);
 		cc.add(p2);
 
 
@@ -175,6 +193,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		this.game = g;
 	}
 	
+	protected void join(final int slots){
+		client.joinLobby(slots);
+	}
+	
 	@Override
 	public void addMessage(final String name, final String msg) {
 		 taMessages.append("<" + name + "> " + msg +"\n");
@@ -184,8 +206,12 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	//---- Action Events ------------------------
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		connect();
+	public void actionPerformed(final ActionEvent e) {
+		if (e.getSource() == bConnect) {
+			connect();
+		} else if (e.getSource() == bJoin) {
+			//TODO join
+		}
 
 	}
 
@@ -228,9 +254,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 
 	@Override
-	public void keyPressed(KeyEvent event) {
+	public void keyPressed(final KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_ENTER && connected) {
-			//System.out.println("Enter pressed");
 			client.sendMessage(myMessage.getText());
 			myMessage.setText("");
 		}
@@ -244,7 +269,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	}
 
 	@Override
-	public void keyTyped(KeyEvent event) {
+	public void keyTyped(final KeyEvent event) {
 
 		if (event.getSource().equals(myName)) {
 			myNameChanged = true;
@@ -256,8 +281,15 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			tfPortChanged = true;
 
 		}
+		if (event.getSource().equals(nrPlayers)) {
+			nrPlayersChanged = true;
+
+		}
 		if (myNameChanged && tfAddressChanged && tfPortChanged) {
 			bConnect.setEnabled(true);
+		}
+		if (connected && nrPlayersChanged) {
+			bJoin.setEnabled(true);
 		}
 
 	}
