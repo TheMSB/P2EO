@@ -39,8 +39,8 @@ public class Client extends Thread {
 	private int selectedAI;
 	private boolean humanIsPlaying;
 	private MessageUI mui;
-	private boolean autoCrapTalk = true;
-	private boolean convertToCyrillic = true;
+	private boolean autoCrapTalk = false;
+	private boolean convertToCyrillic = false;
 	private boolean myTurn;
 
 	/**
@@ -395,7 +395,7 @@ public class Client extends Thread {
 					//System.out.println("addMessaged");
 					//System.out.println(name +" | "+clientName);
 					if (!name.equals(clientName)) {
-						if (autoCrapTalk) {
+						if (autoCrapTalk && Math.random()<0.5) {
 							sendMessage(util.CrapTalker
 									.insult(util.CrapTalker.INSULTS_OPPONENT_CHATS));
 						}

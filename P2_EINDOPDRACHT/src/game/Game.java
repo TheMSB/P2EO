@@ -23,6 +23,7 @@ public class Game extends Observable {
 	 * Array of players playing this game.
 	 */
 	private ArrayList<Player> players;
+	private ArrayList<Player>	playersConnected;
 	/**
 	 * The Board that this game is played on.
 	 */
@@ -66,6 +67,8 @@ public class Game extends Observable {
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
 		}
+		playersConnected = players;
+		
 		setUpGame(x, y, playerCount);
 		turn = 0;
 	}
@@ -201,6 +204,7 @@ public class Game extends Observable {
 			if(!canDoMove(player)){
 				playersToRemove.add(player);
 			}
+			System.out.println(player.getPieces());
 		}
 		//Checks if any of those players in the new list indexes are before or equal to the one having the turn, if so lower turn by 1 for each
 		for(int i=0;i<playersToRemove.size();i++){
@@ -227,7 +231,8 @@ public class Game extends Observable {
 				for(Piece p : player.getPieces()){
 					if(board.canMove(x, y,p)){
 						canMove = true;
-						System.out.println(board.getCell(x,y));
+						break;
+						//System.out.println(board.getCell(x,y));
 					}
 				}
 			}
@@ -248,13 +253,13 @@ public class Game extends Observable {
 	public ArrayList<Integer> getStats(){
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		Integer[] score = board.getScore();
-		for(int i =0;i<players.size();i++){
-			if(players.size()==2){
+		for(int i =0;i<playersConnected.size();i++){
+			if(playersConnected.size()==2){
 				results.add(score[i*2] + score[i*2+1]);
-				results.add(players.get(i).getPieces().size());
+				results.add(playersConnected.get(i).getPieces().size());
 			}else{
 				results.add(score[i]);
-				results.add(players.get(i).getPieces().size());
+				results.add(playersConnected.get(i).getPieces().size());
 			}
 			
 		}
