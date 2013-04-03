@@ -41,14 +41,20 @@ public class Util {
 		return output;
 	}
 	
-	public static int getIndexOfMax(Integer[] arr){
-		int max = 0;
-		for(int i=1;i<arr.length;i++){
-			if(arr[i]>max){
+	public static int getIndexOfMax(ArrayList<Integer> arr){
+		int max = -1;
+		boolean tie = false;
+		for(int i=0;i<arr.size();i++){
+			if(max<0 || arr.get(i)>arr.get(max)){
 				max = i;
+				tie = false;
+			}else if(arr.get(i)==arr.get(max)){
+				tie = true;
 			}
 		}
-		
+		if(tie){
+			max = -1;
+		}
 		return max;
 	}
 }

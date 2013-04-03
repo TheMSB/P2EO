@@ -114,6 +114,7 @@ public class Client extends Thread {
 			} catch (IOException e) {
 				sendDisconnect("Reconnecting");
 				connected = false;
+				serverAlive = false;		//Tijdelijke hotfix
 			}
 
 			// Als code hierkomt is er een disconnect
@@ -348,6 +349,7 @@ public class Client extends Thread {
 				} catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				} catch (InvalidMoveException e) {
+					e.printStackTrace();
 					sendError(util.Protocol.ERR_INVALID_MOVE);
 					sendDisconnect("Desync detected, disconnecting");
 				}
@@ -457,9 +459,10 @@ public class Client extends Thread {
 	private void processMove(int x, int y, int type, int color)
 			throws InvalidMoveException {
 		game.move(x, y, type, color);
+		game.isGameOver();
 		myTurn = false;
 		if(mui instanceof ActionWindow){
-			((ActionWindow) mui).doMove(x,y,type,color);
+			//((ActionWindow) mui).doMove(x,y,type,color);
 		}else{
 			System.out.println("mui fail");
 		}
