@@ -279,19 +279,25 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			join(Integer.parseInt(nrPlayers.getText()));
 		} else if (e.getSource() == aiList) {
 			if (aiList.getSelectedIndex() == 0) {
-				//Set human is playing true
+				client.setIsPlaying(true);
+				client.setAI(0);
 			}
 			if (aiList.getSelectedIndex() == 1) {
-				//Set human is playing false
-				//Set smartAI
+				client.setIsPlaying(false);
+				client.setAI(1);
 			}
 			if (aiList.getSelectedIndex() == 2) {
-				//Set human is playing false
-				//Set randomAI
+				client.setIsPlaying(false);
+				client.setAI(2);
 			}
 			
 		} else if (e.getSource() == bFlame) {
-			//Enable Flame Bot
+			if (bFlame.isEnabled()) {
+				client.setFlame(true);
+			}
+			else {
+				client.setFlame(false);
+			}
 		}
 
 	}
@@ -329,7 +335,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			nrPlayersChanged = true;
 
 		}
-		if (myNameChanged && tfAddressChanged && tfPortChanged) {
+		if (myNameChanged && tfAddressChanged && tfPortChanged && !connected) {
 			bConnect.setEnabled(true);
 		}
 		if (connected && nrPlayersChanged) {

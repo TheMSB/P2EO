@@ -36,6 +36,7 @@ public class Client extends Thread {
 	private Game game;
 	private Player player;
 	private AI ai;
+	private int selectedAI;
 	private boolean humanIsPlaying;
 	private MessageUI mui;
 	private boolean autoCrapTalk = true;
@@ -263,9 +264,6 @@ public class Client extends Thread {
 		if (autoCrapTalk) {
 			sendMessage(util.CrapTalker.insult(util.CrapTalker.INSULTS_START));
 		}
-
-		humanIsPlaying = false; // TODO dit variabel maken
-
 		try {
 			game = new Game(x, y, args);
 			player = game.getPlayer(args.indexOf(clientName));
@@ -274,8 +272,17 @@ public class Client extends Thread {
 			this.sendDisconnect("Invalid startstone position");
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
-		ai = new SmartAI(game, player); // TODO mogelijk ingame aan te laten
-										// passen
+		if (!humanIsPlaying) {
+			if (selectedAI == 1) {
+				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te laten
+				// passen
+			}
+			else if (selectedAI == 2) {
+				ai = new RandomAI(game, player); // TODO mogelijk ingame aan te laten
+				// passen
+			}
+		}
+		
 	}
 
 	/**
@@ -471,12 +478,39 @@ public class Client extends Thread {
 	 * 
 	 * @param slots
 	 */
+	
 	public void joinLobby(final int slots) {
 		// System.out.println("Joining lobby);
 		if (status == HANDSHAKE_SUCCESFULL) {
 			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
 			status = INLOBBY;
 		}
+	}
+	/**
+	 * Used by the GUI to select an AI.
+	 * 1 being Smart
+	 * 2 being Random
+	 * @param i
+	 */
+	public void setAI(final int i){
+		selectedAI = i;
+	}
+	
+	/**
+	 * Used by the GUI to determine if
+	 * a player plays himself.
+	 * @param b
+	 */
+	public void setIsPlaying(final boolean b) {
+		humanIsPlaying = b;
+	}
+	/**
+	 * Used by the GUI to enable/disable the
+	 * flame bot crap talker.
+	 * @param f
+	 */
+	public void setFlame(final boolean f) {
+		autoCrapTalk = f;
 	}
 
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
