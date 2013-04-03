@@ -36,7 +36,6 @@ public class Client extends Thread {
 	private boolean serverAlive;
 	private int status;
 	private Game game;
-	private ClientGUI gui;
 	private Player player;
 	private AI ai;
 	private boolean humanIsPlaying;
@@ -62,10 +61,11 @@ public class Client extends Thread {
 	 * 
 	 * @param name
 	 */
-	public Client(final String name, final ClientGUI gu) {
-		this.gui = gu;
-		System.out.println("[Client]   "+name);
+	public Client(final String name, final InetAddress adr, final int prt, final MessageUI mui) throws IOException {
+		System.out.println("[Client]   " + name);
 		this.name = name;
+		InetAddress addr = adr;
+		int port = prt;
 		
 		
 		clientFeatures = new ArrayList<String>();
@@ -75,7 +75,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(4242, InetAddress.getByName("localhost"));
+			connectToServer(port, addr);
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();
@@ -90,6 +90,7 @@ public class Client extends Thread {
 	public void run() {
 		while (true) { // TODO clientGUI moet client kunnen afsluiten
 			try {
+				String lastInput;
 
 				while (connected) {
 					lastInput = in.readLine();
@@ -98,8 +99,6 @@ public class Client extends Thread {
 						readCommand(new Scanner(lastInput));
 					} else {
 						//Verbinding gebroken als hij hier komt.
-						//TODO kreeg TURN, toern null, toen error.
-						System.out.println("socket closing");
 						sock.close();
 						serverAlive = false;
 						connected = false;
@@ -165,6 +164,8 @@ public class Client extends Thread {
 			cmdEND(args);
 		} else if (command.equals(util.Protocol.CMD_ERROR)) {
 			cmdERROR(args);
+		} else if (command.equals(util.Protocol.CMD_SAID)){
+			//TODO PRINT MESSAGE BIJ UI
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -245,11 +246,11 @@ public class Client extends Thread {
 	private void startGame(int x, int y, ArrayList<String> args) {
 		humanIsPlaying = false; //TODO dit variabel maken
 		game = new Game(x,y,args);
-		gui.startGame(game);
+		
 		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
 		//System.out.println(player.getPieces());
-		ai = new SmartAI(game,player);
+		ai = new RandomAI(game,player);
 	}
 
 	/**
@@ -390,6 +391,18 @@ public class Client extends Thread {
 		}
 	}
 
+	 /** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
+    public void sendMessage(String msg) {
+    	try {
+        	String input = msg;
+    			out.write(util.Protocol.CMD_SAY + " " + input + "\n");
+        		out.flush();
+        	
+		} catch (IOException e) {
+			//e.printStackTrace();
+		}
+    }
+    
 	/**
 	 * Stuurt een error naar de server.
 	 * @param errorCode
@@ -397,7 +410,7 @@ public class Client extends Thread {
 	public void sendError(final int errorCode) {
 		System.out.println(">>>>>>>ERROR, Last input: " + lastInput);
 		System.out.println("##>STATUS<##  " + status);
-		System.out.println(util.Protocol.CMD_ERROR + " " + errorCode);
+		sendCommand(util.Protocol.CMD_ERROR + " " + errorCode);
 	}
 
 	/**
@@ -405,7 +418,6 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
-		System.out.println("Send command: "+command);
 		try {
 			out.write(command + "\n");
 			out.flush();

@@ -35,10 +35,10 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	
 	//---- Constructor ---------------------------------
 		
-	public ActionWindow(final Game g, final String n) {
-		super("Lord of the RINGZ");
+	public ActionWindow(final String n) {
+		super("Lord of the RINGGZ");
 		
-		this.game = g;
+		//this.game = g;
 		this.name = n;
 		c = getContentPane();
 		buildGUI();
@@ -58,30 +58,51 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		setVisible(true);
 	}
 
+	/**
+	 * Creates the main GUI components.
+	 */
 	private void buildGUI() {
 		
 		//---- Main window ----
 				setPreferredSize(new Dimension(500, 650));
 				setMinimumSize(new Dimension(500, 650));
 		
-		//---- Game Panel -----
-		gamePanel = new GamePanel(game, name);
 		
-		gamePanel.setPreferredSize(new Dimension(500, 600));
-		gamePanel.addMouseListener(this);
-		
-		c.add(gamePanel, BorderLayout.LINE_START);
-		
-		gamePanel.setVisible(true);
 		// TODO Auto-generated constructor stub
 		
 		//---- Defines Border styles
 				Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
 				Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 	}
-	protected void setGame(Game g){
+	/**
+	 * Constructs the Game panel where the player
+	 * can play on.
+	 * @param g Game to draw
+	 */
+	protected void buildGame(final Game g, final String n) {
+		//---- Loading the Game ----
+		setGame(g);
+		//---- Game Panel -----
+				gamePanel = new GamePanel(game, n);
+				
+				gamePanel.setPreferredSize(new Dimension(500, 600));
+				gamePanel.addMouseListener(this);
+				
+				c.add(gamePanel, BorderLayout.LINE_START);
+				
+				gamePanel.setVisible(true);
+	}
+	/**
+	 * Loads a game into the GUI for
+	 * drawing.
+	 * @param g Game to load
+	 */
+	protected void setGame(final Game g) {
 		this.game = g;
 	}
+	
+	//---- Action Events ------------------------
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		repaint();

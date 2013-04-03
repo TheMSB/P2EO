@@ -59,16 +59,20 @@ public class ClientGUI {
     //TODO client GUI geven, dan client game laten maken en laten starten.
     //TODO off: sandbox starten, dan connect optie game laten veranderen.
 	public ClientGUI() {
-		aWindow = new ActionWindow(game, name);
+		new ConnectionWindow();
+		/*
+		aWindow = new ActionWindow(name);
 		aWindow.pack();
 		aWindow.validate();
 		aWindow.setVisible(true);
-		Client client = new Client(name + Math.random(), this);
-		client.start();
+		*/
+		//Client client = new Client(name + Math.random(), this);
+		//client.start();
 	}
 	
 	protected void startGame(final Game g) {
 		this.game = g;
+		aWindow.buildGame(game, name);
 		
 	}
 	/**
