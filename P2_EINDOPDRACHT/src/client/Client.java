@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -42,6 +43,7 @@ public class Client extends Thread {
 	private boolean autoCrapTalk = false;
 	private boolean convertToCyrillic = false;
 	private boolean myTurn;
+	private ArrayList<Integer> aiMove;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -315,15 +317,36 @@ public class Client extends Thread {
 		System.out.println("Asking move..");
 
 		// TODO laat GUI aangeven dat het jou beurt is
-		ArrayList<Integer> arr;
 		// arr: 0 = x, 1 = y, 2 = type, 3 = color
-		if (humanIsPlaying) {
-			arr = ai.getMove(); // TODO dit door mens laten doen
-		} else {
-			arr = ai.getMove();
+		aiMove = ai.getMove(); // TODO dit door mens laten doen
+		if (!humanIsPlaying) {
+			sendCommand(util.Protocol.CMD_MOVE + " "
+					+ util.Util.concatArrayList(aiMove));
 		}
-		sendCommand(util.Protocol.CMD_MOVE + " "
-				+ util.Util.concatArrayList(arr));
+	}
+	
+	/**
+	 * Returns the move the ai would do (from the most recent turn given to you)
+	 * @return
+	 */
+	public ArrayList<Integer> getAIMove(){
+		return aiMove;
+	}
+	
+	/**
+	 * Sends a move to the server
+	 * @param arr	arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
+	 * @return	True if succesfull (if it was indeed your turn)
+	 */
+	public boolean doHumanMove(ArrayList<Integer> arr){
+		boolean output = false;
+		if(myTurn){
+			output = true;
+					sendCommand(util.Protocol.CMD_MOVE + " "
+							+ util.Util.concatArrayList(arr));	
+		}
+		
+		return output;
 	}
 
 	/**
