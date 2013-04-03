@@ -208,7 +208,6 @@ public class Client extends Thread {
 				sendCommand(util.Protocol.CMD_FEATURED + " "
 						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
-				joinLobby(2);//TODO: dit hier weghalen.
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
