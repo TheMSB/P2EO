@@ -189,7 +189,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	 * drawing.
 	 * @param g Game to load
 	 */
-	protected void setGame(final Game g) {
+	void setGame(final Game g) {
 		this.game = g;
 	}
 	
