@@ -120,13 +120,12 @@ public class ClientHandler extends Thread {
 				}
 			}
 		} catch (SocketException e) {
-			// TODO mag ik er vanuitgaan dat dit een disconnect is
+			// hier mag ik er vanuitgaan dat dit een disconnect is
 
 			unexpectedDisconnect("SocketException");
 		} catch (IOException e) {
 			sendError(util.Protocol.ERR_UNDEFINED);
 			e.printStackTrace();
-			// TODO hier afluisten?
 		}
 
 		System.out.println("Shutting down");
@@ -179,7 +178,7 @@ public class ClientHandler extends Thread {
 	public void checkCommand(String command, ArrayList<String> args) {
 		if (command.equals(util.Protocol.CMD_CONNECT)) {
 			cmdCONNECT(args);
-		} else if (command.equals(util.Protocol.CMD_FEATURED)) { //TODO featured mag altijd
+		} else if (command.equals(util.Protocol.CMD_FEATURED)) {
 			cmdFEATURED(args);
 		} else if (command.equals(util.Protocol.CMD_JOIN)) { 
 			cmdJOIN(args);
@@ -187,8 +186,10 @@ public class ClientHandler extends Thread {
 			cmdMOVE(args);
 		} else if (command.equals(util.Protocol.CMD_DISCONNECT)) {
 			cmdDISCONNECT(args);
+		}else if (command.equals(util.Protocol.CMD_SAY)){
+			cmdSAY(args);
 		} else if (command.equals(util.Protocol.CMD_ERROR)) {
-			// TODO doe iets?
+			// zou niet moeten gebeuren
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_NOT_FOUND);
 		}
@@ -289,7 +290,6 @@ public class ClientHandler extends Thread {
 			if (args.size() == 4) {
 				try {
 					lobby.move(util.Util.ConvertToInt(args));
-					//TODO mogelijk vriendelijk nog een keer een move vragen
 				}catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
@@ -317,8 +317,6 @@ public class ClientHandler extends Thread {
 				server.broadcastMessage(util.Protocol.CMD_DISCONNECTED + " "
 						+ this.name + " " + util.Util.concatArrayList(args));
 				//TODO lobby is null als iemand dced in lobby;
-				// TODO moet naar iedereen in lobby EN iedereen die
-				// chat/challenge feature ondersteund
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -328,7 +326,7 @@ public class ClientHandler extends Thread {
 		}
 
 		try {
-			sock.close(); // TODO klopt dit?
+			sock.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -336,6 +334,20 @@ public class ClientHandler extends Thread {
 		if (this.status >= INLOBBY) {
 			lobby.removeClientFromLobby(this);
 		}// TODO testen of dit alles is;
+	}
+	
+	private void cmdSAY(ArrayList<String> args) {
+		if (status >= HANDSHAKE_SUCCESFULL) {
+			if (args.size() >= 1) {
+				if(this.lobby!=null){
+					lobby.broadcastMessage(util.Protocol.CMD_SAID+" "+this.getClientName() +" "+ util.Util.concatArrayList(args));
+				}else{
+					server.broadcastMessage(util.Protocol.CMD_SAID+" "+this.getClientName() +" "+ util.Util.concatArrayList(args));
+				}
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		}
 	}
 
 	/**
@@ -400,15 +412,21 @@ public class ClientHandler extends Thread {
 	 * Sends a command to the client
 	 * 
 	 * @param command
+	 * @ensure	Only sends a command starting with CHAT, if the feature is supported by the client
 	 */
 	public void sendCommand(String command) {
 		try {
-			out.write(command + "\n");
-			out.flush();
+			if ((!command.startsWith(util.Protocol.CMD_SAID) || clientFeatures
+					.contains(util.Protocol.FEAT_CHAT))
+					&& (!command.startsWith(util.Protocol.CMD_DISCONNECTED) || (this.lobby != null
+							|| clientFeatures.contains(util.Protocol.FEAT_CHAT) || clientFeatures
+								.contains(util.Protocol.FEAT_CHALLENGE)))) {
+				out.write(command + "\n");
+				out.flush();
+			}
 		} catch (IOException e) {
 			// e.printStackTrace();
 			System.out.println("Failed to send message to:  " + this.name);
-			// TODO dit oplossen? mogelijk met retry na seconde ofzo
 		}
 	}
 

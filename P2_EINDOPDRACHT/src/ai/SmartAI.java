@@ -127,6 +127,7 @@ public class SmartAI implements AI {
 			System.out.println(bestPath2);
 			System.out.println(player.getPieces());
 			System.out.println(game.isGameOver());
+			System.out.println(game.canDoMove(player));
 		}
 
 		boolean validMoveFound = false;
@@ -286,9 +287,9 @@ public class SmartAI implements AI {
 		// lijst met cells waar je mag leggen
 		// vanuit elk punt een path bouwen
 		// beste path teruggeven
-		// TODO kan cellsAvailable 0 zijn?
-		Path bestPath = getPath(cellsAvailable.get(0), point);
-		for (int i = 1; i < cellsAvailable.size(); i++) {
+		// TODO kan cellsAvailable 0 zijn JA?
+		Path bestPath = null;
+		for (int i = 0; i < cellsAvailable.size(); i++) {
 			Path newPath = getPath(cellsAvailable.get(i), point);
 			if (newPath != null
 					&& (bestPath == null || newPath.getAverageWorth() > bestPath
@@ -806,7 +807,7 @@ public class SmartAI implements AI {
 			}
 		}
 		
-		
+		System.out.println(output);
 		return output;
 	}
 }

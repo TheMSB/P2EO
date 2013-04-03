@@ -227,6 +227,7 @@ public class Game extends Observable {
 				for(Piece p : player.getPieces()){
 					if(board.canMove(x, y,p)){
 						canMove = true;
+						System.out.println(board.getCell(x,y));
 					}
 				}
 			}
