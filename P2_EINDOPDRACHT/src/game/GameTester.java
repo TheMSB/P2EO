@@ -24,6 +24,6 @@ public class GameTester {
 		  names.add(args[2]);
 		  names.add(args[3]);
 		  System.out.println(names);
-		  new Game(2, 2, names);
+		  //new Game(2, 2, names);
 	  }
 }

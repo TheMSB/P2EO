@@ -6,22 +6,22 @@ import java.io.PrintWriter;
 public class CrapTalker {
 
 	private static PrintWriter pWriter;
-	private static final String[] INSULTS_START = {"Govnodavy","Yob materi vashi!","Ti galuboy"};
-	private static final String[] INSULTS_OPPONENT_MOVE = {"Govnosos","Pizdets","Do pizdy","Nu vse, tebe pizda","Durak neshtiasnyI","Viyebnutsa","Ti Durak","Na huy...?"};
-	private static final String[] INSULTS_OPPONENT_LOSE = {"Perdoon stary","Poshol nahuj","Loh","Pidar","Eedee tryakhate tvayu mamu"};
-	private static final String[] INSULTS_OPPONENT_WIN = {"Naveshat pizdyley","Pacheemu ti takoy galuboy","Otyebis ot menya!","Polniy pizdets"};
-	private static final String[] INSULTS_ME_MOVE = {"Potselui mou zhopy","Zhri govno i zdohni!"};
-	private static final String[] INSULTS_ME_LOSE = {"Hooy morzhovy","Yebat vashu mat","Zaebis"};
-	private static final String[] INSULTS_ME_WIN = {"Naveshat pizdyley","Otsosi","Tvaya mat sasala mney"};
-	private static final String[] INSULTS_OPPONENT_CHATS = {"Past' zabej, padla jebanaja","Zacroy svoy peesavati rot, sooka","Zacroy rot","Eto mnye do huya"};
-	private static final String[] INSULTS_OPPONENT_DISCONNECT = {"Ne ssi v kompot, tam povor nogi moet"};
+	public static final String[] INSULTS_START = {"Govnodavy","Yob materi vashi!","Ti galuboy"};
+	public static final String[] INSULTS_OPPONENT_MOVE = {"Govnosos","Pizdets","Do pizdy","Nu vse, tebe pizda","Durak neshtiasnyI","Viyebnutsa","Ti Durak","Na huy...?"};
+	public static final String[] INSULTS_OPPONENT_LOSE = {"Perdoon stary","Poshol nahuj","Loh","Pidar","Eedee tryakhate tvayu mamu"};
+	public static final String[] INSULTS_OPPONENT_WIN = {"Naveshat pizdyley","Pacheemu ti takoy galuboy","Otyebis ot menya!","Polniy pizdets"};
+	public static final String[] INSULTS_ME_MOVE = {"Potselui mou zhopy","Zhri govno i zdohni!"};
+	public static final String[] INSULTS_ME_LOSE = {"Hooy morzhovy","Yebat vashu mat","Zaebis"};
+	public static final String[] INSULTS_ME_WIN = {"Naveshat pizdyley","Otsosi","Tvaya mat sasala mney"};
+	public static final String[] INSULTS_OPPONENT_CHATS = {"Past' zabej, padla jebanaja","Zacroy svoy peesavati rot, sooka","Zacroy rot","Eto mnye do huya"};
+	public static final String[] INSULTS_OPPONENT_DISCONNECT = {"Ne ssi v kompot, tam povor nogi moet"};
 
 	public static void main(String[] args) {
-		System.out.println(insult());
+		//System.out.println(insult());
 	}
 
 	
-	public static String Convert() throws FileNotFoundException {
+	public static String convert() throws FileNotFoundException {
 		pWriter = new PrintWriter("RussianInsults.txt");
 		pWriter.println("Кгыышфт еуче");
 		pWriter.flush();
@@ -65,9 +65,8 @@ public class CrapTalker {
 		return output;
 	}
 
-	public static String insult() {
+	public static String insult(String[] insultType) {
 		//Checked game state en zet dan insultType
-		String[] insultType = INSULTS_START;
 		String insult = insultType[(int)(Math.random()*insultType.length)];
 		
 		return toCyrillic(insult);
