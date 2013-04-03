@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import exceptions.InvalidMoveException;
+import exceptions.InvalidPieceException;
 import game.Board;
 import game.Game;
 import game.Piece;
@@ -126,9 +127,14 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 * @param color
 	 * @throws InvalidMoveException 
 	 */
-	void doMove(final int x, final int y, final int type, final int color) throws InvalidMoveException{
+	void doMove(final int x, final int y, final int type, final int color) {
 		//game.move(x, y, type, color);
-		inventPiece = game.getMovPiece(x, y, type, color);
+		try {
+			inventPiece = game.getMovPiece(x, y, type, color);
+		} catch (InvalidPieceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		gamePanel.removePiece(inventPiece);
 		updateAW();
 	}
