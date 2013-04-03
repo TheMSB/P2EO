@@ -61,7 +61,9 @@ public class Client extends Thread {
 	 * 
 	 * @param name
 	 */
-	public Client(String name) {
+	public Client(final String name, final InetAddress adr, final int prt, final MessageUI mui) throws IOException {
+		InetAddress addr = adr;
+		int port = prt;
 		System.out.println("[Client]   "+name);
 		this.name = name;
 		
@@ -73,7 +75,7 @@ public class Client extends Thread {
 		status = DISCONNECTED;
 
 		try {
-			connectToServer(4242, InetAddress.getByName("localhost"));
+			connectToServer(port, addr);
 		} catch (UnknownHostException e) {
 			System.out.println("IP not found");
 			e.printStackTrace();
@@ -386,6 +388,18 @@ public class Client extends Thread {
 			status = INLOBBY;
 		}
 	}
+	
+	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
+    public void sendMessage(String msg) {
+    	try {
+        	String input = msg;
+    			out.write(util.Protocol.CMD_SAY + " " + input + "\n");
+        		out.flush();
+        	
+		} catch (IOException e) {
+			//e.printStackTrace();
+		}
+    }
 
 	/**
 	 * Stuurt een error naar de server.

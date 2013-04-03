@@ -57,11 +57,14 @@ public class ClientGUI {
 
 	//---- Constructor ---------------------------------
 
-	public ClientGUI(Game game) {
-		aWindow = new ActionWindow(game, name);
+	public ClientGUI() {
+		/**
+		 aWindow = new ActionWindow(game, name);
 		aWindow.pack();
 		aWindow.validate();
 		aWindow.setVisible(true);
+		*/
+		new ConnectionWindow();
 	}
 	
 	/**
@@ -74,15 +77,7 @@ public class ClientGUI {
 		names.add(args[1]);
 		// eigen naam zoeken, hoe te implementeren?
 		name = args[0];
-
-		try {
-			ClientGUI gui = new ClientGUI(new Game(2, 2, names));
-		} catch (InvalidMoveException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Client client = new Client(name + Math.random());
-		client.start();
+		new ClientGUI();
 
 	}
 
