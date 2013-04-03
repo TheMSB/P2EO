@@ -7,6 +7,7 @@ import game.Player;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -57,7 +58,19 @@ public class GamePanel extends JPanel {
 		drawInventory();
 		add(inventory, BorderLayout.SOUTH);
 	}
-
+	
+	//---- Query -------------------------------
+	
+	/**
+	 * Removes a selected piece from the Inventory List.
+	 * @param p
+	 */
+	protected void removePiece(final Piece p) {
+		invent.removePiece(p);
+	}
+	
+	//---- Methods -----------------------------
+	
 	//TODO fix vinden om gradients toe te staan in java zonder naar 1.7 te gaan
 	@Override
     public void paintComponent(Graphics g) {

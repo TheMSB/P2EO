@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -30,7 +31,8 @@ import javax.swing.ListModel;
  */
 public class InventoryPainter extends JList {
 	
-	
+	//---- Instance Variable -----------------
+	static DefaultListModel model = new DefaultListModel();
 	//---- Constructor ------------------------
 	
 	/**
@@ -39,8 +41,10 @@ public class InventoryPainter extends JList {
 	 * @param arrayList 
 	 */
 	public InventoryPainter(final ArrayList<Piece> arrayList) {
-		super(arrayList.toArray());
-		
+		super(model);
+		for (Piece piece : arrayList) {
+			model.addElement(piece);
+		}
 		//setLayout(new GridLayout(9, 2));
 		setPreferredSize(new Dimension(500, 200));
 		this.setCellRenderer(new MyCellRenderer());
@@ -49,8 +53,18 @@ public class InventoryPainter extends JList {
 		//TODO word gek hiervan, wat ermee doen?
 		this.setFixedCellHeight(40);
 		this.setFixedCellWidth(40);
+		
 	}
-
+	
+	//---- Methods ---------------
+	/**
+	 * removes a piece from the listmodel.
+	 * @param arg
+	 */
+	protected void removePiece(final Piece arg) {
+		model.removeElement(arg);
+	}
+	
 	/**
 	 * Nested class that changes the visual appearance of a cell in
 	 * Inventory using the PiecePainter class.

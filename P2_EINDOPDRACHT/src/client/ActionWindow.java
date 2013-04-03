@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -34,8 +35,9 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private Client client;
 	
 	//--- Move related variables -----------------------
-	int type = 42;
-	int color = 42;
+	private int type = 42;
+	private int color = 42;
+	private Piece inventPiece; 
 
 	// Windows and Panels
 
@@ -110,7 +112,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	void updateAW() {
 		repaint();
 		//TODO dit 'refreshed' niet het inventory
-		gamePanel.drawInventory();
+		
 	}
 
 	@Override
@@ -138,8 +140,10 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				for (int x = 0; x < Board.X; x++) {
 					if (((CellPanel) e.getSource()).getCell() == game.getBoard().getCell(x, y)) {
 						//TODO do move on cell
+						System.out.println("clicked Cell: " + x + "," + y);
 						try {
 							game.move(x, y, type, color);
+							gamePanel.removePiece(inventPiece);
 						} catch (InvalidMoveException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -154,6 +158,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 			Piece p = ((MyCellComponent) e.getSource()).getPiece();
 			type = p.getType();
 			color = p.getColor();
+			inventPiece = p;
 		}
 
 	}

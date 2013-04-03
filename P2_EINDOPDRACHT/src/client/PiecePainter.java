@@ -47,7 +47,7 @@ public class PiecePainter{
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setStroke(new BasicStroke(5));
+		g2.setStroke(new BasicStroke(6));
 
 		//---- Color determination -------------
 		if (piece.getColor() == PlayerColor.COLOR_0) {
@@ -70,7 +70,7 @@ public class PiecePainter{
 		//int yCenter = height / 2;
 
 		//TODO maybe2
-		double diameter0 = width * 0.25;
+		double diameter0 = width * 0.20;
 		double diameter1 = width * 0.35;
 		double diameter2 = width * 0.45;
 		double diameter3 = width * 0.55;
