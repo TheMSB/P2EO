@@ -195,7 +195,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		this.game = g;
 		this.setVisible(false);
 		ActionWindow aWindow;
-		aWindow = new ActionWindow(game, p);
+		aWindow = new ActionWindow(game, p, client);
 		
 	}
 

@@ -19,13 +19,15 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-public class ActionWindow extends JFrame implements ActionListener, MouseListener {
+public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI {
 
 	//---- Game related variables ----------------------
 	
 		private Game game;
 		private String name;
 		private Player player;
+		private Client client;
+		
 	// Windows and Panels
 		
 		private Container c;
@@ -37,12 +39,14 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	
 	//---- Constructor ---------------------------------
 		
-	public ActionWindow(final Game g, final Player p) {
+	public ActionWindow(final Game g, final Player p, final Client client) {
 		super("Lord of the RINGGZ");
 		
+		this.client = client;
 		this.game = g;
 		//this.name = n;
 		this.player = p;
+		client.setMUI(this);
 		c = getContentPane();
 		buildGUI();
 
@@ -80,7 +84,6 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	/**
 	 * Constructs the Game panel where the player
 	 * can play on.
-	 * @param g Game to draw
 	 */
 	protected void buildGame() {
 		//---- Loading the Game ----
@@ -95,14 +98,19 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				
 				gamePanel.setVisible(true);
 	}
-	//TODO legacy code, remove ASAP
+	
 	/**
-	 * Loads a game into the GUI for
-	 * drawing.
-	 * @param g Game to load
+	 * Updates the entire ActionWindow to reflect
+	 * any changes that may have occured.
 	 */
-	protected void setGame(final Game g) {
-		this.game = g;
+	void updateAW() {
+		repaint();
+	}
+	
+	@Override
+	public void addMessage(final String name, final String msg) {
+		//taMessages.append("<" + name + "> " + msg +"\n");
+
 	}
 	
 	//---- Action Events ------------------------
