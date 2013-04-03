@@ -1,5 +1,6 @@
 package client;
 
+import exceptions.InvalidMoveException;
 import game.Board;
 import game.Cell;
 import game.Game;
@@ -74,7 +75,12 @@ public class ClientGUI {
 		// eigen naam zoeken, hoe te implementeren?
 		name = args[0];
 
-		ClientGUI gui = new ClientGUI(new Game(2, 2, names));
+		try {
+			ClientGUI gui = new ClientGUI(new Game(2, 2, names));
+		} catch (InvalidMoveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Client client = new Client(name + Math.random());
 		client.start();
 

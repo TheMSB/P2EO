@@ -82,7 +82,6 @@ public class Client extends Thread {
 			e.printStackTrace();
 			serverAlive = false;
 		}
-
 	}
 
 	public void run() {
@@ -242,11 +241,15 @@ public class Client extends Thread {
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
 		humanIsPlaying = false; //TODO dit variabel maken
-		game = new Game(x,y,args);
-		player = game.getPlayer(args.indexOf(name)); //TODO niet het equals probleem?
+		
+		try{
+			game = new Game(x,y,args);
+			player = game.getPlayer(args.indexOf(name));
+		}catch(InvalidMoveException e){
+			this.sendDisconnect("Invalid startstone position");
+		}
 		System.out.println("PlayerNumber:  "+args.indexOf(name));
-		//System.out.println(player.getPieces());
-		ai = new SmartAI(game,player);
+		ai = new SmartAI(game,player); //TODO mogelijk ingame aan te laten passen
 	}
 
 	/**
@@ -258,7 +261,6 @@ public class Client extends Thread {
 			if (args.size() == 1) {
 				if (args.get(0).equals(this.name)) {
 					askMove();
-					//TODO persoon die niet zet blijft hier in hangen.
 				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
@@ -276,13 +278,12 @@ public class Client extends Thread {
 		System.out.println("Asking move..");
 		
 		// TODO laat GUI aangeven dat het jou beurt is
-		// TODO hoe zit het met de tijd die je hiervoor hebt?
 		ArrayList<Integer> arr;
 		//arr: 0 = x, 1 = y, 2 = type, 3 = color
 		if(humanIsPlaying){
-			arr = ai.getMove();
-		}else{
 			arr = ai.getMove(); //TODO dit door mens laten doen
+		}else{
+			arr = ai.getMove(); 
 		}
 		sendCommand(util.Protocol.CMD_MOVE + " " +util.Util.concatArrayList(arr));
 	}
@@ -355,7 +356,6 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (errorCode == util.Protocol.ERR_INVALID_MOVE) {
 				sendDisconnect("Desync detected");
-				//TODO dit niet met exception?
 			}
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);

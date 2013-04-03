@@ -43,8 +43,9 @@ public class Game extends Observable {
 	 * as names for the players. Then, assigns colors to the
 	 * newly created players and runs the setUp method.
 	 * @param playernames List with the name of players
+	 * @throws InvalidMoveException when the x,y from the startstone are wrong
 	 */
-	public Game(final int x, final int y, final ArrayList<String> playernames) {
+	public Game(final int x, final int y, final ArrayList<String> playernames) throws InvalidMoveException {
 
 		playerCount = playernames.size();
 
@@ -118,13 +119,10 @@ public class Game extends Observable {
 	 * of players playing this game.
 	 * @param playercount The number of players playing
 	 */
-	protected void setUpGame(final int x, final int y, final int playercount) { // 4 Player Game
+	protected void setUpGame(final int x, final int y, final int playercount) throws InvalidMoveException { // 4 Player Game
 		// Creates the starting stone
-		try{
-			board.startStone(x, y);
-		}catch(InvalidMoveException e){
-			//TODO kijken wat te doen als startsteen verkeerd is
-		}
+		
+		board.startStone(x, y);
 
 		if (playercount == 4) {
 			for (int pl = 0; pl < 4; pl++) { // Player loop
@@ -156,8 +154,8 @@ public class Game extends Observable {
 			}
 		}
 		
-		System.out.println(players.get(0).getPieces());
-		System.out.println(players.get(1).getPieces());
+		//System.out.println(players.get(0).getPieces());
+		//System.out.println(players.get(1).getPieces());
 		//TODO else invalid player number exception
 	}
 
@@ -175,8 +173,8 @@ public class Game extends Observable {
 		Piece movpc = players.get(turn).getPiece(type, color);
 		board.move(x, y, movpc);
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
-		players.get(turn).getPieces().remove(pindex);
-		//TODO moet dit hier? pieces verwijderen, setPlaced gebruiken?
+		players.get(turn).getPieces().remove(pindex).setPlaced();
+		//TODO kijken naar setPlaced(),mogelijk in cell doen
 		turn = (turn + 1) % players.size();
 	}
 	
@@ -261,31 +259,4 @@ public class Game extends Observable {
 		}
 		return results;
 	}
-	
-	/*protected void gameOver() {
-		boolean over = true;
-		for (int x = 0; x < Board.X; x++) {
-			for (int y = 0; y < Board.Y; y++) {
-				if (board.getCell(x, y).isFull()) {
-					over = false;
-				}
-				for (int c = 0; c < 4; c++) {
-					for (int t = 0; t < 4; t++) {
-						try{
-							if (board.canMove(x, y, players.get(turn).getPiece(t, c))) {
-								over = false;
-							}
-						}catch(InvalidPieceException e){
-							System.out.println("GameOver heeft fout in methode");
-						}
-					}
-				}
-			} for (int p = 0; p < players.size(); p++) {
-				if (players.get(p).getPieces() != null) {
-					over = false;
-				}
-			}
-		}
-	} */
 }
-//TODO hasWinner, methods
