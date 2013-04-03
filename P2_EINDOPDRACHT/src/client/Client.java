@@ -39,6 +39,7 @@ public class Client extends Thread {
 	private Player player;
 	private AI ai;
 	private boolean humanIsPlaying;
+	private MessageUI mui;
 
 	/**
 	 * Features van clients/servers, serverFeatures kan alleen features bevaten
@@ -66,6 +67,7 @@ public class Client extends Thread {
 		int port = prt;
 		System.out.println("[Client]   "+name);
 		this.name = name;
+		this.mui = mui;
 		
 		
 		clientFeatures = new ArrayList<String>();
@@ -162,6 +164,8 @@ public class Client extends Thread {
 			cmdMOVED(args);
 		} else if (command.equals(util.Protocol.CMD_END)) {
 			cmdEND(args);
+		} else if (command.equals(util.Protocol.CMD_SAID)){
+			cmdSAID(args);
 		} else if (command.equals(util.Protocol.CMD_ERROR)) {
 			cmdERROR(args);
 		} else {
@@ -325,7 +329,21 @@ public class Client extends Thread {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
-
+	
+	private void cmdSAID(ArrayList<String> args) {
+		if (status >=HANDSHAKE_SUCCESFULL) {
+			if (args.size() >= 2) {
+				if(serverFeatures.contains(util.Protocol.FEAT_CHAT)){
+					mui.addMessage(args.remove(0),util.Util.concatArrayList(args));
+				}
+				//WARNING args gets changed here.
+			} else {
+				sendError(util.Protocol.ERR_INVALID_COMMAND);
+			}
+		} else {
+			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
+		}
+	}
 	private void displayGameOverScreen(ArrayList<String> args){
 		//TODO game over screen displayen
 	}

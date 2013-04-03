@@ -197,4 +197,14 @@ public class Cell {
 		return winner;
 	}
 	
+	
+	public String toString(){
+		String output = "";
+		for(Piece p : pieces){
+			output = output + p +" | ";
+		}
+		
+		return output;
+	}
+	
 }
