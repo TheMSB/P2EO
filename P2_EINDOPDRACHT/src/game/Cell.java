@@ -97,7 +97,7 @@ public class Cell {
 	 * @return
 	 */
 	public boolean pieceAllowed(Piece piece){
-		return piece.getType()>=0 && piece.getType()<=4 && pieces[piece.getType()]==null && (piece.getType()!=4 || isEmpty());
+		return !isFull() && piece.getType()>=0 && piece.getType()<=4 && pieces[piece.getType()]==null && (piece.getType()!=4 || isEmpty());
 	}
 
 	/**
@@ -187,13 +187,9 @@ public class Cell {
 	}
 	
 	public int determOwner(){
-		ArrayList<Integer> list = getOwnerList();
-		int winner = -1;
-		Collections.sort(list);
-		if(list.get(list.size()-1) != list.get(list.size()-2)){
-			winner = list.get(list.size()-1);
-		}
-		
+		int winner = util.Util.getIndexOfMax(getOwnerList());
+		//	tie met jezelf (2 rood, 2 blauw) = geen punten
+		System.out.println("DetOwner: "+this.X +","+this.Y + "  :  "+getOwnerList() +"  "+winner);
 		return winner;
 	}
 	
