@@ -459,7 +459,7 @@ public class Client extends Thread {
 		game.move(x, y, type, color);
 		myTurn = false;
 		if(mui instanceof ActionWindow){
-			((ActionWindow) mui).updateAW();
+			((ActionWindow) mui).doMove(x,y,type,color);
 		}else{
 			System.out.println("mui fail");
 		}
@@ -561,8 +561,10 @@ public class Client extends Thread {
 	 */
 	public void sendDisconnect(final String msg) {
 		status = DISCONNECTED;
+		System.out.println(msg);
 		try {
 			out.write(util.Protocol.CMD_DISCONNECT + " " + msg);
+			sock.close();
 
 		} catch (IOException e) {
 			System.out.println("Could not send disconnect message");
