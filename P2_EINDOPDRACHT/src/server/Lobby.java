@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import game.*;
 import java.util.Collections;
 
+import util.SoundPlayer;
+
 import exceptions.InvalidMoveException;
 
 /**
@@ -48,6 +50,8 @@ public class Lobby {
 	 * Name of the player whos turn it is
 	 */
 	private ClientHandler turn;
+	
+	private SoundPlayer soundPlayer;
 
 	/**
 	 * Makes a new lobby, and adds the first client
@@ -65,6 +69,9 @@ public class Lobby {
 		clients = new ArrayList<ClientHandler>();
 		addClient(client);
 		status = ClientHandler.INLOBBY;
+		soundPlayer = new SoundPlayer();
+		soundPlayer.start();
+		soundPlayer.playSound();
 	}
 
 	/**
@@ -83,6 +90,7 @@ public class Lobby {
 	public void move(ArrayList<Integer> args) {
 		try{
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
+			soundPlayer.playSound();
 			broadcastMessage(util.Protocol.CMD_MOVED + " "
 					+ util.Util.concatArrayList(args));
 			giveTurn();
