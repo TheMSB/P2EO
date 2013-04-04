@@ -109,7 +109,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		JPanel p1 = new JPanel(new FlowLayout());
 		JPanel pp = new JPanel(new GridLayout(4, 2));
-		JPanel joinPanel = new JPanel(new GridLayout(4, 2));
+		JPanel joinPanel = new JPanel(new GridLayout(5, 2));
 
 		JLabel lbAddress = new JLabel("Address: ");
 		tfAddress = new JTextField("localhost", 12);
@@ -317,10 +317,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			}
 		} else if (e.getSource() == bCyrillic) {
 			if (bCyrillic.isEnabled()) {
-				client.setCyrllic(true);
+				client.setCyrillic(true);
 			}
 			else {
-				client.setCyrllic(false);
+				client.setCyrillic(false);
 			}
 		}
 
