@@ -82,6 +82,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		soundPlayer = new SoundPlayer();
 		soundPlayer.setRadioSong(true);
 		soundPlayer.start();
+		
 		//this.game = g;
 		c = getContentPane();
 		buildGUI();

@@ -29,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import util.SoundPlayer;
+
 import client.InventoryPainter.MyCellComponent;
 
 public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener {
@@ -82,6 +84,8 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		pack();
 		validate();
 		setVisible(true);
+		SoundPlayer soundPlayer = new SoundPlayer();
+		soundPlayer.playSound("resources/sounds2/BattleMusic.wav");
 	}
 
 	/**
