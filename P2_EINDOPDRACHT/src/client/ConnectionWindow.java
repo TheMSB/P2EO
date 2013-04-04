@@ -33,6 +33,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import server.Server;
+import util.SoundPlayer;
 
 
 
@@ -44,6 +45,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private String name;
 	private String[] aiListing = {"None", "SmartAI","RandomAI","E-WallAI"};
 	private String[] pnrListing = {"2","3","4"};
+	private SoundPlayer soundPlayer;
 
 	// Windows and Panels
 
@@ -76,6 +78,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public ConnectionWindow() {
 		super("LOTR Debug Launcher");
 
+		
+		soundPlayer = new SoundPlayer();
+		soundPlayer.setRadioSong(true);
+		soundPlayer.start();
 		//this.game = g;
 		c = getContentPane();
 		buildGUI();
@@ -93,6 +99,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		pack();
 		validate();
 		setVisible(true);
+		
+		
 	}
 
 	/**
@@ -212,6 +220,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		//---- Defines Border styles
 		Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
 		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+		
+		
 	}
 
 	/**

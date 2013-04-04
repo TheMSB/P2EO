@@ -6,12 +6,21 @@ import javax.sound.sampled.*;
 public class SoundPlayer extends Thread {
 
 	private boolean ready;
+	private boolean playRadioSong;
 
 	public SoundPlayer() {
 
 	}
 
 	public void run() {
+		while(playRadioSong){
+			playSound("resources/sounds2/RadioSong.wav");
+			try {
+				this.sleep(22000);
+			} catch (InterruptedException e) {
+			}
+		}
+		
 		try {
 			this.sleep(5000);
 		} catch (InterruptedException e) {
@@ -44,6 +53,29 @@ public class SoundPlayer extends Thread {
 			}
 		}
 		ready = false;
+	}
+	public void playSound(String fileName) {
+			try {
+
+				File yourFile = new File(fileName);
+				AudioInputStream stream;
+				AudioFormat format;
+				DataLine.Info info;
+				Clip clip;
+
+				stream = AudioSystem.getAudioInputStream(yourFile);
+				format = stream.getFormat();
+				info = new DataLine.Info(Clip.class, format);
+				clip = (Clip) AudioSystem.getLine(info);
+				clip.open(stream);
+				clip.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	
+	public void setRadioSong(boolean rs){
+		playRadioSong = rs;
 	}
 
 }
