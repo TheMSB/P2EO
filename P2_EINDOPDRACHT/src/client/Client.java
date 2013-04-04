@@ -305,8 +305,8 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
-				if(game.getTurn()==-1){
-					game.setTurn(args.get(0));
+				if(!game.getTurnSet()){
+					game.setTurn(game.getPlayer(args.get(0)).getColor());
 				}
 				if (args.get(0).equals(this.clientName)) {
 					askMove();

@@ -36,6 +36,7 @@ public class Game extends Observable {
 	 * The amount of players playing this game.
 	 */
 	private int playerCount;
+	private boolean turnSet = false;
 
 	//---- Constructor ------------------------------------------
 
@@ -70,7 +71,8 @@ public class Game extends Observable {
 		playersConnected = (ArrayList<Player>) players.clone();
 		
 		setUpGame(x, y, playerCount);
-		turn = -1;
+		turn = 0;
+		turnSet = false;
 	}
 
 	//---- Queries ------------------------------------------
@@ -296,7 +298,12 @@ public class Game extends Observable {
 		return results;
 	}
 	
-	public void setTurn(String newTurn){
-		turn = players.indexOf(newTurn);
+	public void setTurn(int newTurn){
+		
+		turn = newTurn;
+	}
+	
+	public boolean getTurnSet(){
+		return turnSet;
 	}
 }
