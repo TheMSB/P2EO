@@ -175,20 +175,19 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 			updateAW();
 		} catch (InvalidPieceException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 	}
 	@Override
 	public void addMessage(final String name, final String msg) {
-		taMessages.append("<" + name + "> " + msg +"\n");
+		taMessages.append("<" + name + "> " + msg + "\n");
 
 	}
 
 	//---- Action Events ------------------------
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(final ActionEvent e) {
 
 
 	}
@@ -205,7 +204,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 					if (((CellPanel) e.getSource()).getCell() == game.getBoard().getCell(x, y)) {
 						//TODO do move on cell
 						System.out.println("clicked Cell: " + x + "," + y);
-						client.doHumanMove(x,y,type,color);
+						client.doHumanMove(x, y, type, color);
 						type = 42;
 						color = 42;
 					}
@@ -222,25 +221,25 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
+	public void mouseEntered(final MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mouseExited(MouseEvent arg0) {
+	public void mouseExited(final MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
+	public void mousePressed(final MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseReleased(final MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
@@ -255,13 +254,13 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	}
 
 	@Override
-	public void keyReleased(KeyEvent arg0) {
+	public void keyReleased(final KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void keyTyped(KeyEvent arg0) {
+	public void keyTyped(final KeyEvent arg0) {
 		// TODO Auto-generated method stub
 		
 	}

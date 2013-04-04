@@ -312,13 +312,15 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		} else if (e.getSource() == bFlame) {
 			if (bFlame.isSelected()) {
 				client.setFlame(true);
-			} else {
+			} 
+			if (!bFlame.isSelected()) {
 				client.setFlame(false);
 			}
-		} else if (e.getSource() == bCyrillic) {
+		} 
+		if (e.getSource() == bCyrillic) {
 			if (bCyrillic.isSelected()) {
 				client.setCyrillic(true);
-			} else {
+			} else if (!bCyrillic.isSelected()) {
 				client.setCyrillic(false);
 				
 			}
