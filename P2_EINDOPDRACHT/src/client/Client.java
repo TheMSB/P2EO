@@ -23,6 +23,7 @@ import ai.*;
 
 import server.Server;
 import util.CrapTalker;
+import util.SoundPlayer;
 
 public class Client extends Thread {
 	// TODO Veel dubbele command leescode, mogelijkheid tot nieuwe klasse
@@ -408,6 +409,7 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
+				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}

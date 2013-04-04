@@ -8,9 +8,13 @@ public class SoundPlayer extends Thread {
 	private boolean ready;
 	private boolean playRadioSong;
 	private boolean playBattleMusic;
+	private static AudioInputStream stream;
+	private static AudioFormat format;
+	private static DataLine.Info info;
+	private static Clip clip;
+	private static File yourFile;
 
 	public SoundPlayer() {
-
 	}
 
 	public void run() {
@@ -38,33 +42,29 @@ public class SoundPlayer extends Thread {
 
 				File yourFile = new File("resources/sounds2/"
 						+ arr[(int) (Math.random() * arr.length)] + ".wav");
-				AudioInputStream stream;
-				AudioFormat format;
-				DataLine.Info info;
-				Clip clip;
+				AudioInputStream stream2;
+				AudioFormat format2;
+				DataLine.Info info2;
+				Clip clip2;
 
-				stream = AudioSystem.getAudioInputStream(yourFile);
-				format = stream.getFormat();
-				info = new DataLine.Info(Clip.class, format);
-				clip = (Clip) AudioSystem.getLine(info);
-				clip.open(stream);
-				clip.start();
+				stream2 = AudioSystem.getAudioInputStream(yourFile);
+				format2 = stream2.getFormat();
+				info2 = new DataLine.Info(Clip.class, format2);
+				clip2 = (Clip) AudioSystem.getLine(info2);
+				clip2.open(stream2);
+				clip2.start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		ready = false;
 	}
-	public void playSound(String fileName) {
+	public static void playSound(String fileName) {
 			try {
 
-				File yourFile = new File(fileName);
-				AudioInputStream stream;
-				AudioFormat format;
-				DataLine.Info info;
-				Clip clip;
-
+				yourFile = new File(fileName);
 				stream = AudioSystem.getAudioInputStream(yourFile);
+				
 				format = stream.getFormat();
 				info = new DataLine.Info(Clip.class, format);
 				clip = (Clip) AudioSystem.getLine(info);
