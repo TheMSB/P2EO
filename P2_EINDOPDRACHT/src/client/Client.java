@@ -400,7 +400,7 @@ public class Client extends Thread {
 
 	private void cmdEND(ArrayList<String> args) {
 		if (status == INGAME) {
-			if (args.size() >= 2 && args.size() <= 4) {
+			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
