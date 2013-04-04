@@ -631,6 +631,9 @@ public class SmartAI implements AI {
 
 		double points = 4;
 		points = points + (player.getPieces().size()/15)*5;
+		if(player.getPieces().size()==15){
+			points = points + 5;
+		}
 
 		if (board.isCell(x + 1, y)
 				&& board.getCell(x + 1, y).hasPieces(
