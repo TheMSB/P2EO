@@ -64,6 +64,9 @@ public class SoundPlayer extends Thread {
 				if(clip!=null){
 					clip.stop();
 				}
+				
+				
+				
 				yourFile = new File(fileName);
 				stream = AudioSystem.getAudioInputStream(yourFile);
 				
@@ -87,4 +90,9 @@ public class SoundPlayer extends Thread {
 		playBattleMusic = bm;
 	}
 
+	public static void upVolume(){
+		FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+		gainControl.setValue(6.0206f); // Higher volume by 10 decibels.
+		
+	}
 }
