@@ -409,8 +409,7 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
-				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
-				SoundPlayer.upVolume();
+				
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -460,6 +459,46 @@ public class Client extends Thread {
 
 	private void displayGameOverScreen(ArrayList<String> args) {
 		// TODO game over screen displayen
+		try{
+			boolean won = true;
+			int ownScore = 0;
+			ArrayList<Integer> arr = util.Util.ConvertToInt(args);
+			if(game.getPlayerCount()!=2){
+				ownScore = arr.get(player.getColor()*2);
+			}else{
+				if(player.getColor()==0){
+					ownScore = arr.get(0);
+				}else{
+					ownScore = arr.get(2);
+				}
+			}
+			ArrayList<Integer> otherScores = new ArrayList<Integer>();
+			for(int i=0;i<arr.size();i=i+2){
+				if(i!=player.getColor()*2){
+					otherScores.add(arr.get(i));
+				}
+			}
+			
+			for(int i : otherScores){
+				if(i>ownScore){
+					won = false;
+				}
+			}
+			System.out.println("WON: "+won);
+			System.out.println("END "+args);
+			
+			if(won){
+				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
+				SoundPlayer.upVolume();
+			}else{
+				SoundPlayer.playSound("");
+			}
+			
+		}catch(NumberFormatException e){
+			System.out.println("Wrong stats received");
+		}
+		
+		
 	}
 
 	/**
