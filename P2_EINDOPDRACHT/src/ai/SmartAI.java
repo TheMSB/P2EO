@@ -104,10 +104,10 @@ public class SmartAI implements AI {
 		// FIXED maakt cell met 3 eigen zetten af, hoeft niet		FIXED
 
 		// FIXED blokkeert eigen 2e kleur		
-		// TODO moet ook punten krijgen voor victory blok
+		// FIXED moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
-		// TODO piecesUsed checken
-		// TODO victory block moet bij blocking ie, van 2-1 naar 2-2 gaan
+		// FIXED piecesUsed checken
+		// FIXED victory block moet bij blocking ie, van 2-1 naar 2-2 gaan
 		
 		
 
@@ -603,7 +603,7 @@ public class SmartAI implements AI {
 		} else if ((own == 2 && util.Util.sumArray(list) == 1)
 				|| (own == 1 && list.indexOf(1) != -1 && util.Util
 						.sumArray(list) == 2)) {
-			points = 10;
+			points = 8;
 			// 10 puntent als:
 			// 2 eigen stukken, 1 ander stuk.
 			// 1 eigen, 1 iemand, 1 iemand
