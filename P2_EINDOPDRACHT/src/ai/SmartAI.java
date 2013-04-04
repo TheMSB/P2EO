@@ -676,8 +676,16 @@ public class SmartAI implements AI {
 		// 1 punt als het vak dicht gooit voor elke aangrenzende speler
 		// 2 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
 		// TODO lategame veel te veel waard
-
 		double points = 0;
+		ArrayList<Integer> list2 = board.getCell(x,y).getOwnerList();
+		int own = list2.remove(player.getColor());
+		
+		//Victory block als iemand 2 stukken heeft, iemand anders 1 stuk
+		if ((list2.indexOf(2) != -1 && list2.indexOf(1) != 1 && playerCount!=2)
+				|| (playerCount==2 && list2.indexOf(2)!=((playerColor+1)%2+1) && list2.indexOf(2)!=-1 && list2.indexOf(1)!=-1)) {
+			points = 3;
+		} 
+		
 		ArrayList<Integer> list = board.getCell(x, y).getOwnerList();
 		checkedCells = new ArrayList<Point>();
 		checkedCells.add(new Point(x, y));
