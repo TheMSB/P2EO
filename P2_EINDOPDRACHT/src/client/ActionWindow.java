@@ -85,7 +85,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		validate();
 		setVisible(true);
 		SoundPlayer soundPlayer = new SoundPlayer();
-		soundPlayer.playSound("resources/sounds2/BattleMusic.wav");
+		//soundPlayer.playSound("resources/sounds2/BattleMusic.wav");
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		this.color = colo;
 		
 		try {
-			System.out.println("doMove():  "+x + " "+ y + " "+ type +" "+colo);
+			System.out.println("doMove():  "+x + " "+ y + " "+ type +" "+color);
 			inventPiece = game.getMovPiece(x, y, type, color);
 			gamePanel.removePiece(inventPiece);
 			updateAW();

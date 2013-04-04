@@ -116,6 +116,7 @@ public class Game extends Observable {
 	public Piece getMovPiece(final int x, final int y, final int type, final int color) throws InvalidPieceException {
 		Piece output = null;
 		if(players.size()!=0){
+			System.out.println("getMovePiece() : "+turn);
 			output = players.get(turn).getPiece(type, color);
 		}else {
 			throw new InvalidPieceException();
@@ -129,6 +130,7 @@ public class Game extends Observable {
 	 * @return turn
 	 */
 	public int getTurn() {
+		System.out.println("giveTurn(): "+turn);
 		return playersConnected.indexOf(players.get(turn));
 	}
 	/**
@@ -204,6 +206,7 @@ public class Game extends Observable {
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
 		players.get(turn).getPieces().remove(pindex).setPlaced();
 		//TODO kijken naar setPlaced(),mogelijk in cell doen
+		System.out.println(players.size());
 		turn = (turn + 1) % players.size();
 	}
 	
@@ -299,8 +302,9 @@ public class Game extends Observable {
 	}
 	
 	public void setTurn(int newTurn){
-		
+		System.out.println("Setting start turn to: "+newTurn);
 		turn = newTurn;
+		turnSet = true;
 	}
 	
 	public boolean getTurnSet(){

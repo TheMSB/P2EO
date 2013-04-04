@@ -27,7 +27,7 @@ public class SoundPlayer extends Thread {
 		}
 		
 		try {
-			this.sleep(5000);
+			this.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

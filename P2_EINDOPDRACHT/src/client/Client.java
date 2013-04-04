@@ -306,7 +306,11 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (args.size() == 1) {
 				if(!game.getTurnSet()){
-					game.setTurn(game.getPlayer(args.get(0)).getColor());
+					if(game.getPlayerCount()!=2){
+						game.setTurn(game.getPlayer(args.get(0)).getColor());
+					}else{
+						game.setTurn(game.getPlayer(args.get(0)).getColor()/2);
+					}
 				}
 				if (args.get(0).equals(this.clientName)) {
 					askMove();
@@ -492,6 +496,7 @@ public class Client extends Thread {
 			System.out.println("END "+args);
 			
 			if(won){
+				sendMessage("CHAT GG ez");
 				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
 				SoundPlayer.upVolume();
 			}else{
