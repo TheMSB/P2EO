@@ -61,13 +61,17 @@ public class SoundPlayer extends Thread {
 	}
 	public static void playSound(String fileName) {
 			try {
-
+				if(clip!=null){
+					clip.stop();
+				}
 				yourFile = new File(fileName);
 				stream = AudioSystem.getAudioInputStream(yourFile);
 				
 				format = stream.getFormat();
 				info = new DataLine.Info(Clip.class, format);
 				clip = (Clip) AudioSystem.getLine(info);
+				clip.stop();
+				
 				clip.open(stream);
 				clip.start();
 			} catch (Exception e) {
