@@ -24,7 +24,7 @@ import java.util.TreeSet;
  * @author I3anaan
  * 
  */
-public class SmartAI implements AI {
+public class EWallAI implements AI {
 	/**
 	 * The game this ai is playing in
 	 */
@@ -85,7 +85,7 @@ public class SmartAI implements AI {
 	 * @param player
 	 *            Player to which the ai belongs
 	 */
-	public SmartAI(Game game, Player player) {
+	public EWallAI(Game game, Player player) {
 		this.game = game;
 		this.player = player;
 		this.playerCount = game.getPlayerCount();
@@ -555,7 +555,7 @@ public class SmartAI implements AI {
 		Cell cell = board.getCell(x, y);
 
 		if (!board.getCell(x, y).isFull()) {
-			cellReturn = new CellPoint(x, y, effortToWin(cell), connections(x,
+			cellReturn = new CellPoint(x, y, 0*effortToWin(cell), 0*connections(x,
 					y), blocking(x, y));
 			// TODO deze waarden balanceren
 		}
@@ -630,7 +630,9 @@ public class SmartAI implements AI {
 		// 3 extra stukken
 
 		double points = 4;
-		points = points + (player.getPieces().size()/15)*5;
+		if (getPiecesOfColor(playerColor).size() == 15) {
+			points = points + 10;
+		}
 
 		if (board.isCell(x + 1, y)
 				&& board.getCell(x + 1, y).hasPieces(
