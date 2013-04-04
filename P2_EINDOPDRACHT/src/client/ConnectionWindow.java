@@ -42,7 +42,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	private Game game;
 	private String name;
-	private String[] aiListing = {"None", "SmartAI","RandomAI"};
+	private String[] aiListing = {"None", "SmartAI","RandomAI","E-WallAI"};
 	private String[] pnrListing = {"2","3","4"};
 
 	// Windows and Panels
@@ -307,6 +307,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			if (aiList.getSelectedIndex() == 2) {
 				client.setIsPlaying(false);
 				client.setAI(2);
+			}
+			if (aiList.getSelectedIndex() == 3) {
+				client.setIsPlaying(false);
+				client.setAI(3);
 			}
 
 		} else if (e.getSource() == bFlame) {

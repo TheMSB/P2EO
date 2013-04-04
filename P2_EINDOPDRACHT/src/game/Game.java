@@ -115,7 +115,7 @@ public class Game extends Observable {
 		Piece output = null;
 		if(players.size()!=0){
 			output = players.get(turn).getPiece(type, color);
-		}else{
+		}else {
 			throw new InvalidPieceException();
 		}
 		
