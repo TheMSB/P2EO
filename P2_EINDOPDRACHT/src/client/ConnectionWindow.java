@@ -129,17 +129,17 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		nrPlayers.setSelectedIndex(0);
 		nrPlayers.addActionListener(this);
 		nrPlayers.setEnabled(false);
-		
+
 		JLabel lbAI = new JLabel("Desired AI: ");
 		aiList = new JComboBox(aiListing);
 		aiList.setSelectedIndex(0);
 		aiList.addActionListener(this);
 		aiList.setEnabled(false);
-		
+
 		JLabel lbSpam = new JLabel("Flame Bot: ");
 		bFlame = new JCheckBox("Enabled");
 		bFlame.setEnabled(false);
-		
+
 		JLabel lbCyrillic = new JLabel("Cyrillic Writing: ");
 		bCyrillic = new JCheckBox("Enabled");
 		bCyrillic.setEnabled(false);
@@ -224,7 +224,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		this.setVisible(false);
 		ActionWindow aWindow;
 		aWindow = new ActionWindow(game, p, client);
-		
+
 	}
 
 	/**
@@ -242,7 +242,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		taMessages.append("<" + name + "> " + msg +"\n");
 
 	}
-	
+
 	/**
 	 * Attempts to create a new socket connection
 	 * with the server, if all connection fields
@@ -290,6 +290,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 				nrPlayers.setEnabled(true);
 				aiList.setEnabled(true);
 				bFlame.setEnabled(true);
+				bCyrillic.setEnabled(true);
 				bJoin.setEnabled(true);
 			}
 		} else if (e.getSource() == bJoin) {
@@ -307,20 +308,19 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 				client.setIsPlaying(false);
 				client.setAI(2);
 			}
-			
+
 		} else if (e.getSource() == bFlame) {
-			if (bFlame.isEnabled()) {
+			if (bFlame.isSelected()) {
 				client.setFlame(true);
-			}
-			else {
+			} else {
 				client.setFlame(false);
 			}
 		} else if (e.getSource() == bCyrillic) {
-			if (bCyrillic.isEnabled()) {
+			if (bCyrillic.isSelected()) {
 				client.setCyrillic(true);
-			}
-			else {
+			} else {
 				client.setCyrillic(false);
+				
 			}
 		}
 
@@ -358,7 +358,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		if (myNameChanged && !connected) {
 			bConnect.setEnabled(true);
 		}
-		
+
 
 	}
 

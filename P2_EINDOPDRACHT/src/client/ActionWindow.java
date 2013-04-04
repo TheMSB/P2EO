@@ -6,6 +6,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -20,13 +22,16 @@ import game.Player;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import client.InventoryPainter.MyCellComponent;
 
-public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI {
+public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener {
 
 	//---- Game related variables ----------------------
 
@@ -48,6 +53,8 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private JPanel chatbox = new JPanel();
 
 	private GamePanel gamePanel;
+	private JTextField	myMessage;
+	private JTextArea   taMessages;
 
 	//---- Constructor ---------------------------------
 
@@ -83,10 +90,41 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private void buildGUI() {
 
 		//---- Main window ----
-		setPreferredSize(new Dimension(500, 650));
-		setMinimumSize(new Dimension(500, 650));
+		setPreferredSize(new Dimension(900, 650));
+		setMinimumSize(new Dimension(900, 650));
 
 		buildGame();
+		
+		// Panel p2 - Messages
+
+				chatbox.setPreferredSize(new Dimension(400, 650));
+				JPanel p2 = new JPanel();
+				JPanel p3 = new JPanel();
+				p3.setLayout(new BorderLayout());
+				p2.setLayout(new BorderLayout());
+				p2.setPreferredSize(new Dimension(350, 600));
+
+				myMessage = new JTextField("");
+				JLabel myMessagelb = new JLabel("My Message:");
+				p2.add(myMessage, BorderLayout.NORTH);
+				myMessage.setEditable(true);
+				myMessage.addKeyListener(this);
+
+				JLabel lbMessages = new JLabel("Messages:");
+				taMessages = new JTextArea("", 15, 50);
+				taMessages.setPreferredSize(new Dimension(300, 500));
+				taMessages.setEditable(true);
+
+				p3.add(myMessagelb, BorderLayout.NORTH);
+				p3.add(myMessage);
+				p2.add(p3, BorderLayout.NORTH);
+
+				p2.add(lbMessages);
+				p2.add(taMessages, BorderLayout.SOUTH);
+				
+				chatbox.add(p2, BorderLayout.EAST);
+				c.add(chatbox, BorderLayout.EAST);
+
 		
 	}
 	/**
@@ -126,22 +164,24 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 * @param y
 	 * @param type
 	 * @param color
-	 * @throws InvalidMoveException 
 	 */
-	void doMove(final int x, final int y, final int type, final int color) {
-		//game.move(x, y, type, color);
+	void doMove(final int x, final int y, final int typ, final int colo) {
+		this.type = typ;
+		this.color = colo;
+		
 		try {
 			inventPiece = game.getMovPiece(x, y, type, color);
+			gamePanel.removePiece(inventPiece);
+			updateAW();
 		} catch (InvalidPieceException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		gamePanel.removePiece(inventPiece);
-		updateAW();
+		
 	}
 	@Override
 	public void addMessage(final String name, final String msg) {
-		//taMessages.append("<" + name + "> " + msg +"\n");
+		taMessages.append("<" + name + "> " + msg +"\n");
 
 	}
 
@@ -203,6 +243,27 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void keyPressed(final KeyEvent event) {
+		if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+			client.sendMessage(myMessage.getText());
+			myMessage.setText("");
+		}
+
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
