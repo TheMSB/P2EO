@@ -7,6 +7,7 @@ public class SoundPlayer extends Thread {
 
 	private boolean ready;
 	private boolean playRadioSong;
+	private boolean playBattleMusic;
 
 	public SoundPlayer() {
 
@@ -76,6 +77,10 @@ public class SoundPlayer extends Thread {
 	
 	public void setRadioSong(boolean rs){
 		playRadioSong = rs;
+	}
+	
+	public void setBattleMusic(boolean bm){
+		playBattleMusic = bm;
 	}
 
 }
