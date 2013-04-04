@@ -557,6 +557,7 @@ public class Client extends Thread {
 	 */
 	public void setFlame(final boolean f) {
 		autoCrapTalk = f;
+		System.out.println("Set autoCrapTalk to: "+autoCrapTalk);
 	}
 	/**
 	 * Used by the GUI to enable/disable the cyrillic converter.
@@ -565,6 +566,7 @@ public class Client extends Thread {
 	 */
 	public void setCyrillic(final boolean c){
 		convertToCyrillic = c;
+		System.out.println("Set convertToCyrillic to: "+convertToCyrillic);
 	}
 
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
