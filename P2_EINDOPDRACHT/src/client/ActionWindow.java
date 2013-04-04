@@ -156,8 +156,6 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private void updateAW() {
 		repaint();
 		gamePanel.repaint();
-		//TODO dit 'refreshed' niet het inventory
-		
 	}
 
 	/**

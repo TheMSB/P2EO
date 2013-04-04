@@ -78,11 +78,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public ConnectionWindow() {
 		super("LOTR Debug Launcher");
 
-		
-		soundPlayer = new SoundPlayer();
-		soundPlayer.setRadioSong(true);
-		soundPlayer.start();
-		
+		//playSound();
 		//this.game = g;
 		c = getContentPane();
 		buildGUI();
@@ -233,6 +229,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	void setGame(final Game g, final Player p) {
 		this.game = g;
 		this.setVisible(false);
+		//stopSound();
 		ActionWindow aWindow;
 		aWindow = new ActionWindow(game, p, client);
 
@@ -290,6 +287,24 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		myMessage.setEditable(true);
 		bConnect.setEnabled(false);
 	}
+	
+	/**
+	 * Plays a relaxing waiting tune
+	 * while players wait to connect to 
+	 * a server or join a game.
+	 */
+	private void playSound() {
+		soundPlayer = new SoundPlayer();
+		soundPlayer.setRadioSong(true);
+		soundPlayer.start();
+	}
+	/**
+	 * Stops the waiting tune.
+	 */
+	private void stopSound(){
+		soundPlayer.setRadioSong(false);
+	}
+	
 
 	//---- Action Events ------------------------
 
