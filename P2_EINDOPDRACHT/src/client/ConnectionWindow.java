@@ -56,6 +56,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private JComboBox aiList;
 	private JComboBox nrPlayers;
 	private JCheckBox bFlame;
+	private JCheckBox bCyrillic;
 
 	private JTextField  tfPort;
 	private JTextField	tfAddress;
@@ -138,6 +139,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		JLabel lbSpam = new JLabel("Flame Bot: ");
 		bFlame = new JCheckBox("Enabled");
 		bFlame.setEnabled(false);
+		
+		JLabel lbCyrillic = new JLabel("Cyrillic Writing: ");
+		bCyrillic = new JCheckBox("Enabled");
+		bCyrillic.setEnabled(false);
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -152,6 +157,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		joinPanel.add(aiList);
 		joinPanel.add(lbSpam);
 		joinPanel.add(bFlame);
+		joinPanel.add(lbCyrillic);
+		joinPanel.add(bCyrillic);
 
 		bConnect = new JButton("Connect");
 		bConnect.setEnabled(false);
@@ -308,6 +315,13 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			else {
 				client.setFlame(false);
 			}
+		} else if (e.getSource() == bCyrillic) {
+			if (bCyrillic.isEnabled()) {
+				client.setCyrllic(true);
+			}
+			else {
+				client.setCyrllic(false);
+			}
 		}
 
 	}
@@ -341,7 +355,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 			tfPortChanged = true;
 
 		}
-		if (myNameChanged && tfAddressChanged && tfPortChanged && !connected) {
+		if (myNameChanged && !connected) {
 			bConnect.setEnabled(true);
 		}
 		
@@ -350,4 +364,3 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 }
 
-//TODO Disable Join options until connected.
