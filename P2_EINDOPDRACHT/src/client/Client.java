@@ -38,7 +38,11 @@ public class Client extends Thread {
 	private Game game;
 	private Player player;
 	private AI ai;
-	private int selectedAI;
+	/**
+	 * Represents which AI to use, 1 = smart, 2 = random
+	 * must be 1 or 2
+	 */
+	private int selectedAI = 1;
 	private boolean humanIsPlaying;
 	private MessageUI mui;
 	private boolean autoCrapTalk = false;
@@ -278,6 +282,7 @@ public class Client extends Thread {
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
 		//if (!humanIsPlaying) {
+		//System.out.println("SelectedAI = "+selectedAI);
 			if (selectedAI == 1) {
 				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
 												// laten
@@ -288,7 +293,7 @@ public class Client extends Thread {
 				// passen
 			}
 		//}
-
+			//System.out.println("setAITo:  "+ai);
 	}
 
 	/**
@@ -321,6 +326,7 @@ public class Client extends Thread {
 
 		// TODO laat GUI aangeven dat het jou beurt is
 		// arr: 0 = x, 1 = y, 2 = type, 3 = color
+		System.out.println(ai);
 		aiMove = ai.getMove(); // TODO dit door mens laten doen
 		if (!humanIsPlaying) {
 			sendCommand(util.Protocol.CMD_MOVE + " "
@@ -551,6 +557,14 @@ public class Client extends Thread {
 	 */
 	public void setFlame(final boolean f) {
 		autoCrapTalk = f;
+	}
+	/**
+	 * Used by the GUI to enable/disable the cyrillic converter.
+	 * 
+	 * @param c
+	 */
+	public void setCyrillic(final boolean c){
+		convertToCyrillic = c;
 	}
 
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
