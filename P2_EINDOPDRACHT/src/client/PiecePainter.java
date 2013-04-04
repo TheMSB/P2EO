@@ -8,6 +8,7 @@ import game.PlayerColor;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -31,6 +32,9 @@ public class PiecePainter{
 
 	//---- Constructor ------------------------
 
+	/**
+	 * Default constructor for PiecePainter.
+	 */
 	public PiecePainter() {
 		//this.piece = p;
 		//setOpaque(true);
@@ -42,39 +46,20 @@ public class PiecePainter{
 	 * and Board. Only draws one Piece per PiecePainter.
 	 */
 	public static void paintComponent(final Graphics2D g, final Piece piece, final int w) {
-		
-		//super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setStroke(new BasicStroke(6));
 
-		//---- Color determination -------------
-		if (piece.getColor() == PlayerColor.COLOR_0) {
-			g2.setColor(Color.RED);
-		}
-		if (piece.getColor() == PlayerColor.COLOR_1) {
-			g2.setColor(Color.BLUE);
-		}
-		if (piece.getColor() == PlayerColor.COLOR_2) {
-			g2.setColor(Color.GREEN);
-		}
-		if (piece.getColor() == PlayerColor.COLOR_3) {
-			g2.setColor(Color.YELLOW);
-		}
 		//---- Position determination ----------
 		int width = w;
 		int height = w;
-		//TODO remove obsolete code
+
 		int center = width / 2;
-		//int yCenter = height / 2;
+
 
 		//TODO maybe2
-		double diameter0 = width * 0.20;
-		double diameter1 = width * 0.35;
-		double diameter2 = width * 0.45;
-		double diameter3 = width * 0.55;
-		double diameter4 = width * 0.75;
+		double diameter0 = width * 0.30;
+		double diameter1 = width * 0.40;
+		double diameter2 = width * 0.50;
+		double diameter3 = width * 0.60;
+		double diameter4 = width * 0.80;
 
 		//TODO maybe
 		double start0 = center - (diameter0 / 2);
@@ -82,6 +67,35 @@ public class PiecePainter{
 		double start2 = center - (diameter2 / 2);
 		double start3 = center - (diameter3 / 2);
 		double start4 = center - (diameter4 / 2);
+
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setStroke(new BasicStroke(6));
+
+		//---- Color determination -------------
+		Color color1 = null;
+		if (piece.getColor() == PlayerColor.COLOR_0) {
+			g2.setColor(Color.RED);
+			color1 = Color.RED;
+		}
+		if (piece.getColor() == PlayerColor.COLOR_1) {
+			g2.setColor(Color.BLUE);
+			color1 = Color.BLUE;
+		}
+		if (piece.getColor() == PlayerColor.COLOR_2) {
+			g2.setColor(Color.GREEN);
+			color1 = Color.GREEN;
+		}
+		if (piece.getColor() == PlayerColor.COLOR_3) {
+			g2.setColor(Color.YELLOW);
+			color1 = Color.YELLOW;
+		}
+
+		Color color2 = color1.darker();
+		GradientPaint gp = new GradientPaint(
+				0, 0, color1, 0, height, color2);
+		g2.setPaint(gp);
 
 
 		//---- Type determination --------------
@@ -116,6 +130,8 @@ public class PiecePainter{
 	public void setDrawPiece(Piece piece) {
 		this.piece = piece;
 	}*/
+
+
 
 
 }
