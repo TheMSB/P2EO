@@ -11,8 +11,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -22,7 +20,6 @@ import java.net.UnknownHostException;
 import game.Game;
 import game.Player;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -31,13 +28,27 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 
 import server.Server;
 import util.SoundPlayer;
 
-
+/**
+ * ConnectionWindow Class for our implementation of the
+ * RINGGZ game, this window will be responsible for rendering
+ * all of the components required for the client to connect to
+ * a server and join a game. Upon game start this
+ * window becomes invisible and calls upon a new ActionWindow
+ * to render to actual game.
+ * 
+ * Featured Options:
+ * -Russian Spam Bot
+ * -Cyrillic writing
+ * -Menu music
+ * -Varied AI selection
+ * 
+ * @author martijnbruning
+ *
+ */
 
 public class ConnectionWindow extends JFrame implements ActionListener, MessageUI, KeyListener, ItemListener {
 
@@ -49,7 +60,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private String[] pnrListing = {"2","3","4"};
 	private SoundPlayer soundPlayer;
 
-	// Windows and Panels
+	//---- Swing Elements ------------------------------
 
 	private Container c;
 	private JPanel menu = new JPanel();
@@ -61,6 +72,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private JComboBox nrPlayers;
 	private JCheckBox bFlame;
 	private JCheckBox bCyrillic;
+	private JCheckBox bMusic;
 
 	private JTextField  tfPort;
 	private JTextField	tfAddress;
@@ -77,6 +89,13 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	//---- Constructor ---------------------------------
 
+	/**
+	 * Main Constructor for Connection Window.
+	 * Adds WindowListeners and calls the buildGUI
+	 * and playSound methods.
+	 * Finally packs and validates the window before
+	 * making it visible.
+	 */
 	public ConnectionWindow() {
 		super("LOTR Debug Launcher");
 
@@ -86,10 +105,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		buildGUI();
 
 		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(final WindowEvent e) {
 				e.getWindow().dispose();
 			}
-			public void windowClosed(WindowEvent e) {
+			public void windowClosed(final WindowEvent e) {
 				System.exit(0);
 			}
 		}
@@ -104,13 +123,17 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	/**
 	 * Creates the main GUI components.
+	 * First the Main Window is defines and populated.
+	 * the Section Panel 2 Messages handles the creation
+	 * and population of the chat window that is added to the
+	 * main window.
 	 */
 	private void buildGUI() {
 
 		//---- Main window ----
 		setPreferredSize(new Dimension(800, 600));
 		setMinimumSize(new Dimension(800, 600));
-		//---- Menu ----
+		//---- Menu ------------------------------
 		menu.setPreferredSize(new Dimension(300, 300));
 		menu.setMinimumSize(new Dimension(300, 300));
 
@@ -118,6 +141,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		JPanel pp = new JPanel(new GridLayout(4, 2));
 		JPanel joinPanel = new JPanel(new GridLayout(5, 2));
 
+		//---- Connection Menu -------------------
 		JLabel lbAddress = new JLabel("Address: ");
 		tfAddress = new JTextField("localhost", 12);
 		tfAddress.addKeyListener(this);
@@ -131,6 +155,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		tfPort        = new JTextField("4242", 5);
 		tfPort.addKeyListener(this);
 
+		//---- Join Menu --------------------------
 		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
 		nrPlayers = new JComboBox(pnrListing);
 		nrPlayers.setSelectedIndex(0);
@@ -152,7 +177,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		bCyrillic = new JCheckBox("Enabled");
 		bCyrillic.setEnabled(false);
 		bCyrillic.addItemListener(this);
+		
+		//---- Connection Window Feature Controllers ------------
+		JLabel lbMusic = new JLabel("Music: ");
+		bMusic = new JCheckBox("Enabled");
+		bMusic.setEnabled(true);
+		bMusic.addItemListener(this);
 
+		//---- Menu Assembly ------------------------------------
 		pp.add(lbAddress);
 		pp.add(tfAddress);
 		pp.add(lbPort);
@@ -168,7 +200,9 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		joinPanel.add(bFlame);
 		joinPanel.add(lbCyrillic);
 		joinPanel.add(bCyrillic);
+		joinPanel.add(bMusic);
 
+		//---- Button Initialization -----------------------
 		bConnect = new JButton("Connect");
 		bConnect.setEnabled(false);
 		bConnect.setFocusable(false);
@@ -178,13 +212,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		bJoin.setEnabled(false);
 		bJoin.setFocusable(false);
 		bJoin.addActionListener(this);
+		//---- Panel Wrapping ------------------------------
 		joinPanel.add(bJoin, BorderLayout.EAST);
 
 		p1.add(pp, BorderLayout.WEST);
 		p1.add(bConnect, BorderLayout.EAST);
 
 
-		// Panel p2 - Messages
+		//---- Panel p2 - Messages -------------------------
 
 		JPanel p2 = new JPanel();
 		p2.setLayout(new BorderLayout());
@@ -209,25 +244,19 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		p2.add(lbMessages);
 		p2.add(taMessages, BorderLayout.SOUTH);
 
+		//---- Content Window Wrapping -------------------
 		Container cc = getContentPane();
 		cc.setLayout(new FlowLayout());
 		cc.add(p1);
 		cc.add(joinPanel);
 		cc.add(p2);
-
-
-		// TODO Auto-generated constructor stub
-
-		//---- Defines Border styles
-		Border paneEdge = BorderFactory.createEmptyBorder(0, 10, 10, 10);
-		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-		
 		
 	}
 
 	/**
 	 * Loads a game into the GUI for
-	 * drawing.
+	 * drawing. Should only ever be called by client
+	 * after being notified that a game will start.
 	 * @param g Game to load
 	 */
 	void setGame(final Game g, final Player p) {
@@ -270,14 +299,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		try {
 			addr = InetAddress.getByName(tfAddress.getText());
 		} catch (UnknownHostException e1) {
-			System.out.println("UnknownHost");
+			addMessage("Exception", "UnknownHost");
 		}
 
 		int         port = 4242;
 		try {
 			port  = Integer.parseInt(tfPort.getText());
 		} catch (NumberFormatException e) {
-			System.out.println("Connection cannot be made, " + tfPort.getText() + " is not a valid number");
+			addMessage("Exception", "Connection cannot be made, " + tfPort.getText() + " is not a valid number");	
 		}
 
 		try {
@@ -312,6 +341,13 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	//---- Action Events ------------------------
 
+	//-------------------------------------------
+	// All of these methods are used to trigger
+	// methods when changes are detected.
+	// The methods triggered depend on the changes
+	// that are detected and the state of the objects
+	// they are detected in.
+	//-------------------------------------------
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == bConnect) {
@@ -324,7 +360,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 				bJoin.setEnabled(true);
 			}
 		} else if (e.getSource() == bJoin) {
-			join(Integer.parseInt((String) nrPlayers.getSelectedItem()));//TODO kan direct?
+			join(Integer.parseInt((String) nrPlayers.getSelectedItem()));
 		} else if (e.getSource() == aiList) {
 			if (aiList.getSelectedIndex() == 0) {
 				client.setIsPlaying(true);
@@ -388,20 +424,22 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		if (e.getSource() == bFlame) {
 			if (bFlame.isSelected()) {
 				client.setFlame(true);
-				System.out.println("FLAME ENABLED");
 			} else {
 				client.setFlame(false);
-				System.out.println("FLAME DISABLED");
 			}
 		} 
 		if (e.getSource() == bCyrillic) {
 			if (bCyrillic.isSelected()) {
 				client.setCyrillic(true);
-				System.out.println("rus ENABLED");
 			} else {
 				client.setCyrillic(false);
-				System.out.println("rus DISABLED");
-				
+			}
+		}
+		if (e.getSource() == bMusic) {
+			if (bMusic.isSelected()) {
+				playSound();	
+			} else {
+				stopSound();
 			}
 		}
 		

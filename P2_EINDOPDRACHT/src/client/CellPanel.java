@@ -29,18 +29,28 @@ public class CellPanel extends JPanel {
 
 	//---- Constructor ------------------------
 
-	public CellPanel(Cell c) {
+	/**
+	 * Creates a new CellPanel
+	 * modeled after a provided cell
+	 * from the game Board.
+	 * @param c
+	 */
+	public CellPanel(final Cell c) {
 		cell = c;
 		setPreferredSize(new Dimension(100, 100));
 	}
 
 	//---- Querry -----------------------------
-	protected Cell getCell(){
+	/**
+	 * Returns the Cell that this Panel is representing.
+	 * @return
+	 */
+	protected Cell getCell() {
 		return cell;
 	}
 	//---- Methods ----------------------------
 	/**
-	 * Draws the CellPanel, solid background with
+	 * Draws the CellPanel, transparent background with
 	 * a circle in the middle to indicate it's a usable field.
 	 */
 	protected void paintComponent(final Graphics g) {

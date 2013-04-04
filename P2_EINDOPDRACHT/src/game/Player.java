@@ -41,7 +41,7 @@ public class Player {
 	public Player(final String pname, final int pcolor) {
 		this.name = pname;
 		this.color = new PlayerColor(this, pcolor);
-		inventory = new ArrayList<Piece>(); // Dit was ik vergeten te init daardoor null err
+		inventory = new ArrayList<Piece>();
 		
 	}
 
@@ -71,7 +71,7 @@ public class Player {
 	 * Returns a piece from the inventory.
 	 * @param typ Type of the piece to return
 	 * @param colr Color of the piece to return
-	 * @return Piece from inventory with sleceted type and color
+	 * @return Piece from inventory with selected type and color
 	 */
 	public Piece getPiece(final int typ, final int colr) throws InvalidPieceException{
 		Piece output = null;
@@ -87,17 +87,17 @@ public class Player {
 	}
 	
 	/**
-	 * Returns the availability for each type, in an array where index = type
+	 * Returns the availability for each type, in an array where index == type.
 	 * @param color
 	 * @return
 	 */
-	public Integer[] getAvailability(int color){
+	public Integer[] getAvailability(final int color) {
 		Integer[] output = new Integer[5];
-		for(int i=0;i<output.length;i++){
+		for (int i = 0; i < output.length; i++) {
 			output[i] = 0;
 		}
-		for(Piece p : inventory){
-			 if(p.getColor()==color){
+		for (Piece p : inventory) {
+			 if (p.getColor() == color) {
 				 //System.out.println(p+"   "+p.getType());
 				 //System.out.println(output);
 				 //System.out.println(output[p.getType()]);

@@ -45,27 +45,15 @@ public class ClientGUI {
 	//CHECKSTYLE:OFF
 	//---- Constants -----------------------------------
 	Dimension settingA = new Dimension (800, 600);
-	//---- Instance Variables --------------------------
-
-	//---- Game related variables ----------------------
-	private Game game;
-	private static String name;
-
-	// Windows and Panels
-	private ActionWindow aWindow;
-	private Server      server;
-
 	//CHECKSTYLE:ON
 
 	//---- Constructor ---------------------------------
 
+	/**
+	 * Constructs a new ClientGUI and
+	 * launches a ConnectionWindow.
+	 */
 	public ClientGUI() {
-		/**
-		 aWindow = new ActionWindow(game, name);
-		aWindow.pack();
-		aWindow.validate();
-		aWindow.setVisible(true);
-		 */
 		new ConnectionWindow();
 	}
 
@@ -85,7 +73,7 @@ public class ClientGUI {
 			try {
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			} catch (Exception ex) {
-				// not worth my time
+				
 			}
 		}
 		new ClientGUI();

@@ -19,16 +19,16 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.*;
 
-public class PiecePainter{
-
-
-
-	//---- Constants --------------------------
-
-
-	//---- Instance Variables -----------------
-
-	//private Piece piece;
+/**
+ * PiecePainter Class for our implementation of
+ * the RINGGZ game. It is responsible for drawing
+ * all of the pieces in the game. Other Classes
+ * call on this class to draw pieces for them.
+ * 
+ * @author martijnbruning
+ *
+ */
+public class PiecePainter {
 
 	//---- Constructor ------------------------
 
@@ -36,8 +36,7 @@ public class PiecePainter{
 	 * Default constructor for PiecePainter.
 	 */
 	public PiecePainter() {
-		//this.piece = p;
-		//setOpaque(true);
+		
 	}
 
 	//---- Methods ----------------------------
@@ -49,31 +48,33 @@ public class PiecePainter{
 
 		//---- Position determination ----------
 		int width = w;
-		int height = w;
-
 		int center = width / 2;
 
 
-		//TODO maybe2
+		//---------------------------------------------
+		// Determines diameters and starting points
+		// for all of the piece types depending on the
+		// size of the component they are drawn on.
+		//---------------------------------------------
 		double diameter0 = width * 0.30;
 		double diameter1 = width * 0.40;
 		double diameter2 = width * 0.50;
 		double diameter3 = width * 0.60;
 		double diameter4 = width * 0.80;
 
-		//TODO maybe
 		double start0 = center - (diameter0 / 2);
 		double start1 = center - (diameter1 / 2);
 		double start2 = center - (diameter2 / 2);
 		double start3 = center - (diameter3 / 2);
 		double start4 = center - (diameter4 / 2);
 
+		//---- Paint Brush Definition ----------------------
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setStroke(new BasicStroke(6));
 
-		//---- Color determination -------------
+		//---- Color determination -------------------------
 		Color color1 = null;
 		if (piece.getColor() == PlayerColor.COLOR_0) {
 			g2.setColor(Color.RED);
@@ -92,9 +93,10 @@ public class PiecePainter{
 			color1 = Color.YELLOW;
 		}
 
+		//---- Gradient Construction ------------
 		Color color2 = color1.darker();
 		GradientPaint gp = new GradientPaint(
-				0, 0, color1, 0, height, color2);
+				0, 0, color1, 0, width, color2);
 		g2.setPaint(gp);
 
 
@@ -122,17 +124,6 @@ public class PiecePainter{
 
 
 	}
-
-	/**public Piece getDrawPiece() {
-		return piece;
-	}
-
-	public void setDrawPiece(Piece piece) {
-		this.piece = piece;
-	}*/
-
-
-
 
 }
 

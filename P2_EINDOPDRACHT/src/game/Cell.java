@@ -34,7 +34,6 @@ public class Cell {
 	 * Array with pieces that this cell is holding.
 	 */
 	private Piece[] pieces;
-	//private int owner;
 
 	//---- Constructor ------------------------------------------
 
@@ -76,11 +75,11 @@ public class Cell {
 		return full;
 	}
 	/**
-	 * Returns whether or not the Cell is empty
+	 * Returns whether or not the Cell is empty.
 	 * @return	true if empty else false
 	 */
-	public boolean isEmpty(){
-		return pieces[0]==null && pieces[1]==null && pieces[2]==null && pieces[3]==null;
+	public boolean isEmpty() {
+		return pieces[0] == null && pieces[1] == null && pieces[2] == null && pieces[3] == null;
 	}
 	
 	/**
@@ -92,12 +91,12 @@ public class Cell {
 	}
 	
 	/**
-	 * Returns true if there is place for the given piece on this cell
+	 * Returns true if there is place for the given piece on this cell.
 	 * @param piece
 	 * @return
 	 */
-	public boolean pieceAllowed(Piece piece){
-		return !isFull() && piece.getType()>=0 && piece.getType()<=4 && pieces[piece.getType()]==null && (piece.getType()!=4 || isEmpty());
+	public boolean pieceAllowed(final Piece piece) {
+		return !isFull() && piece.getType() >= 0 && piece.getType() <= 4 && pieces[piece.getType()] == null && (piece.getType() != 4 || isEmpty());
 	}
 
 	/**
@@ -116,14 +115,15 @@ public class Cell {
 	}
 	
 	/**
-	 * Checks if the given piece is allowed to place himself next to this Cell (checking for megastones)
+	 * Checks if the given piece is allowed to place himself next to this Cell.
+	 * (checking for megastones)
 	 * @arg piece	The piece you want to place next to this cell
 	 * @return  True if it is allowed to place next to this cell
 	 */
-	public boolean megaStoneCheck(final Piece piece){
+	public boolean megaStoneCheck(final Piece piece) {
 		boolean output = true;
-		if(piece.getType()==util.Protocol.RING_4){
-			if(pieces[4]!=null && pieces[4].getColor()==piece.getColor()){
+		if (piece.getType() == util.Protocol.RING_4) {
+			if (pieces[4] != null && pieces[4].getColor() == piece.getColor()) {
 				output = false;
 			}
 		}
@@ -142,14 +142,14 @@ public class Cell {
 	 */
 	protected void addPiece(final Piece piece) throws InvalidMoveException {
 		
-		if(piece.getType()<4 && pieces[piece.getType()]==null){
+		if (piece.getType() < 4 && pieces[piece.getType()] == null) {
 			pieces[piece.getType()] = piece;
-		}else if (piece.getType() == Piece.RING_4 && isEmpty()) {
+		} else if (piece.getType() == Piece.RING_4 && isEmpty()) {
 			pieces[4] = piece;
-		}else{
+		} else {
 			throw new InvalidRingException();
 		}
-		if(pieces[4]!=null ||(pieces[0]!=null && pieces[1]!=null && pieces[2]!=null && pieces[3]!=null)){
+		if (pieces[4] != null || (pieces[0] != null && pieces[1] != null && pieces[2] != null && pieces[3] != null)) {
 			full = true;
 		}
 	}
@@ -165,7 +165,7 @@ public class Cell {
 		int p3 = 0;
 
 		for (int i = 0; i < 4; i++) {
-			if(pieces[i]!=null){
+			if (pieces[i] != null) { 
 				if (pieces[i].getColor() == PlayerColor.COLOR_0) {
 					p0++;
 				} else if (pieces[i].getColor() == PlayerColor.COLOR_1) {
@@ -186,18 +186,29 @@ public class Cell {
 		return list;
 	}
 	
-	public int determOwner(){
+	/**
+	 * Determines the Owner or 'winner' of this cell.
+	 * Method is used to calculate scores during a
+	 * GameOver event.
+	 * @return
+	 */
+	public int determOwner() {
 		int winner = util.Util.getIndexOfMax(getOwnerList());
-		//	tie met jezelf (2 rood, 2 blauw) = geen punten
-		System.out.println("DetOwner: "+this.X +","+this.Y + "  :  "+getOwnerList() +"  "+winner);
+		//	ties result in no score
+		System.out.println("DetOwner: " + this.X + "," + this.Y + "  :  " + getOwnerList() + "  " + winner);
 		return winner;
 	}
 	
-	
-	public String toString(){
+	/**
+	 * Method used for debugging
+	 * purposes mainly. returns
+	 * a textual description of the
+	 * contents of this cell.
+	 */
+	public String toString() {
 		String output = "";
-		for(Piece p : pieces){
-			output = output + p +" | ";
+		for (Piece p : pieces) {
+			output = output + p + " | ";
 		}
 		
 		return output;

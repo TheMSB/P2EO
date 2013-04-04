@@ -1,7 +1,6 @@
 package client;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,26 +12,36 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import exceptions.InvalidMoveException;
 import exceptions.InvalidPieceException;
 import game.Board;
 import game.Game;
 import game.Piece;
 import game.Player;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
 
 import util.SoundPlayer;
 
 import client.InventoryPainter.MyCellComponent;
 
+/**
+ * ActionWindow for our implementation of the
+ * RINGGZ game. Is created by a ConnectionWindow,
+ * this ActionWindow renders the current game that
+ * is in progress and is responsible for handling all
+ * further user input related to the game.
+ * 
+ * Features:
+ * -GLaDOS taunts (if supported by an AppertureScience certified server)
+ * -Victory music if the game has been won. (Or if science got done)
+ * 
+ * @author martijnbruning
+ *
+ */
 public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener {
 
 	//---- Game related variables ----------------------
@@ -41,13 +50,13 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private String name;
 	private Player player;
 	private Client client;
-	
-	//--- Move related variables -----------------------
+
+	//---- Move related variables -----------------------
 	private int type = 42;
 	private int color = 42;
 	private Piece inventPiece; 
 
-	// Windows and Panels
+	//---- Swing Components -----------------------------
 
 	private Container c;
 	private JPanel menu = new JPanel();
@@ -60,22 +69,30 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 
 	//---- Constructor ---------------------------------
 
-	public ActionWindow(final Game g, final Player p, final Client client) {
+	/**
+	 * Calls upon the super constructor of JFrame
+	 * to create a basic window with title, sets the client
+	 * and game instance variables before building a new
+	 * GUI. Handles WindowEvents
+	 * @param g
+	 * @param p
+	 * @param client
+	 */
+	public ActionWindow(final Game g, final Player p, final Client clnt) {
 		super("Lord of the RINGGZ");
 
-		this.client = client;
+		this.client = clnt;
 		this.game = g;
-		//this.name = n;
 		this.player = p;
 		client.setMUI(this);
 		c = getContentPane();
 		buildGUI();
 
 		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(final WindowEvent e) {
 				e.getWindow().dispose();
 			}
-			public void windowClosed(WindowEvent e) {
+			public void windowClosed(final WindowEvent e) {
 				System.exit(0);
 			}
 		}
@@ -85,58 +102,61 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		validate();
 		setVisible(true);
 		SoundPlayer soundPlayer = new SoundPlayer();
+		//---- Uncomment to enable BattleMusic -------------------
 		//soundPlayer.playSound("resources/sounds2/BattleMusic.wav");
 	}
 
 	/**
 	 * Creates the main GUI components.
+	 * Calls on buildGame to handle the creation
+	 * of the GamePanel.
 	 */
 	private void buildGUI() {
 
-		//---- Main window ----
+		//---- Main window ----------------------
 		setPreferredSize(new Dimension(900, 650));
 		setMinimumSize(new Dimension(900, 650));
 
 		buildGame();
-		
-		// Panel p2 - Messages
 
-				chatbox.setPreferredSize(new Dimension(400, 650));
-				JPanel p2 = new JPanel();
-				JPanel p3 = new JPanel();
-				p3.setLayout(new BorderLayout());
-				p2.setLayout(new BorderLayout());
-				p2.setPreferredSize(new Dimension(350, 600));
+		//---- Panel p2 - Messages --------------
 
-				myMessage = new JTextField("");
-				JLabel myMessagelb = new JLabel("My Message:");
-				p2.add(myMessage, BorderLayout.NORTH);
-				myMessage.setEditable(true);
-				myMessage.addKeyListener(this);
+		chatbox.setPreferredSize(new Dimension(400, 650));
+		JPanel p2 = new JPanel();
+		JPanel p3 = new JPanel();
+		p3.setLayout(new BorderLayout());
+		p2.setLayout(new BorderLayout());
+		p2.setPreferredSize(new Dimension(350, 600));
 
-				JLabel lbMessages = new JLabel("Messages:");
-				taMessages = new JTextArea("", 15, 50);
-				taMessages.setPreferredSize(new Dimension(300, 500));
-				taMessages.setEditable(false);
+		myMessage = new JTextField("");
+		JLabel myMessagelb = new JLabel("My Message:");
+		p2.add(myMessage, BorderLayout.NORTH);
+		myMessage.setEditable(true);
+		myMessage.addKeyListener(this);
 
-				p3.add(myMessagelb, BorderLayout.NORTH);
-				p3.add(myMessage);
-				p2.add(p3, BorderLayout.NORTH);
+		JLabel lbMessages = new JLabel("Messages:");
+		taMessages = new JTextArea("", 15, 50);
+		taMessages.setPreferredSize(new Dimension(300, 500));
+		taMessages.setEditable(false);
 
-				p2.add(lbMessages);
-				p2.add(taMessages, BorderLayout.SOUTH);
-				
-				chatbox.add(p2, BorderLayout.EAST);
-				c.add(chatbox, BorderLayout.EAST);
+		p3.add(myMessagelb, BorderLayout.NORTH);
+		p3.add(myMessage);
+		p2.add(p3, BorderLayout.NORTH);
 
-		
+		p2.add(lbMessages);
+		p2.add(taMessages, BorderLayout.SOUTH);
+
+		chatbox.add(p2, BorderLayout.EAST);
+		c.add(chatbox, BorderLayout.EAST);
+
+
 	}
 	/**
 	 * Constructs the Game panel where the player
 	 * can play on.
 	 */
 	protected void buildGame() {
-		
+
 		//---- Game Panel -----
 		gamePanel = new GamePanel(game, player);
 
@@ -152,6 +172,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	 * Updates the entire ActionWindow to reflect
 	 * any changes that may have occurred.
 	 * Should only be called by ActionWindow itself.
+	 * NEVER call directly.
 	 */
 	private void updateAW() {
 		repaint();
@@ -170,25 +191,32 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	void doMove(final int x, final int y, final int typ, final int colo) {
 		this.type = typ;
 		this.color = colo;
-		
+
 		try {
-			System.out.println("doMove():  "+x + " "+ y + " "+ type +" "+color);
+			System.out.println("doMove():  " + x + " " + y + " " + type + " " + color);
 			inventPiece = game.getMovPiece(x, y, type, color);
 			gamePanel.removePiece(inventPiece);
 			updateAW();
 		} catch (InvalidPieceException e) {
 			// TODO Auto-generated catch block
 		}
-		
+
 	}
 	@Override
-	public void addMessage(final String name, final String msg) {
-		taMessages.append("<" + name + "> " + msg + "\n");
+	public void addMessage(final String name1, final String msg) {
+		taMessages.append("<" + name1 + "> " + msg + "\n");
 
 	}
 
 	//---- Action Events ------------------------
 
+	//-------------------------------------------
+	// All of these methods are used to trigger
+	// methods when changes are detected.
+	// The methods triggered depend on the changes
+	// that are detected and the state of the objects
+	// they are detected in.
+	//-------------------------------------------
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 
@@ -197,16 +225,11 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 
 	@Override
 	public void mouseClicked(final MouseEvent e) {
-		
-		repaint();
-		gamePanel.repaint();
 
 		if (e.getSource() instanceof CellPanel && type != 42 && color != 42) {
 			for (int y = 0; y < Board.Y; y++) {
 				for (int x = 0; x < Board.X; x++) {
 					if (((CellPanel) e.getSource()).getCell() == game.getBoard().getCell(x, y)) {
-						//TODO do move on cell
-						System.out.println("clicked Cell: " + x + "," + y);
 						client.doHumanMove(x, y, type, color);
 						type = 42;
 						color = 42;
@@ -259,13 +282,13 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	@Override
 	public void keyReleased(final KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyTyped(final KeyEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

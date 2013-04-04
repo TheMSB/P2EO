@@ -20,16 +20,13 @@ import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
 
-	//TODO dit verwerken hier:
 	//---- Instance Variables -----------------------------------
 	private InventoryPainter invent;
 	private Game game;
 	private Player player;
+	//---- Swing Elements ------------------------------
 	private JPanel board = new JPanel();
 	private JPanel inventory = new JPanel();
-
-
-
 
 	//---- Constructor ------------------------------------------		
 	/**
@@ -43,14 +40,10 @@ public class GamePanel extends JPanel {
 	public GamePanel(final Game g, final Player p) {
 		this.game = g;
 		this.player = p;
-		//this.player = game.getPlayer(n);
 
 		setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
-		this.setBackground(Color.BLUE);
 
-
-		// TODO Auto-generated constructor stub
 		//---- Draws cells to the board ------------------
 		drawCells();
 		add(board, BorderLayout.LINE_START);
@@ -58,9 +51,9 @@ public class GamePanel extends JPanel {
 		drawInventory();
 		add(inventory, BorderLayout.SOUTH);
 	}
-	
+
 	//---- Query -------------------------------
-	
+
 	/**
 	 * Removes a selected piece from the Inventory List.
 	 * @param p
@@ -68,24 +61,8 @@ public class GamePanel extends JPanel {
 	protected void removePiece(final Piece p) {
 		invent.removePiece(p);
 	}
-	
-	//---- Methods -----------------------------
-	
-	//TODO fix vinden om gradients toe te staan in java zonder naar 1.7 te gaan
-	@Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        
-        Color color1 = Color.BLUE;
-        Color color2 = color1.darker();
-        int w = getWidth();
-        int h = getHeight();
-        GradientPaint gp = new GradientPaint(
-            0, 0, color1, 0, h, color2);
-        g2d.setPaint(gp);
-        g2d.fillRect(0, 0, w, h);
-    }
+
+	//---- Methods -----------------------------	
 
 	/**
 	 * Draws all of the cells onto the board.
@@ -105,6 +82,11 @@ public class GamePanel extends JPanel {
 
 	}
 
+	/**
+	 * Draws pieces to the visual inventory.
+	 * Contents are determined by the inventory field
+	 * of the Player Class of the currently playing Player.
+	 */
 	public void drawInventory() {
 		invent = new InventoryPainter(player.getPieces());
 		inventory.setPreferredSize(new Dimension(500, 150));

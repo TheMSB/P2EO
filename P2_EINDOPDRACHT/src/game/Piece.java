@@ -86,6 +86,10 @@ public class Piece {
 		placed = true;
 	}
 	
+	/**
+	 * Debugging method to get
+	 * a textual description of this Piece.
+	 */
 	public String toString(){
 		return "T "+this.type + " C "+color;
 	}
