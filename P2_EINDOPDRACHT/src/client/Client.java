@@ -350,15 +350,15 @@ public class Client extends Thread {
 	 *            arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
 	 * @return True if succesfull (if it was indeed your turn)
 	 */
-	public boolean doHumanMove(ArrayList<Integer> arr) {
+	public boolean doHumanMove(final int x, final int y, final int type, final int color) {
 		boolean output = false;
 		if (myTurn) {
 			try {
-				output = game.getBoard().canMove(arr.get(0), arr.get(1),
-						player.getPiece(arr.get(2), arr.get(3)));
+				output = game.getBoard().canMove(x,y,
+						player.getPiece(type, color));
 				if (output) {
 					sendCommand(util.Protocol.CMD_MOVE + " "
-							+ util.Util.concatArrayList(arr));
+							+ x + " " + y + " " + type + " " + color);
 				}
 			} catch (InvalidPieceException e) {
 				output = false;
@@ -505,7 +505,7 @@ public class Client extends Thread {
 		game.isGameOver();
 		myTurn = false;
 		if (mui instanceof ActionWindow) {
-			// ((ActionWindow) mui).doMove(x,y,type,color);
+			((ActionWindow) mui).doMove(x,y,type,color);
 		} else {
 			System.out.println("mui fail");
 		}
