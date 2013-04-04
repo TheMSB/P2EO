@@ -290,7 +290,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		} else if (e.getSource() == aiList) {
 			if (aiList.getSelectedIndex() == 0) {
 				client.setIsPlaying(true);
-				client.setAI(0);
+				client.setAI(2);
 			}
 			if (aiList.getSelectedIndex() == 1) {
 				client.setIsPlaying(false);

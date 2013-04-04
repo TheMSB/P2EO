@@ -277,7 +277,7 @@ public class Client extends Thread {
 			this.sendDisconnect("Invalid startstone position");
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
-		if (!humanIsPlaying) {
+		//if (!humanIsPlaying) {
 			if (selectedAI == 1) {
 				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
 												// laten
@@ -287,7 +287,7 @@ public class Client extends Thread {
 													// laten
 				// passen
 			}
-		}
+		//}
 
 	}
 
