@@ -117,7 +117,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				JLabel lbMessages = new JLabel("Messages:");
 				taMessages = new JTextArea("", 15, 50);
 				taMessages.setPreferredSize(new Dimension(300, 500));
-				taMessages.setEditable(true);
+				taMessages.setEditable(false);
 
 				p3.add(myMessagelb, BorderLayout.NORTH);
 				p3.add(myMessage);

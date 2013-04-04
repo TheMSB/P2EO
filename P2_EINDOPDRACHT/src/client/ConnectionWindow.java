@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -37,7 +39,7 @@ import util.SoundPlayer;
 
 
 
-public class ConnectionWindow extends JFrame implements ActionListener, MessageUI, KeyListener {
+public class ConnectionWindow extends JFrame implements ActionListener, MessageUI, KeyListener, ItemListener {
 
 	//---- Game related variables ----------------------
 
@@ -78,7 +80,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public ConnectionWindow() {
 		super("LOTR Debug Launcher");
 
-		//playSound();
+		playSound();
 		//this.game = g;
 		c = getContentPane();
 		buildGUI();
@@ -144,10 +146,12 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		JLabel lbSpam = new JLabel("Flame Bot: ");
 		bFlame = new JCheckBox("Enabled");
 		bFlame.setEnabled(false);
+		bFlame.addItemListener(this);
 
 		JLabel lbCyrillic = new JLabel("Cyrillic Writing: ");
 		bCyrillic = new JCheckBox("Enabled");
 		bCyrillic.setEnabled(false);
+		bCyrillic.addItemListener(this);
 
 		pp.add(lbAddress);
 		pp.add(tfAddress);
@@ -229,7 +233,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	void setGame(final Game g, final Player p) {
 		this.game = g;
 		this.setVisible(false);
-		//stopSound();
+		stopSound();
 		ActionWindow aWindow;
 		aWindow = new ActionWindow(game, p, client);
 
@@ -339,22 +343,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 				client.setAI(3);
 			}
 
-		} else if (e.getSource() == bFlame) {
-			if (bFlame.isSelected()) {
-				client.setFlame(true);
-			} 
-			if (!bFlame.isSelected()) {
-				client.setFlame(false);
-			}
 		} 
-		if (e.getSource() == bCyrillic) {
-			if (bCyrillic.isSelected()) {
-				client.setCyrillic(true);
-			} else if (!bCyrillic.isSelected()) {
-				client.setCyrillic(false);
-				
-			}
-		}
 
 	}
 
@@ -392,6 +381,30 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		}
 
 
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getSource() == bFlame) {
+			if (bFlame.isSelected()) {
+				client.setFlame(true);
+				System.out.println("FLAME ENABLED");
+			} else {
+				client.setFlame(false);
+				System.out.println("FLAME DISABLED");
+			}
+		} 
+		if (e.getSource() == bCyrillic) {
+			if (bCyrillic.isSelected()) {
+				client.setCyrillic(true);
+				System.out.println("rus ENABLED");
+			} else {
+				client.setCyrillic(false);
+				System.out.println("rus DISABLED");
+				
+			}
+		}
+		
 	}
 
 }
