@@ -112,7 +112,14 @@ public class Game extends Observable {
 	 * @throws InvalidPieceException
 	 */
 	public Piece getMovPiece(final int x, final int y, final int type, final int color) throws InvalidPieceException {
-		return players.get(turn).getPiece(type, color);
+		Piece output = null;
+		if(players.size()!=0){
+			output = players.get(turn).getPiece(type, color);
+		}else{
+			throw new InvalidPieceException();
+		}
+		
+		return output;
 	}
 	
 	/**
