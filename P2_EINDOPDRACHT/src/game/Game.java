@@ -70,7 +70,7 @@ public class Game extends Observable {
 		playersConnected = (ArrayList<Player>) players.clone();
 		
 		setUpGame(x, y, playerCount);
-		turn = 0;
+		turn = -1;
 	}
 
 	//---- Queries ------------------------------------------
@@ -294,5 +294,9 @@ public class Game extends Observable {
 			
 		}
 		return results;
+	}
+	
+	public void setTurn(String newTurn){
+		turn = players.indexOf(newTurn);
 	}
 }

@@ -305,6 +305,9 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
+				if(game.getTurn()==-1){
+					game.setTurn(args.get(0));
+				}
 				if (args.get(0).equals(this.clientName)) {
 					askMove();
 				}
@@ -484,6 +487,7 @@ public class Client extends Thread {
 					won = false;
 				}
 			}
+			System.out.println("AI TYPE:"+ai.getClass());
 			System.out.println("WON: "+won);
 			System.out.println("END "+args);
 			
@@ -645,10 +649,16 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
-		System.out.println("Send command: " + command);
+		
 		try {
+			System.out.println(serverFeatures);
+			
+			if ((!command.startsWith(util.Protocol.CMD_SAY) || serverFeatures
+					.contains(util.Protocol.FEAT_CHAT))) {
+				System.out.println("Send command: " + command);
 			out.write(command + "\n");
 			out.flush();
+			}
 		} catch (IOException e) {
 			System.out
 					.println("Failed to send message to:  " + this.clientName);
