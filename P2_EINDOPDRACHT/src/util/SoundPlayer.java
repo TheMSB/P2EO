@@ -6,7 +6,7 @@ import javax.sound.sampled.*;
 public class SoundPlayer extends Thread {
 
 	private boolean ready;
-	private boolean playRadioSong;
+	private static boolean playRadioSong;
 	private boolean playBattleMusic;
 	private static AudioInputStream stream;
 	private static AudioFormat format;
@@ -75,7 +75,7 @@ public class SoundPlayer extends Thread {
 			}
 		}
 	
-	public void setRadioSong(boolean rs){
+	public static void setRadioSong(boolean rs){
 		playRadioSong = rs;
 	}
 	
