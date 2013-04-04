@@ -297,7 +297,7 @@ public class ClientHandler extends Thread {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
-			System.out.println(lobby.getTurnName() + "   " + getClientName());
+			//System.out.println(lobby.getTurnName() + "   " + getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}

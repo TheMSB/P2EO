@@ -45,7 +45,7 @@ public class Client extends Thread {
 	private int selectedAI = 1;
 	private boolean humanIsPlaying;
 	private MessageUI mui;
-	private boolean autoCrapTalk = true;
+	private boolean autoCrapTalk = false;
 	private boolean convertToCyrillic = false;
 	private boolean myTurn;
 	private ArrayList<Integer> aiMove;
@@ -410,6 +410,7 @@ public class Client extends Thread {
 			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
 				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
+				SoundPlayer.upVolume();
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
