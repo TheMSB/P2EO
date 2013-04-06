@@ -40,10 +40,13 @@ public class Client extends Thread {
 	private Player player;
 	private AI ai;
 	/**
-	 * Represents which AI to use, 1 = smart, 2 = random must be 1 or 2
+	 * Represents which AI to use, 
+	 * 1 = smart, 
+	 * 2 = random
+	 * 3 = E-Wall
 	 */
 	private int selectedAI = 1;
-	private boolean humanIsPlaying;
+	private boolean humanIsPlaying = true;
 	private MessageUI mui;
 	private boolean autoCrapTalk = false;
 	private boolean convertToCyrillic = false;

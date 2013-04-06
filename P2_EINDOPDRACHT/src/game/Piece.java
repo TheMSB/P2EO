@@ -12,7 +12,7 @@ package game;
 public class Piece {
 
 	//---- Constants ----------------
-	//TODO evt updaten naar protocol referentie
+	//TODO possible update to protocol reference
 	//CHECKSTYLE:OFF
 	public static final int RING_0 = 0;
 	public static final int RING_1 = 1;

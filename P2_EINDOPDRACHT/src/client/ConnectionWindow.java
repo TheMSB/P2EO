@@ -26,6 +26,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -53,7 +54,7 @@ import util.SoundPlayer;
 public class ConnectionWindow extends JFrame implements ActionListener, MessageUI, KeyListener, ItemListener {
 
 	//---- Game related variables ----------------------
-
+	//CHECKSTYLE:OFF
 	private Game game;
 	private String name;
 	private String[] aiListing = {"None", "SmartAI","RandomAI","E-WallAI"};
@@ -64,12 +65,17 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 	private Container c;
 	private JPanel menu = new JPanel();
+	private JPanel joinPanel;
+	private JPanel p2 = new JPanel();
 	private JPanel turndisp = new JPanel();
 	private JPanel chatbox = new JPanel();
+
 	private JButton bConnect;
 	private JButton bJoin;
+
 	private JComboBox aiList;
 	private JComboBox nrPlayers;
+
 	private JCheckBox bFlame;
 	private JCheckBox bCyrillic;
 	private JCheckBox bMusic;
@@ -81,12 +87,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	private boolean  	tfPortChanged;
 	private boolean  	tfAddressChanged;
 	private boolean  	myNameChanged;
+
 	private JTextField	myMessage;
 	private JTextArea   taMessages;
+
 	private Server      server;
 	private Client	client;
 	private boolean connected;
-
+	//CHECKSTYLE:ON
 	//---- Constructor ---------------------------------
 
 	/**
@@ -99,8 +107,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public ConnectionWindow() {
 		super("LOTR Debug Launcher");
 
-		playSound();
-		//this.game = g;
+		//playSound();
 		c = getContentPane();
 		buildGUI();
 
@@ -117,8 +124,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		pack();
 		validate();
 		setVisible(true);
-		
-		
+
+
 	}
 
 	/**
@@ -139,8 +146,9 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 
 		JPanel p1 = new JPanel(new FlowLayout());
 		JPanel pp = new JPanel(new GridLayout(4, 2));
-		JPanel joinPanel = new JPanel(new GridLayout(5, 2));
+		joinPanel = new JPanel(new GridLayout(6, 2));
 
+		
 		//---- Connection Menu -------------------
 		JLabel lbAddress = new JLabel("Address: ");
 		tfAddress = new JTextField("localhost", 12);
@@ -154,6 +162,87 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		JLabel lbPort = new JLabel("Port:");
 		tfPort        = new JTextField("4242", 5);
 		tfPort.addKeyListener(this);
+
+		//---- Join Menu --------------------------
+		
+		buildJoinMenu();
+		
+		//---- Menu Assembly ------------------------------------
+		pp.add(lbAddress);
+		pp.add(tfAddress);
+		pp.add(lbPort);
+		pp.add(tfPort);
+		pp.add(lbMyName);
+		pp.add(myName);
+		
+		//---- Button Initialization -----------------------
+		bConnect = new JButton("Connect");
+		bConnect.setEnabled(false);
+		bConnect.setFocusable(false);
+		bConnect.addActionListener(this);
+		
+		//---- Panel Wrapping ------------------------------
+		
+		p1.add(pp, BorderLayout.WEST);
+		p1.add(bConnect, BorderLayout.EAST);
+
+		//---- Panel p2 - Messages -------------------------
+
+		buildChatMenu();
+
+		//---- Content Window Wrapping -------------------
+		Container cc = getContentPane();
+		cc.setLayout(new FlowLayout());
+		cc.add(p1);
+		cc.add(joinPanel);
+		cc.add(p2);
+
+	}
+	
+	/**
+	 * Called on by the buildGUI method to create
+	 * the chat menu portion of the screen.
+	 * Separated from main build method to reduce
+	 * the amount of Executable statements.
+	 */
+	private void buildChatMenu() {
+		
+		p2.setLayout(new BorderLayout());
+
+		JPanel p3 = new JPanel();
+		p3.setLayout(new BorderLayout());
+
+		myMessage = new JTextField("");
+		JLabel myMessagelb = new JLabel("My Message:");
+		p2.add(myMessage, BorderLayout.NORTH);
+		myMessage.setEditable(false);
+		myMessage.addKeyListener(this);
+
+		JLabel lbMessages = new JLabel("Messages:");
+		taMessages = new JTextArea("", 15, 50);
+		taMessages.setEditable(false);
+		taMessages.setLineWrap(true);
+		
+		JScrollPane taScroll = new JScrollPane(taMessages, 
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	    
+		p3.add(myMessagelb, BorderLayout.NORTH);
+		p3.add(myMessage);
+		p2.add(p3, BorderLayout.NORTH);
+		p2.add(lbMessages);
+		p2.add(taScroll, BorderLayout.SOUTH);
+		
+	}
+
+	/**
+	 * Called on by the buildGUI method to create
+	 * the join menu portion of the screen.
+	 * Separated from main build method to reduce
+	 * the amount of Executable statements.
+	 */
+	private void buildJoinMenu() {
+
 
 		//---- Join Menu --------------------------
 		JLabel lbNrPlayers = new JLabel("Desired number of Players: ");
@@ -177,21 +266,15 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		bCyrillic = new JCheckBox("Enabled");
 		bCyrillic.setEnabled(false);
 		bCyrillic.addItemListener(this);
-		
+
 		//---- Connection Window Feature Controllers ------------
+		
 		JLabel lbMusic = new JLabel("Music: ");
 		bMusic = new JCheckBox("Enabled");
 		bMusic.setEnabled(true);
 		bMusic.addItemListener(this);
-
-		//---- Menu Assembly ------------------------------------
-		pp.add(lbAddress);
-		pp.add(tfAddress);
-		pp.add(lbPort);
-		pp.add(tfPort);
-		pp.add(lbMyName);
-		pp.add(myName);
-
+		
+		//---- Menu Assembly -------------------
 		joinPanel.add(lbNrPlayers);
 		joinPanel.add(nrPlayers);
 		joinPanel.add(lbAI);
@@ -200,14 +283,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		joinPanel.add(bFlame);
 		joinPanel.add(lbCyrillic);
 		joinPanel.add(bCyrillic);
+		joinPanel.add(lbMusic);
 		joinPanel.add(bMusic);
 
-		//---- Button Initialization -----------------------
-		bConnect = new JButton("Connect");
-		bConnect.setEnabled(false);
-		bConnect.setFocusable(false);
-		bConnect.addActionListener(this);
-
+		//---- Button Creation -----------------------------
 		bJoin = new JButton("Join");
 		bJoin.setEnabled(false);
 		bJoin.setFocusable(false);
@@ -215,42 +294,6 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		//---- Panel Wrapping ------------------------------
 		joinPanel.add(bJoin, BorderLayout.EAST);
 
-		p1.add(pp, BorderLayout.WEST);
-		p1.add(bConnect, BorderLayout.EAST);
-
-
-		//---- Panel p2 - Messages -------------------------
-
-		JPanel p2 = new JPanel();
-		p2.setLayout(new BorderLayout());
-
-		JPanel p3 = new JPanel();
-		p3.setLayout(new BorderLayout());
-
-		myMessage = new JTextField("");
-		JLabel myMessagelb = new JLabel("My Message:");
-		p2.add(myMessage, BorderLayout.NORTH);
-		myMessage.setEditable(false);
-		myMessage.addKeyListener(this);
-
-		JLabel lbMessages = new JLabel("Messages:");
-		taMessages = new JTextArea("", 15, 50);
-		taMessages.setEditable(false);
-
-		p3.add(myMessagelb, BorderLayout.NORTH);
-		p3.add(myMessage);
-		p2.add(p3, BorderLayout.NORTH);
-
-		p2.add(lbMessages);
-		p2.add(taMessages, BorderLayout.SOUTH);
-
-		//---- Content Window Wrapping -------------------
-		Container cc = getContentPane();
-		cc.setLayout(new FlowLayout());
-		cc.add(p1);
-		cc.add(joinPanel);
-		cc.add(p2);
-		
 	}
 
 	/**
@@ -263,8 +306,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		this.game = g;
 		this.setVisible(false);
 		stopSound();
-		ActionWindow aWindow;
-		aWindow = new ActionWindow(game, p, client);
+		new ActionWindow(game, p, client);
 
 	}
 
@@ -279,8 +321,8 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	}
 
 	@Override
-	public void addMessage(final String name, final String msg) {
-		taMessages.append("<" + name + "> " + msg +"\n");
+	public void addMessage(final String name1, final String msg) {
+		taMessages.append("<" + name1 + "> " + msg + "\n");
 
 	}
 
@@ -320,7 +362,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		myMessage.setEditable(true);
 		bConnect.setEnabled(false);
 	}
-	
+
 	/**
 	 * Plays a relaxing waiting tune
 	 * while players wait to connect to 
@@ -334,10 +376,10 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	/**
 	 * Stops the waiting tune.
 	 */
-	private void stopSound(){
+	private void stopSound() {
 		soundPlayer.setRadioSong(false);
 	}
-	
+
 
 	//---- Action Events ------------------------
 
@@ -442,7 +484,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 				stopSound();
 			}
 		}
-		
+
 	}
 
 }

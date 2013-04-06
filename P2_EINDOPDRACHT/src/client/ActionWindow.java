@@ -21,8 +21,12 @@ import game.Player;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import util.SoundPlayer;
 
@@ -42,7 +46,7 @@ import client.InventoryPainter.MyCellComponent;
  * @author martijnbruning
  *
  */
-public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener {
+public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener, ListSelectionListener {
 
 	//---- Game related variables ----------------------
 
@@ -136,15 +140,20 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 
 		JLabel lbMessages = new JLabel("Messages:");
 		taMessages = new JTextArea("", 15, 50);
-		taMessages.setPreferredSize(new Dimension(300, 500));
+		//taMessages.setPreferredSize(new Dimension(300, 500));
 		taMessages.setEditable(false);
+		taMessages.setLineWrap(true);
 
+		JScrollPane taScroll = new JScrollPane(taMessages, 
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		taScroll.setPreferredSize(new Dimension(300, 500));
 		p3.add(myMessagelb, BorderLayout.NORTH);
 		p3.add(myMessage);
 		p2.add(p3, BorderLayout.NORTH);
 
 		p2.add(lbMessages);
-		p2.add(taMessages, BorderLayout.SOUTH);
+		p2.add(taScroll, BorderLayout.SOUTH);
 
 		chatbox.add(p2, BorderLayout.EAST);
 		c.add(chatbox, BorderLayout.EAST);
@@ -158,7 +167,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	protected void buildGame() {
 
 		//---- Game Panel -----
-		gamePanel = new GamePanel(game, player);
+		gamePanel = new GamePanel(game, player, this);
 
 		gamePanel.setPreferredSize(new Dimension(500, 600));
 		gamePanel.addMouseListener(this);
@@ -196,6 +205,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 			System.out.println("doMove():  " + x + " " + y + " " + type + " " + color);
 			inventPiece = game.getMovPiece(x, y, type, color);
 			gamePanel.removePiece(inventPiece);
+			addMessage("System", "Performed move on: " + x + " " + y + "With Piece type: " + type + " and color: " + color);
 			updateAW();
 		} catch (InvalidPieceException e) {
 			// TODO Auto-generated catch block
@@ -236,12 +246,6 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 					}
 				}
 			}
-		}
-		if (e.getSource() instanceof MyCellComponent) {
-			Piece p = ((MyCellComponent) e.getSource()).getPiece();
-			type = p.getType();
-			color = p.getColor();
-			inventPiece = p;
 		}
 
 	}
@@ -289,6 +293,28 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	public void keyTyped(final KeyEvent arg0) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void valueChanged(final ListSelectionEvent e) {
+		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+
+		if (lsm.isSelectionEmpty()) {
+			taMessages.append(" No Piece Selected");
+		} else {
+			// Find out which indexes are selected.
+			int minIndex = lsm.getMinSelectionIndex();
+			int maxIndex = lsm.getMaxSelectionIndex();
+			for (int i = minIndex; i <= maxIndex; i++) {
+				if (lsm.isSelectedIndex(i)) {
+					Object item = gamePanel.getInventory().getModel().getElementAt(i);
+					Piece p = (Piece) item;
+					type = p.getType();
+					color = p.getColor();
+				}
+			}
+		}
+		
 	}
 
 }

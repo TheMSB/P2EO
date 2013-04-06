@@ -15,15 +15,40 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import client.InventoryPainter.MyCellComponent;
+
+/**
+ * GamePanel is an extension of JPanel
+ * it is responsible for drawing the
+ * game board and player inventory
+ * with all their pieces in them.
+ * Note that the actual drawing of the pieces
+ * is delegated to the PiecePainter Class.
+ * 
+ * @author martijnbruning
+ *
+ */
 public class GamePanel extends JPanel {
 
 	//---- Instance Variables -----------------------------------
 	private InventoryPainter invent;
+	private ActionWindow aw;
 	private Game game;
 	private Player player;
+	/**
+	 * Variables for loading a piece from the inventory
+	 * so it can be placed on the board.
+	 */
+	private int type;
+	private int color;
+	private Piece inventPiece;
 	//---- Swing Elements ------------------------------
 	private JPanel board = new JPanel();
 	private JPanel inventory = new JPanel();
@@ -37,7 +62,8 @@ public class GamePanel extends JPanel {
 	 * @param g Game that is being played
 	 * @param p Player that is playing
 	 */
-	public GamePanel(final Game g, final Player p) {
+	public GamePanel(final Game g, final Player p, final ActionWindow a) {
+		this.aw = a;
 		this.game = g;
 		this.player = p;
 
@@ -55,10 +81,17 @@ public class GamePanel extends JPanel {
 	//---- Query -------------------------------
 
 	/**
+	 * Returns the InventoryPainter for this game.
+	 * @return
+	 */
+	protected InventoryPainter getInventory(){
+		return invent;
+	}
+	/**
 	 * Removes a selected piece from the Inventory List.
 	 * @param p
 	 */
-	protected void removePiece(final Piece p) {
+	protected void removePiece(Piece p) {
 		invent.removePiece(p);
 	}
 
@@ -75,7 +108,7 @@ public class GamePanel extends JPanel {
 				//cellPanel.setBackground(new Color(0, 0, 153));
 				cellPanel.setPreferredSize(new Dimension(100, 100));
 				cellPanel.setMaximumSize(new Dimension(100, 100));	
-
+				cellPanel.addMouseListener(aw);
 				board.add(cellPanel);
 			}
 		}
@@ -89,6 +122,7 @@ public class GamePanel extends JPanel {
 	 */
 	public void drawInventory() {
 		invent = new InventoryPainter(player.getPieces());
+		invent.getSelectionModel().addListSelectionListener(aw);
 		inventory.setPreferredSize(new Dimension(500, 150));
 		inventory.add(invent);
 
