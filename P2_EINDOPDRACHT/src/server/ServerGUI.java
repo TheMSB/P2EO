@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -146,7 +147,7 @@ public class ServerGUI {
 			in = new BufferedReader(new InputStreamReader(System.in,
 					Server.ENCODING));
 			out = System.out;
-			System.out.println("Server started at port:  " + port);
+			System.out.println("Server started at port:  " + port +"\n IP: "+InetAddress.getLocalHost());
 		} catch (IOException e) {
 			retryNewServer();
 		}
