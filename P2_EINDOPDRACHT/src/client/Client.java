@@ -23,6 +23,7 @@ import ai.*;
 
 import server.Server;
 import util.CrapTalker;
+import util.SoundPlayer;
 
 public class Client extends Thread {
 	// TODO Veel dubbele command leescode, mogelijkheid tot nieuwe klasse
@@ -39,11 +40,13 @@ public class Client extends Thread {
 	private Player player;
 	private AI ai;
 	/**
-	 * Represents which AI to use, 1 = smart, 2 = random
-	 * must be 1 or 2
+	 * Represents which AI to use, 
+	 * 1 = smart, 
+	 * 2 = random
+	 * 3 = E-Wall
 	 */
 	private int selectedAI = 1;
-	private boolean humanIsPlaying;
+	private boolean humanIsPlaying = true;
 	private MessageUI mui;
 	private boolean autoCrapTalk = false;
 	private boolean convertToCyrillic = false;
@@ -281,19 +284,19 @@ public class Client extends Thread {
 			this.sendDisconnect("Invalid startstone position");
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
-		//if (!humanIsPlaying) {
-		//System.out.println("SelectedAI = "+selectedAI);
-			if (selectedAI == 1) {
-				ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
+		if (selectedAI == 1) {
+			ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
+											// laten
+			// passen
+		} else if (selectedAI == 2) {
+			ai = new RandomAI(game, player); // TODO mogelijk ingame aan te
 												// laten
-				// passen
-			} else if (selectedAI == 2) {
-				ai = new RandomAI(game, player); // TODO mogelijk ingame aan te
-													// laten
-				// passen
-			}
-		//}
-			//System.out.println("setAITo:  "+ai);
+			// passen
+		} else if (selectedAI == 3) {
+			ai = new EWallAI(game, player); // TODO mogelijk ingame aan te
+			// laten
+			// passen
+		}
 	}
 
 	/**
@@ -305,6 +308,13 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
+				if(!game.getTurnSet()){
+					if(game.getPlayerCount()!=2){
+						game.setTurn(game.getPlayer(args.get(0)).getColor());
+					}else{
+						game.setTurn(game.getPlayer(args.get(0)).getColor()/2);
+					}
+				}
 				if (args.get(0).equals(this.clientName)) {
 					askMove();
 				}
@@ -350,15 +360,16 @@ public class Client extends Thread {
 	 *            arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
 	 * @return True if succesfull (if it was indeed your turn)
 	 */
-	public boolean doHumanMove(final int x, final int y, final int type, final int color) {
+	public boolean doHumanMove(final int x, final int y, final int type,
+			final int color) {
 		boolean output = false;
 		if (myTurn) {
 			try {
-				output = game.getBoard().canMove(x,y,
+				output = game.getBoard().canMove(x, y,
 						player.getPiece(type, color));
 				if (output) {
-					sendCommand(util.Protocol.CMD_MOVE + " "
-							+ x + " " + y + " " + type + " " + color);
+					sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y
+							+ " " + type + " " + color);
 				}
 			} catch (InvalidPieceException e) {
 				output = false;
@@ -408,6 +419,7 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
+				
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -457,6 +469,48 @@ public class Client extends Thread {
 
 	private void displayGameOverScreen(ArrayList<String> args) {
 		// TODO game over screen displayen
+		try{
+			boolean won = true;
+			int ownScore = 0;
+			ArrayList<Integer> arr = util.Util.ConvertToInt(args);
+			if(game.getPlayerCount()!=2){
+				ownScore = arr.get(player.getColor()*2);
+			}else{
+				if(player.getColor()==0){
+					ownScore = arr.get(0);
+				}else{
+					ownScore = arr.get(2);
+				}
+			}
+			ArrayList<Integer> otherScores = new ArrayList<Integer>();
+			for(int i=0;i<arr.size();i=i+2){
+				if(i!=player.getColor()*2){
+					otherScores.add(arr.get(i));
+				}
+			}
+			
+			for(int i : otherScores){
+				if(i>ownScore){
+					won = false;
+				}
+			}
+			System.out.println("AI TYPE:"+ai.getClass());
+			System.out.println("WON: "+won);
+			System.out.println("END "+args);
+			
+			if(won){
+				sendMessage("CHAT GG ez");
+				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
+				SoundPlayer.upVolume();
+			}else{
+				SoundPlayer.playSound("");
+			}
+			
+		}catch(NumberFormatException e){
+			System.out.println("Wrong stats received");
+		}
+		
+		
 	}
 
 	/**
@@ -501,14 +555,15 @@ public class Client extends Thread {
 	 */
 	private void processMove(int x, int y, int type, int color)
 			throws InvalidMoveException {
-		game.move(x, y, type, color);
-		game.isGameOver();
-		myTurn = false;
 		if (mui instanceof ActionWindow) {
-			((ActionWindow) mui).doMove(x,y,type,color);
+			((ActionWindow) mui).doMove(x, y, type, color);
 		} else {
 			System.out.println("mui fail");
 		}
+
+		game.move(x, y, type, color);
+		game.isGameOver();
+		myTurn = false;
 
 		// System.out.println("Adding ring at: "+ x+" , "+y);
 	}
@@ -557,16 +612,17 @@ public class Client extends Thread {
 	 */
 	public void setFlame(final boolean f) {
 		autoCrapTalk = f;
-		System.out.println("Set autoCrapTalk to: "+autoCrapTalk);
+		System.out.println("Set autoCrapTalk to: " + autoCrapTalk);
 	}
+
 	/**
 	 * Used by the GUI to enable/disable the cyrillic converter.
 	 * 
 	 * @param c
 	 */
-	public void setCyrillic(final boolean c){
+	public void setCyrillic(final boolean c) {
 		convertToCyrillic = c;
-		System.out.println("Set convertToCyrillic to: "+convertToCyrillic);
+		System.out.println("Set convertToCyrillic to: " + convertToCyrillic);
 	}
 
 	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
@@ -601,10 +657,16 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
-		System.out.println("Send command: " + command);
+		
 		try {
+			System.out.println(serverFeatures);
+			
+			if ((!command.startsWith(util.Protocol.CMD_SAY) || serverFeatures
+					.contains(util.Protocol.FEAT_CHAT))) {
+				System.out.println("Send command: " + command);
 			out.write(command + "\n");
 			out.flush();
+			}
 		} catch (IOException e) {
 			System.out
 					.println("Failed to send message to:  " + this.clientName);

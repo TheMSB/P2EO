@@ -209,7 +209,7 @@ public class ClientHandler extends Thread {
 
 				if (!server.nameInUse(name)) {
 					sendCommand(util.Protocol.CMD_CONNECTED + " "
-							+ "Goedendag, welkom op onze server");
+							+ "Welcome to the aperture science enrichment center.");
 					sendCommand(util.Protocol.CMD_FEATURES + " "
 							+ util.Util.concatArrayList(serverFeatures));
 					status = HANDSHAKE_SUCCESFULL;
@@ -297,7 +297,7 @@ public class ClientHandler extends Thread {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
 		} else {
-			System.out.println(lobby.getTurnName() + "   " + getClientName());
+			//System.out.println(lobby.getTurnName() + "   " + getClientName());
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}

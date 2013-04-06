@@ -21,7 +21,6 @@ public class Board {
 	 * The DIMension of the board.
 	 */
 	public static final int DIM = 5;
-	// private static final int AREA = DIM*DIM;
 	/**
 	 * The X coordinate length of the board.
 	 */
@@ -76,7 +75,6 @@ public class Board {
 	 * @return the state of the Cell
 	 */
 	public Cell getCell(final int x, final int y) {
-		//TODO wat te doen als x en y ongeldig zijn
 		return cells[x][y];
 	}
 
@@ -100,10 +98,10 @@ public class Board {
 	 *            coordinate of the cell
 	 */
 	protected void startStone(final int x, final int y) throws InvalidMoveException {
-			cells[x][y].addPiece(new Piece(0, 0));
-			cells[x][y].addPiece(new Piece(1, 1));
-			cells[x][y].addPiece(new Piece(2, 2));
-			cells[x][y].addPiece(new Piece(3, 3));
+		cells[x][y].addPiece(new Piece(0, 0));
+		cells[x][y].addPiece(new Piece(1, 1));
+		cells[x][y].addPiece(new Piece(2, 2));
+		cells[x][y].addPiece(new Piece(3, 3));
 	}
 
 	/**
@@ -117,10 +115,9 @@ public class Board {
 	 *            The piece to place
 	 */
 	protected void move(final int x, final int y, final Piece piece) throws InvalidMoveException{
-		//System.out.println(""+ (0<=x) + " " + (x<=Board.DIM) + " "+ (0<=y) + " "+ (y<=Board.DIM) + " "+ canMove(x,y,piece));
-		if(0<=x && x<=Board.DIM && 0<=y && y<=Board.DIM && canMove(x,y,piece)){
+		if (0 <= x && x <= Board.DIM && 0 <= y && y <= Board.DIM && canMove(x, y, piece)) {
 			cells[x][y].addPiece(piece);
-		}else{
+		} else {
 			throw new InvalidCellException();
 		}
 	}
@@ -137,27 +134,24 @@ public class Board {
 	 * @return true if valid move else false
 	 */
 	public boolean canMove(final int x, final int y, final Piece piece) {
-		//TODO test dit.
 		boolean pieceAllowed = isCell(x, y) && getCell(x, y).pieceAllowed(piece);
 		boolean canMove = false;
 		boolean megaStoneAllowed = true;
-		
-		for (int off = -1; off <= 1; off+=2) {
-			//Is dezelfde kleur in een aanliggende cell
+
+		for (int off = -1; off <= 1; off += 2) {
 			if ((isCell(x + off, y) && getCell(x + off, y).hasPieces(piece))
 					|| (isCell(x, y + off) && getCell(x, y + off).hasPieces(piece))) {
 				canMove = true;
 			}
-			//Mag ik een megasteen plaatsen (altijd true als piece geen megasteen is)
 			if ((isCell(x + off, y) && !getCell(x + off, y).megaStoneCheck(piece))
 					|| (isCell(x, y + off) && !getCell(x, y + off).megaStoneCheck(piece))) {
 				megaStoneAllowed = false;
 			}
 		}
-		//System.out.println(pieceAllowed +" "+ canMove  + " "+ megaStoneAllowed);
+
 		return pieceAllowed && canMove && megaStoneAllowed;
 	}
-	
+
 	/**
 	 * Returns the score where index is equal to color.
 	 * @return
@@ -174,10 +168,10 @@ public class Board {
 				if (cells[x][y].determOwner() != -1) {
 					scores[cells[x][y].determOwner()] = scores[cells[x][y].determOwner()] + 1;
 				}
-				
+
 			}
 		}
-		
+
 		return scores;
 	}
 }

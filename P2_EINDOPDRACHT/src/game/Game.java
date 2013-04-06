@@ -23,6 +23,9 @@ public class Game extends Observable {
 	 * Array of players playing this game.
 	 */
 	private ArrayList<Player> players;
+	/**
+	 * Array of connected players.
+	 */
 	private ArrayList<Player>	playersConnected;
 	/**
 	 * The Board that this game is played on.
@@ -36,6 +39,10 @@ public class Game extends Observable {
 	 * The amount of players playing this game.
 	 */
 	private int playerCount;
+	/**
+	 * Boolean to determine if a turn has been set yet.
+	 */
+	private boolean turnSet;
 
 	//---- Constructor ------------------------------------------
 
@@ -52,25 +59,26 @@ public class Game extends Observable {
 
 		board = new Board();
 		players = new ArrayList<Player>();
-		//Creates players depending on the playerCount
-		//TODO dit beter maken
-		if(playerCount==2){
+		//---- Creates players depending on the playerCount ----------
+		//TODO Optimize Code
+		if (playerCount == 2) {
 			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 			players.add(new Player(playernames.get(1), PlayerColor.COLOR_2));
-		}else if(playerCount==3){
+		} else if (playerCount == 3) {
 			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
-		}else if(playerCount==4){
+		} else if (playerCount == 4) {
 			players.add(new Player(playernames.get(0), PlayerColor.COLOR_0));
 			players.add(new Player(playernames.get(1), PlayerColor.COLOR_1));
 			players.add(new Player(playernames.get(2), PlayerColor.COLOR_2));
 			players.add(new Player(playernames.get(3), PlayerColor.COLOR_3));
 		}
 		playersConnected = (ArrayList<Player>) players.clone();
-		
+
 		setUpGame(x, y, playerCount);
 		turn = 0;
+		turnSet = false;
 	}
 
 	//---- Queries ------------------------------------------
@@ -82,13 +90,15 @@ public class Game extends Observable {
 	public Player getPlayer(final int p) {
 		return players.get(p);
 	}
-	
-	public int getPlayerCount(){
+	/**
+	 * Returns the amount of players that are in this game.
+	 * @return playerCount
+	 */
+	public int getPlayerCount() {
 		return playerCount;
 	}
 	/**
 	 * Returns index of the player with given name from the array.
-	 * @param p Player
 	 * @return Index of player
 	 */
 	public Player getPlayer(final String n) {
@@ -100,7 +110,7 @@ public class Game extends Observable {
 		}
 		return output;
 	}
-	
+
 	/**
 	 * For GUI use only. Converts move command variables
 	 * into a piece from the players inventory.
@@ -113,28 +123,130 @@ public class Game extends Observable {
 	 */
 	public Piece getMovPiece(final int x, final int y, final int type, final int color) throws InvalidPieceException {
 		Piece output = null;
-		if(players.size()!=0){
+		if (players.size() != 0) {
+			System.out.println("getMovePiece() : " + turn);
 			output = players.get(turn).getPiece(type, color);
-		}else{
+		} else {
 			throw new InvalidPieceException();
 		}
-		
+
 		return output;
 	}
-	
+
 	/**
 	 * Returns the current turn.
 	 * @return turn
 	 */
 	public int getTurn() {
+		System.out.println("giveTurn(): " + turn);
 		return playersConnected.indexOf(players.get(turn));
 	}
+
+	/**
+	 * Returns if the turn has been set by the server
+	 * at the start of a game.
+	 * @return
+	 */
+	public boolean getTurnSet() {
+		return turnSet;
+	}
+
 	/**
 	 * Returns the board that is currently used by this game.
 	 * @return
 	 */
 	public Board getBoard() {
 		return board;
+	}
+	/**
+	 * Checks if the game has ended, this is achieved
+	 * by running an iterative loop over all the cells
+	 * in the game and checking if a player canMove
+	 * there. Additionally it also checks if a players
+	 * inventory is empty, meaning he can no longer perform a move
+	 * either. Lastly this method also checks if all fields are full
+	 * so that no player can perform a move. SHOULD be impossible with
+	 * current playercount and field size but is still included for scale ability.
+	 * 
+	 * @require		The Player who has the turn (turn is his name) has not yet made a move
+	 */
+	public boolean isGameOver() {
+		boolean gameOver = false;
+		ArrayList<Player> playersToRemove = new ArrayList<Player>();
+
+		//Make a new list of players, without those who can not do a move
+		for (Player player : players) {
+			if (!canDoMove(player)) {
+				playersToRemove.add(player);
+				//TODO Debug Line.
+				System.out.println("Player: " + player.getColor() + " Is out of moves, removing");
+			}
+			System.out.println(player.getPieces());
+		}
+
+		// Checks if any of those players in the new list indexes are 
+		// before or equal to the one having the turn, if so lower 
+		// turn by 1 for each
+
+		for (int i = 0; i < playersToRemove.size(); i++) {
+			if (players.indexOf(playersToRemove.get(i)) < turn) {
+				turn--;				
+			}
+			players.remove(playersToRemove.get(i));
+		}
+		if (players.size() > 0) {
+			turn = turn % players.size();
+			System.out.println("TURN = " + players.get(turn).getColor());
+		}
+
+		return players.size() == 0;
+	}
+	/**
+	 * Checks for each cell if the player has a piece that he can place.
+	 * If there is 1 or more move available result = true;
+	 * @param player	Player to check if he can do a move
+	 * @return
+	 */
+	public boolean canDoMove(final Player player) {
+		boolean canMove = false;
+		for (int x = 0; x < Board.X; x++) {
+			for (int y = 0; y < Board.Y; y++) {
+				for (Piece p : player.getPieces()) {
+					if (board.canMove(x, y, p)) {
+						canMove = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return canMove;
+	}
+
+	/**
+	 * Returns an array of integers, representing the score and pieces available.
+	 * 
+	 * @return
+	 * @ensure	result.size() = 2n
+	 * 			result.get(n) = score
+	 * 			result.get(n+1) = stones left
+	 * 			(n being an integer)
+	 */
+	public ArrayList<Integer> getStats() {
+		ArrayList<Integer> results = new ArrayList<Integer>();
+		Integer[] score = board.getScore();
+		for (int i = 0; i < playersConnected.size(); i++) {
+			if (playersConnected.size() == 2) {
+				System.out.println("" + i * 2 + "  " + i * 2 + 1);
+				results.add(score[i * 2] + score[i * 2 + 1]);
+				results.add(playersConnected.get(i).getPieces().size());
+			} else {
+				results.add(score[i]);
+				results.add(playersConnected.get(i).getPieces().size());
+			}
+
+		}
+		return results;
 	}
 
 	//---- Methods ------------------------------------------
@@ -146,7 +258,7 @@ public class Game extends Observable {
 	 */
 	protected void setUpGame(final int x, final int y, final int playercount) throws InvalidMoveException { // 4 Player Game
 		// Creates the starting stone
-		
+
 		board.startStone(x, y);
 
 		if (playercount == 4) {
@@ -166,7 +278,8 @@ public class Game extends Observable {
 					}
 					players.get(pl).addPiece(new Piece(t, 3));
 				}
-				System.out.println("Player "+pl+" pieces:  "+players.get(pl).getPieces());
+				//TODO Remove this Debugging Line.
+				System.out.println("Player " + pl + " pieces:  " + players.get(pl).getPieces());
 			}
 		} else if (playerCount == 2) { // 2 Player Game
 			for (int pl = 0; pl < 2; pl++) { // Player loop
@@ -179,9 +292,6 @@ public class Game extends Observable {
 				}
 			}
 		}
-		
-		//System.out.println(players.get(0).getPieces());
-		//System.out.println(players.get(1).getPieces());
 		//TODO else invalid player number exception
 	}
 
@@ -196,103 +306,25 @@ public class Game extends Observable {
 	 */
 	public void move(final int x, final int y, final int type, final int color) throws InvalidMoveException {
 
-		System.out.println("Doing move:  "+x+y+type+color+"  Turn: "+turn);
+		System.out.println("Doing move:  " + x + y + type + color + "  Turn: " + turn);
 		Piece movpc = players.get(turn).getPiece(type, color);
 		board.move(x, y, movpc);
 		int pindex = players.get(turn).getPieces().indexOf(movpc);
 		players.get(turn).getPieces().remove(pindex).setPlaced();
-		//TODO kijken naar setPlaced(),mogelijk in cell doen
+		//TODO Question the usage of the boolean setPlaced of Cell
+		System.out.println(players.size());
 		turn = (turn + 1) % players.size();
 	}
-	
-	// methode doet verder niets met conclusie, dit bespreken met Derk wat
-	// te doen.
+
 	/**
-	 * Checks if the game has ended, this is achieved
-	 * by running an iterative loop over all the cells
-	 * in the game and checking if a player canMove
-	 * there. Additionally it also checks if a players
-	 * inventory is empty, meaning he can no longer perform a move
-	 * either. Lastly this method also checks if all fields are full
-	 * so that no player can perform a move. SHOULD be impossible with
-	 * current playercount and field size but is still included for scale ability.
-	 * 
-	 * @require		The Player who has the turn (turn is his name) has not yet made a move
+	 * Sets the turn to a new value.
+	 * @param newTurn
 	 */
-	public boolean isGameOver(){
-		boolean gameOver = false;
-		ArrayList<Player> playersToRemove = new ArrayList<Player>();
-		
-		//Make a new list of players, without those who cant do a move
-		for(Player player : players){
-			if(!canDoMove(player)){
-				playersToRemove.add(player);
-				System.out.println("Player: "+player.getColor()+" Is out of moves, removing");
-			}
-			System.out.println(player.getPieces());
-		}
-		//Checks if any of those players in the new list indexes are before or equal to the one having the turn, if so lower turn by 1 for each
-		for(int i=0;i<playersToRemove.size();i++){
-			if(players.indexOf(playersToRemove.get(i))<turn){
-				turn--;				
-			}
-			players.remove(playersToRemove.get(i));
-		}
-		if(players.size()>0){
-			turn = turn % players.size();
-			System.out.println("TURN = "+players.get(turn).getColor());
-		}
-		
-		return players.size()==0;
+	public void setTurn(final int newTurn) {
+		System.out.println("Setting start turn to: " + newTurn);
+		turn = newTurn;
+		turnSet = true;
 	}
-	
-	/**
-	 * Checks for each cell if the player has a piece that he can place
-	 * If there is 1 or more move available result = true;
-	 * @param player	Player to check if he can do a move
-	 * @return
-	 */
-	public boolean canDoMove(Player player){
-		boolean canMove = false;
-		for (int x = 0; x < Board.X; x++) {
-			for (int y = 0; y < Board.Y; y++) {
-				for(Piece p : player.getPieces()){
-					if(board.canMove(x, y,p)){
-						canMove = true;
-						break;
-						//System.out.println(board.getCell(x,y));
-					}
-				}
-			}
-		}
-		
-		return canMove;
-	}
-	
-	/**
-	 * Returns an array of integers, representing the score and pieces available.
-	 * 
-	 * @return
-	 * @ensure	result.size() = 2n
-	 * 			result.get(n) = score
-	 * 			result.get(n+1) = stones left
-	 * 			(n being an integer)
-	 */
-	public ArrayList<Integer> getStats(){
-		ArrayList<Integer> results = new ArrayList<Integer>();
-		Integer[] score = board.getScore();
-		//System.out.println(playersConnected);
-		for(int i =0;i<playersConnected.size();i++){
-			if(playersConnected.size()==2){
-				System.out.println(""+i*2+"  "+i*2+1);
-				results.add(score[i*2] + score[i*2+1]);
-				results.add(playersConnected.get(i).getPieces().size());
-			}else{
-				results.add(score[i]);
-				results.add(playersConnected.get(i).getPieces().size());
-			}
-			
-		}
-		return results;
-	}
+
+
 }

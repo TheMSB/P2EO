@@ -15,21 +15,43 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JPanel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import client.InventoryPainter.MyCellComponent;
+
+/**
+ * GamePanel is an extension of JPanel
+ * it is responsible for drawing the
+ * game board and player inventory
+ * with all their pieces in them.
+ * Note that the actual drawing of the pieces
+ * is delegated to the PiecePainter Class.
+ * 
+ * @author martijnbruning
+ *
+ */
 public class GamePanel extends JPanel {
 
-	//TODO dit verwerken hier:
 	//---- Instance Variables -----------------------------------
 	private InventoryPainter invent;
+	private ActionWindow aw;
 	private Game game;
 	private Player player;
+	/**
+	 * Variables for loading a piece from the inventory
+	 * so it can be placed on the board.
+	 */
+	private int type;
+	private int color;
+	private Piece inventPiece;
+	//---- Swing Elements ------------------------------
 	private JPanel board = new JPanel();
 	private JPanel inventory = new JPanel();
-
-
-
 
 	//---- Constructor ------------------------------------------		
 	/**
@@ -40,17 +62,14 @@ public class GamePanel extends JPanel {
 	 * @param g Game that is being played
 	 * @param p Player that is playing
 	 */
-	public GamePanel(final Game g, final Player p) {
+	public GamePanel(final Game g, final Player p, final ActionWindow a) {
+		this.aw = a;
 		this.game = g;
 		this.player = p;
-		//this.player = game.getPlayer(n);
 
 		setLayout(new BorderLayout());
 		board.setLayout(new GridLayout(5, 5));
-		this.setBackground(Color.BLUE);
 
-
-		// TODO Auto-generated constructor stub
 		//---- Draws cells to the board ------------------
 		drawCells();
 		add(board, BorderLayout.LINE_START);
@@ -58,34 +77,25 @@ public class GamePanel extends JPanel {
 		drawInventory();
 		add(inventory, BorderLayout.SOUTH);
 	}
-	
+
 	//---- Query -------------------------------
-	
+
+	/**
+	 * Returns the InventoryPainter for this game.
+	 * @return
+	 */
+	protected InventoryPainter getInventory(){
+		return invent;
+	}
 	/**
 	 * Removes a selected piece from the Inventory List.
 	 * @param p
 	 */
-	protected void removePiece(final Piece p) {
+	protected void removePiece(Piece p) {
 		invent.removePiece(p);
 	}
-	
-	//---- Methods -----------------------------
-	
-	//TODO fix vinden om gradients toe te staan in java zonder naar 1.7 te gaan
-	@Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        
-        Color color1 = Color.BLUE;
-        Color color2 = color1.darker();
-        int w = getWidth();
-        int h = getHeight();
-        GradientPaint gp = new GradientPaint(
-            0, 0, color1, 0, h, color2);
-        g2d.setPaint(gp);
-        g2d.fillRect(0, 0, w, h);
-    }
+
+	//---- Methods -----------------------------	
 
 	/**
 	 * Draws all of the cells onto the board.
@@ -98,15 +108,21 @@ public class GamePanel extends JPanel {
 				//cellPanel.setBackground(new Color(0, 0, 153));
 				cellPanel.setPreferredSize(new Dimension(100, 100));
 				cellPanel.setMaximumSize(new Dimension(100, 100));	
-
+				cellPanel.addMouseListener(aw);
 				board.add(cellPanel);
 			}
 		}
 
 	}
 
+	/**
+	 * Draws pieces to the visual inventory.
+	 * Contents are determined by the inventory field
+	 * of the Player Class of the currently playing Player.
+	 */
 	public void drawInventory() {
 		invent = new InventoryPainter(player.getPieces());
+		invent.getSelectionModel().addListSelectionListener(aw);
 		inventory.setPreferredSize(new Dimension(500, 150));
 		inventory.add(invent);
 

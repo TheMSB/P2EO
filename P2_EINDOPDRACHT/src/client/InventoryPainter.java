@@ -45,12 +45,11 @@ public class InventoryPainter extends JList {
 		for (Piece piece : arrayList) {
 			model.addElement(piece);
 		}
-		//setLayout(new GridLayout(9, 2));
 		setPreferredSize(new Dimension(500, 200));
 		this.setCellRenderer(new MyCellRenderer());
 		this.setVisibleRowCount(-1);
 		this.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		//TODO word gek hiervan, wat ermee doen?
+		
 		this.setFixedCellHeight(40);
 		this.setFixedCellWidth(40);
 		
