@@ -5,28 +5,23 @@ import java.io.BufferedReader;
 import exceptions.InvalidMoveException;
 import exceptions.InvalidPieceException;
 import game.*;
-import server.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 import ai.*;
 
 import server.Server;
-import util.CrapTalker;
 import util.SoundPlayer;
 
 public class Client extends Thread {
-	// TODO Veel dubbele command leescode, mogelijkheid tot nieuwe klasse
 
 	private String clientName;
 	private Socket sock;
@@ -34,16 +29,12 @@ public class Client extends Thread {
 	private BufferedWriter out;
 	private boolean connected;
 	private String lastInput;
-	private boolean serverAlive;
 	private int status;
 	private Game game;
 	private Player player;
 	private AI ai;
 	/**
-	 * Represents which AI to use, 
-	 * 1 = smart, 
-	 * 2 = random
-	 * 3 = E-Wall
+	 * Represents which AI to use, 1 = smart, 2 = random 3 = E-Wall
 	 */
 	private int selectedAI = 1;
 	private boolean humanIsPlaying = true;
@@ -84,8 +75,6 @@ public class Client extends Thread {
 		clientFeatures = new ArrayList<String>();
 		clientFeatures.add("CHAT");
 
-		// Ga er vanuit dat de server aan staat in het begin
-		serverAlive = true;
 		status = DISCONNECTED;
 
 		try {
@@ -96,48 +85,31 @@ public class Client extends Thread {
 		} catch (IOException e) {
 			System.out.println("Failed to make Socket");
 			e.printStackTrace();
-			serverAlive = false;
 		}
 	}
 
 	public void run() {
-		while (true) { // TODO clientGUI moet client kunnen afsluiten
+		while (true) {
 			try {
-
 				while (connected) {
 					lastInput = in.readLine();
 					System.out.println(lastInput);
 					if (lastInput != null) {
 						readCommand(new Scanner(lastInput));
 					} else {
-						// Verbinding gebroken als hij hier komt.
-						// TODO kreeg TURN, toern null, toen error.
 						System.out.println("socket closing");
 						sock.close();
-						serverAlive = false;
 						connected = false;
 						System.out.println("Socket closed");
-						// sendError(util.Protocol.ERR_INVALID_COMMAND);
+						sendError(util.Protocol.ERR_INVALID_COMMAND);
 					}
 
 				}
 			} catch (IOException e) {
-				sendDisconnect("Reconnecting");
 				connected = false;
-				serverAlive = false; // Tijdelijke hotfix
 			}
-
-			// Als code hierkomt is er een disconnect
-			if (serverAlive) {
-				try {
-					connectToServer(4242, InetAddress.getByName("localhost"));
-					// TODO poort + ip variabel maken
-				} catch (IOException e) {
-					System.out
-							.println("Server not reaction, stopping reconnect attempt...");
-					serverAlive = false;
-				}
-			}
+			
+			//TODO hier iets naar GUI sturen zodat je opnieuw kunt connecten
 		}
 	}
 
@@ -308,11 +280,11 @@ public class Client extends Thread {
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
-				if(!game.getTurnSet()){
-					if(game.getPlayerCount()!=2){
+				if (!game.getTurnSet()) {
+					if (game.getPlayerCount() != 2) {
 						game.setTurn(game.getPlayer(args.get(0)).getColor());
-					}else{
-						game.setTurn(game.getPlayer(args.get(0)).getColor()/2);
+					} else {
+						game.setTurn(game.getPlayer(args.get(0)).getColor() / 2);
 					}
 				}
 				if (args.get(0).equals(this.clientName)) {
@@ -419,7 +391,7 @@ public class Client extends Thread {
 		if (status == INGAME) {
 			if (args.size() >= 4 && args.size() <= 8) {
 				displayGameOverScreen(args);
-				
+
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -469,48 +441,47 @@ public class Client extends Thread {
 
 	private void displayGameOverScreen(ArrayList<String> args) {
 		// TODO game over screen displayen
-		try{
+		try {
 			boolean won = true;
 			int ownScore = 0;
 			ArrayList<Integer> arr = util.Util.ConvertToInt(args);
-			if(game.getPlayerCount()!=2){
-				ownScore = arr.get(player.getColor()*2);
-			}else{
-				if(player.getColor()==0){
+			if (game.getPlayerCount() != 2) {
+				ownScore = arr.get(player.getColor() * 2);
+			} else {
+				if (player.getColor() == 0) {
 					ownScore = arr.get(0);
-				}else{
+				} else {
 					ownScore = arr.get(2);
 				}
 			}
 			ArrayList<Integer> otherScores = new ArrayList<Integer>();
-			for(int i=0;i<arr.size();i=i+2){
-				if(i!=player.getColor()*2){
+			for (int i = 0; i < arr.size(); i = i + 2) {
+				if (i != player.getColor() * 2) {
 					otherScores.add(arr.get(i));
 				}
 			}
-			
-			for(int i : otherScores){
-				if(i>ownScore){
+
+			for (int i : otherScores) {
+				if (i > ownScore) {
 					won = false;
 				}
 			}
-			System.out.println("AI TYPE:"+ai.getClass());
-			System.out.println("WON: "+won);
-			System.out.println("END "+args);
-			
-			if(won){
+			System.out.println("AI TYPE:" + ai.getClass());
+			System.out.println("WON: " + won);
+			System.out.println("END " + args);
+
+			if (won) {
 				sendMessage("CHAT GG ez");
 				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
 				SoundPlayer.upVolume();
-			}else{
+			} else {
 				SoundPlayer.playSound("");
 			}
-			
-		}catch(NumberFormatException e){
+
+		} catch (NumberFormatException e) {
 			System.out.println("Wrong stats received");
 		}
-		
-		
+
 	}
 
 	/**
@@ -657,15 +628,13 @@ public class Client extends Thread {
 	 * @param command
 	 */
 	public void sendCommand(final String command) {
-		
+
 		try {
-			System.out.println(serverFeatures);
-			
 			if ((!command.startsWith(util.Protocol.CMD_SAY) || serverFeatures
 					.contains(util.Protocol.FEAT_CHAT))) {
 				System.out.println("Send command: " + command);
-			out.write(command + "\n");
-			out.flush();
+				out.write(command + "\n");
+				out.flush();
 			}
 		} catch (IOException e) {
 			System.out
@@ -679,15 +648,16 @@ public class Client extends Thread {
 	 * @param msg
 	 */
 	public void sendDisconnect(final String msg) {
-		status = DISCONNECTED;
-		System.out.println(msg);
+
+		System.out.println("Disconnecting:  " + msg);
 		try {
 			out.write(util.Protocol.CMD_DISCONNECT + " " + msg);
 			sock.close();
-
+			status = DISCONNECTED;
 		} catch (IOException e) {
 			System.out.println("Could not send disconnect message");
 		}
+
 	}
 
 	/**
@@ -715,7 +685,6 @@ public class Client extends Thread {
 				out = new BufferedWriter(new OutputStreamWriter(
 						sock.getOutputStream(), Server.ENCODING));
 
-				serverAlive = true;
 				sendCommand(util.Protocol.CMD_CONNECT + " " + clientName);
 				status = HANDSHAKE_PENDING_1;
 			} catch (UnsupportedEncodingException e1) {

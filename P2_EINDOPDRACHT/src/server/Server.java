@@ -118,16 +118,12 @@ public class Server extends Thread {
 	 */
 	public synchronized void shutDown() {
 		running = false;
-		//for (ClientHandler ch : newlyConnected) {
-		//	ch.unexpectedDisconnect("Server shutting down");
-		//}
 		for (ClientHandler ch : clientHandlers) {
 			ch.stopThread();
 		}
 		try {
 			ssock.close();
 		} catch (IOException e) {
-			// e.printStackTrace();
 		}
 	}
 

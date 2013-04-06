@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Visual representation of Server
+ * commandline application of the Server
  * @author I3anaan
  *
  */
@@ -34,25 +34,19 @@ public class ServerGUI {
 	private static boolean running = true;
 
 	/**
-	 * Makes a new Server, the proceeds to be able to receive input from the
+	 * Makes a new Server, then proceeds to be able to receive input from the
 	 * default inputstream
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		try {
-			server = new Server(util.Protocol.PORT,
-					"P2EO Server Derk en Martijn.");
-			server.start();
 			in = new BufferedReader(new InputStreamReader(System.in,
 					Server.ENCODING));
 			out = System.out;
-
-			System.out
-					.println("Server started at port:  " + util.Protocol.PORT);
+			newServer(4242);
 		} catch (IOException e) {
-			System.out.println("Error Socket could not be made");
-			e.printStackTrace();
+			retryNewServer();
 		}
 
 		while (running) {
@@ -110,15 +104,15 @@ public class ServerGUI {
 	 * @param args
 	 *            first argument is the new port, Second is the name
 	 */
-	public static void cmdRESTART(ArrayList<String> args) {
-		if (args.size() == 2) {
+	private static void cmdRESTART(ArrayList<String> args) {
+		if (args.size() == 1) {
 			try {
-				newServer(Integer.parseInt(args.get(0)), args.get(1));
+				newServer(Integer.parseInt(args.get(0)));
 			} catch (NumberFormatException e) {
-				out.println("Dat is geen nummer. Syntax: RESTART [port] [naam]");
+				out.println("Dat is geen nummer. Syntax: RESTART [port]");
 			}
 		} else {
-			out.println("Foute parameters. Syntax: RESTART [port] [naam]");
+			out.println("Foute parameters. Syntax: RESTART [port]");
 		}
 	}
 
@@ -128,8 +122,9 @@ public class ServerGUI {
 	 * @param args
 	 *            Does nothing
 	 */
-	public static void cmdSHUTDOWN(ArrayList<String> args) {
+	private static void cmdSHUTDOWN(ArrayList<String> args) {
 		server.shutDown();
+		//TODO controleren of server goed aflsuit
 		running = false;
 	}
 
@@ -141,18 +136,30 @@ public class ServerGUI {
 	 * @param name
 	 *            Name of the server
 	 */
-	public static void newServer(int port, String name) {
+	private static void newServer(int port) {
 		try {
-			server.shutDown();
-			server = new Server(port, name);
+			if(server!=null){
+				server.shutDown();
+			}
+			server = new Server(port,"P2EO server Martijn en Derk");
 			server.start();
 			in = new BufferedReader(new InputStreamReader(System.in,
 					Server.ENCODING));
 			out = System.out;
 			System.out.println("Server started at port:  " + port);
 		} catch (IOException e) {
-			System.out.println("Error Socket could not be made");
-			e.printStackTrace();
+			retryNewServer();
+		}
+	}
+	
+	private static void retryNewServer(){
+		System.out.println("Error, ServerSocket could not be made, please enter a different port:");
+		String lastInput = null;
+		try {
+			lastInput = in.readLine();
+		} catch (IOException e2) {}
+		if (lastInput != null) {
+			readCommand(new Scanner("RESTART "+lastInput));
 		}
 	}
 }

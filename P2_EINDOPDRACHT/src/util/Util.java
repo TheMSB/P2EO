@@ -27,6 +27,7 @@ public class Util {
 	public static ArrayList<String> makePlayerNameList(ArrayList<ClientHandler> arr){
 		ArrayList<String> names = new ArrayList<String>();
 		for(ClientHandler ch : arr){
+			System.out.println(ch.getClientName());
 			names.add(ch.getClientName());
 		}
 		return names; 
