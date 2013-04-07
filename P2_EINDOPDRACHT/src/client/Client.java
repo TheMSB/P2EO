@@ -49,6 +49,9 @@ public class Client extends Thread {
 	 * The outputstream this Client sends.
 	 */
 	private BufferedWriter out;
+	/**
+	 * Whether this Client is connected to a server or not
+	 */
 	private boolean connected;
 	private String lastInput;
 	private int status;
