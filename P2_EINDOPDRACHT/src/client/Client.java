@@ -241,8 +241,6 @@ public class Client extends Thread {
 				System.out
 						.println("Not Supported Encoding, this program requires UTF-8");
 				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}else{
 			System.out.println("Connecting has failed");
