@@ -21,11 +21,33 @@ import ai.*;
 import server.Server;
 import util.SoundPlayer;
 
+/**
+ * This class serves as the controller for the client. It receives commands from
+ * the player through the clientGUI, and then sends them to either the server or
+ * game which will then do the actions wanted.
+ * Client automatically connects to the given ip + port according to protocol.
+ * Client will always have an AI, even when a human is playing, this is to make getting an hint easier
+ * 
+ * @author I3anaan
+ * 
+ */
 public class Client extends Thread {
 
+	/**
+	 * The name this Client has
+	 */
 	private String clientName;
+	/**
+	 * The socket of the server to which this Client is connected
+	 */
 	private Socket sock;
+	/**
+	 * The inputstream this Client receives
+	 */
 	private BufferedReader in;
+	/**
+	 * The outputstream this Client sends.
+	 */
 	private BufferedWriter out;
 	private boolean connected;
 	private String lastInput;
@@ -108,8 +130,8 @@ public class Client extends Thread {
 			} catch (IOException e) {
 				connected = false;
 			}
-			
-			//TODO hier iets naar GUI sturen zodat je opnieuw kunt connecten
+
+			// TODO hier iets naar GUI sturen zodat je opnieuw kunt connecten
 		}
 	}
 
