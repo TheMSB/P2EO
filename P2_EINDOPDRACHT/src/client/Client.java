@@ -24,9 +24,9 @@ import util.SoundPlayer;
 /**
  * This class serves as the controller for the client. It receives commands from
  * the player through the clientGUI, and then sends them to either the server or
- * game which will then do the actions wanted.
- * Client automatically connects to the given ip + port according to protocol.
- * Client will always have an AI, even when a human is playing, this is to make getting an hint easier
+ * game which will then do the actions wanted. Client automatically connects to
+ * the given ip + port according to protocol. Client will always have an AI,
+ * even when a human is playing, this is to make getting an hint easier
  * 
  * @author I3anaan
  * 
@@ -53,20 +53,57 @@ public class Client extends Thread {
 	 * Whether this Client is connected to a server or not
 	 */
 	private boolean connected;
+	/**
+	 * The last input (command) this Client has received from the server
+	 */
 	private String lastInput;
+	/**
+	 * The status this Client is in
+	 */
 	private int status;
+	/**
+	 * The Game this Client keeps synchronized with the server, game = null
+	 * means this Client is not in a game
+	 */
 	private Game game;
+	/**
+	 * The Player that belongs to this Client (from the game)
+	 */
 	private Player player;
+	/**
+	 * The AI this Client asks for moves, also used for Hints, cannot be null
+	 * when starting a game
+	 */
 	private AI ai;
 	/**
 	 * Represents which AI to use, 1 = smart, 2 = random 3 = E-Wall
 	 */
 	private int selectedAI = 1;
-	private boolean humanIsPlaying = true;
+	/**
+	 * Whether or not there is an human playing
+	 */
+	private boolean humanIsPlaying = false; // TODO waarom stond deze op true?
+	/**
+	 * The mui of the ClientGUI to which this CLient sends things like chat
+	 * messages
+	 */
 	private MessageUI mui;
+	/**
+	 * Whether or not this Client should automaticly craptalk (always in
+	 * cyrillic)
+	 */
 	private boolean autoCrapTalk = false;
+	/**
+	 * Whether or not to convert this Client's chat messages to cyrillic
+	 */
 	private boolean convertToCyrillic = false;
+	/**
+	 * Whether or not it is this Client's turn
+	 */
 	private boolean myTurn;
+	/**
+	 * The move the chosen AI would make
+	 */
 	private ArrayList<Integer> aiMove;
 
 	/**
@@ -76,18 +113,51 @@ public class Client extends Thread {
 	private ArrayList<String> clientFeatures;
 	private ArrayList<String> serverFeatures;
 
+	/*
+	 * Statusses this Client can be in.
+	 */
+	/**
+	 * The start status, means that this Client has not connected to a server
+	 * yet.
+	 */
 	public static final int DISCONNECTED = 0;
+	/**
+	 * The initial handshake has been initiated
+	 */
 	public static final int HANDSHAKE_PENDING_1 = 10;
+	/**
+	 * Not used anymore
+	 */
 	public static final int HANDSHAKE_PENDING_2 = 11;
+	/**
+	 * The handshake has successfully been completed, from here the Client can
+	 * join games
+	 */
 	public static final int HANDSHAKE_SUCCESFULL = 20;
+	/**
+	 * Means this Client is in a lobby, awaiting a game
+	 */
 	public static final int INLOBBY = 30;
+	/**
+	 * Means this Client is in a game, playing.
+	 */
 	public static final int INGAME = 40;
 
 	/**
-	 * Maakt nieuwe client aan met een naam, meestal aangeroepen door clientGUI,
-	 * connect ook al vast
+	 * Creates a new Client, automatically tries to connect to a server, with
+	 * the given IP and port.
 	 * 
 	 * @param name
+	 *            The name this Client has
+	 * @param adr
+	 *            The IP address of the server
+	 * @param prt
+	 *            The Port number of the server
+	 * @param mui
+	 *            The MessageUI of the ClientGUI
+	 * 
+	 * @ensure status == DISCONNECTED
+	 * @require name, adr, prt, mui !=null
 	 */
 	public Client(final String name, final InetAddress adr, final int prt,
 			final MessageUI mui) throws IOException {
@@ -113,6 +183,10 @@ public class Client extends Thread {
 		}
 	}
 
+	/**
+	 * Constantly checks for input from the server, if so sends the command to
+	 * readCommand() Will disconnect when an error occurs
+	 */
 	public void run() {
 		while (true) {
 			try {
@@ -122,7 +196,6 @@ public class Client extends Thread {
 					if (lastInput != null) {
 						readCommand(new Scanner(lastInput));
 					} else {
-						System.out.println("socket closing");
 						sock.close();
 						connected = false;
 						System.out.println("Socket closed");
@@ -137,11 +210,51 @@ public class Client extends Thread {
 			// TODO hier iets naar GUI sturen zodat je opnieuw kunt connecten
 		}
 	}
+	
+	/**
+	 * Sets up a connection with a (new) server
+	 * 
+	 * @param port	The port to connect to
+	 * @param ip	The ip address to connect to
+	 * @throws IOException
+	 *             If something goes wrong with setting up the socket
+	 * @require port, ip !=null
+	 */
+	public void connectToServer(final int port, final InetAddress ip)
+			throws IOException {
+		if (connected) {
+			sendDisconnect("Connecting to a (new) server");
+		}
+
+		sock = new Socket(ip, port);
+		connected = sock != null;
+		if (connected) {
+			try {
+				in = new BufferedReader(new InputStreamReader(
+						sock.getInputStream(), Server.ENCODING));
+				out = new BufferedWriter(new OutputStreamWriter(
+						sock.getOutputStream(), Server.ENCODING));
+
+				sendCommand(util.Protocol.CMD_CONNECT + " " + clientName);
+				status = HANDSHAKE_PENDING_1;
+			} catch (UnsupportedEncodingException e1) {
+				System.out
+						.println("Not Supported Encoding, this program requires UTF-8");
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}else{
+			System.out.println("Connecting has failed");
+		}
+	}
 
 	/**
-	 * Leest een command met argumenten uit de scanner.
+	 * Reads a command from the scanner
 	 * 
 	 * @param scanner
+	 *            The scanner which contains the line to read
+	 * @require scanner!=null
 	 */
 	private void readCommand(final Scanner scanner) {
 		if (scanner.hasNext()) {
@@ -157,13 +270,17 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Checked het command en voert de methode die daarbij hoort uit (indien
-	 * aanwezig).
+	 * Checks if the received command is recognized
 	 * 
 	 * @param command
+	 *            The command received from the client
 	 * @param args
+	 *            Possible arguments for the command
+	 * 
+	 * @require command!=null
+	 * @require args!=null (args.size() can be 0)
 	 */
-	private void checkCommand(final String command, final ArrayList<String> args) {
+	public void checkCommand(final String command, final ArrayList<String> args) {
 		if (command.equals(util.Protocol.CMD_CONNECTED)) {
 			cmdCONNECTED(args);
 		} else if (command.equals(util.Protocol.CMD_FEATURES)) {
@@ -187,14 +304,24 @@ public class Client extends Thread {
 		}
 	}
 
-	// TODO kijken naar public/private van zowel client als clienthandler
 	/**
-	 * Behandelt het CONNECTED command van de server, door de handshake verder
-	 * uit te voeren.
+	 * Reads the CONNECTED command from the server, updating the status
 	 * 
 	 * @param args
+	 *            Possible arguments for the command, being a welcome message
+	 *            from the server
 	 */
 	private void cmdCONNECTED(final ArrayList<String> args) {
+		/*
+		 * As for the general cmdCMD methods: It will first check if the status
+		 * in which the client is allows such command Then it will check if
+		 * args.size() is valid Then comes the actual code the method is
+		 * supposed to do (can be more if commands, as this is an example of) In
+		 * all cases this ClientHandler will send the appropriate error if does
+		 * not comply to the expectations
+		 * 
+		 * @require args!=null
+		 */
 		if (status == HANDSHAKE_PENDING_1) {
 			if (args.size() >= 0) {
 				status = HANDSHAKE_PENDING_2;
@@ -207,10 +334,14 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Behandelt het FEATURES command van de server door de features te checken
-	 * en eigen features terug te sturen.
+	 * Checks the features from the server, and saves those it has in common,
+	 * also sends a FEATURED comand, letting the server know of the features
+	 * this Client has. If the command was received correctly, it will complete
+	 * the handshake
 	 * 
 	 * @param args
+	 *            Possible arguments for the command, being the features the
+	 *            server has.
 	 */
 	private void cmdFEATURES(final ArrayList<String> args) {
 		if (status == HANDSHAKE_PENDING_2) {
@@ -235,9 +366,12 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Behandeld het start command van de server, stelt de game zodanig in.
+	 * The server sends this command to let the clients know the game starts,
+	 * the Client then sets up his own game and updates its status to INGAME
 	 * 
 	 * @param args
+	 *            Possible arguments for the command, being the startstone
+	 *            coordinates and the player names
 	 */
 	private void cmdSTART(ArrayList<String> args) {
 		if (status == INLOBBY) {
@@ -245,8 +379,7 @@ public class Client extends Thread {
 				try {
 					startGame(Integer.parseInt(args.remove(0)),
 							Integer.parseInt(args.remove(0)), args);
-					// LET OP: args is hier aangepast
-					status = INGAME;
+					// WARNING: args is changed here
 				} catch (NumberFormatException e) {
 					sendError(util.Protocol.ERR_INVALID_COMMAND);
 				}
@@ -259,14 +392,17 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Start een game
+	 * Starts a game
 	 * 
 	 * @param x
-	 *            X coordinaat van startsteen
+	 *            X coordinate of the startstone
 	 * @param y
-	 *            Y coordinaat van startsteen
+	 *            Y coordinate of the starstone
 	 * @param args
-	 *            Lijst met namen van spelers
+	 *            ArrayList of player names, the args.size() == gametype
+	 * 
+	 * @ensure game!=null
+	 * @ensure ai!=null
 	 */
 	private void startGame(int x, int y, ArrayList<String> args) {
 		if (autoCrapTalk) {
@@ -275,32 +411,32 @@ public class Client extends Thread {
 		try {
 			game = new Game(x, y, args);
 			player = game.getPlayer(args.indexOf(clientName));
-			((ConnectionWindow) mui).setGame(game, player); // TODO dit kan
-															// netter
+			if (mui instanceof ConnectionWindow) {
+				((ConnectionWindow) mui).setGame(game, player);
+			} else {
+				System.out.println("mui should be a ConnectionWindow now!!");
+			}
 		} catch (InvalidMoveException e) {
 			this.sendDisconnect("Invalid startstone position");
 		}
 		System.out.println("PlayerNumber:  " + args.indexOf(clientName));
 		if (selectedAI == 1) {
-			ai = new SmartAI(game, player); // TODO mogelijk ingame aan te
-											// laten
-			// passen
+			ai = new SmartAI(game, player);
 		} else if (selectedAI == 2) {
-			ai = new RandomAI(game, player); // TODO mogelijk ingame aan te
-												// laten
-			// passen
+			ai = new RandomAI(game, player);
 		} else if (selectedAI == 3) {
-			ai = new EWallAI(game, player); // TODO mogelijk ingame aan te
-			// laten
-			// passen
+			ai = new EWallAI(game, player);
 		}
+
+		status = INGAME;
 	}
 
 	/**
-	 * Behandelt het turn command van de server, kijkt of deze client aan de
-	 * beurt is.
+	 * Checks if this Client has the turn, if so, calls askMove().
 	 * 
 	 * @param args
+	 *            The name of the Client whos turn it is
+	 * @ensure askMove() is only called if the Client has the turn
 	 */
 	private void cmdTURN(final ArrayList<String> args) {
 		if (status == INGAME) {
@@ -313,6 +449,7 @@ public class Client extends Thread {
 					}
 				}
 				if (args.get(0).equals(this.clientName)) {
+					myTurn = true;
 					askMove();
 				}
 			} else {
@@ -324,63 +461,12 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Deze methode wordt aangeroepen als deze client aan de beurt is, vragend
-	 * aan mens of ai om een zet door te geven.
-	 */
-	private void askMove() {
-		myTurn = true;
-		System.out.println("Asking move..");
-
-		// TODO laat GUI aangeven dat het jou beurt is
-		// arr: 0 = x, 1 = y, 2 = type, 3 = color
-		System.out.println(ai);
-		aiMove = ai.getMove(); // TODO dit door mens laten doen
-		if (!humanIsPlaying) {
-			sendCommand(util.Protocol.CMD_MOVE + " "
-					+ util.Util.concatArrayList(aiMove));
-		}
-	}
-
-	/**
-	 * Returns the move the ai would do (from the most recent turn given to you)
-	 * 
-	 * @return
-	 */
-	public ArrayList<Integer> getAIMove() {
-		return aiMove;
-	}
-
-	/**
-	 * Sends a move to the server
-	 * 
-	 * @param arr
-	 *            arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
-	 * @return True if succesfull (if it was indeed your turn)
-	 */
-	public boolean doHumanMove(final int x, final int y, final int type,
-			final int color) {
-		boolean output = false;
-		if (myTurn) {
-			try {
-				output = game.getBoard().canMove(x, y,
-						player.getPiece(type, color));
-				if (output) {
-					sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y
-							+ " " + type + " " + color);
-				}
-			} catch (InvalidPieceException e) {
-				output = false;
-			}
-
-		}
-
-		return output;
-	}
-
-	/**
-	 * Verwerkt het MOVED command, verkregen van de server.
+	 * Calls processMove() to update game. Will send an insult if
+	 * autoCraptalk==true;
 	 * 
 	 * @param args
+	 *            The information of the move: args.get(n) 0 = x, 1 = y, 2 =
+	 *            type, 3 = color
 	 */
 	private void cmdMOVED(ArrayList<String> args) {
 		if (status == INGAME) {
@@ -412,6 +498,12 @@ public class Client extends Thread {
 		}
 	}
 
+	/**
+	 * Activates displayGameOverScreen()
+	 * 
+	 * @param args
+	 *            The scores
+	 */
 	private void cmdEND(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() >= 4 && args.size() <= 8) {
@@ -425,6 +517,13 @@ public class Client extends Thread {
 		}
 	}
 
+	/**
+	 * Someone from the server disconnected, currently does nothing except
+	 * sending an insult if autoCraptalk==true
+	 * 
+	 * @param args
+	 *            Possible message that comes with the disconnect
+	 */
 	private void cmdDISCONNECTED(ArrayList<String> args) {
 		if (status == INGAME) {
 			if (args.size() == 1) {
@@ -440,14 +539,20 @@ public class Client extends Thread {
 		}
 	}
 
+	/**
+	 * The server has send a chat message. Might send an insult if autoCraptalk
+	 * is on
+	 * 
+	 * @param args
+	 *            args.get(0) it the senders name, the following are the message
+	 * 
+	 */
 	private void cmdSAID(ArrayList<String> args) {
 		if (status >= HANDSHAKE_SUCCESFULL) {
 			if (args.size() >= 2) {
 				if (serverFeatures.contains(util.Protocol.FEAT_CHAT)) {
 					String name = args.remove(0);
 					mui.addMessage(name, util.Util.concatArrayList(args));
-					// System.out.println("addMessaged");
-					// System.out.println(name +" | "+clientName);
 					if (!name.equals(clientName)) {
 						if (autoCrapTalk && Math.random() < 0.5) {
 							sendMessage(util.CrapTalker
@@ -464,55 +569,12 @@ public class Client extends Thread {
 		}
 	}
 
-	private void displayGameOverScreen(ArrayList<String> args) {
-		// TODO game over screen displayen
-		try {
-			boolean won = true;
-			int ownScore = 0;
-			ArrayList<Integer> arr = util.Util.ConvertToInt(args);
-			if (game.getPlayerCount() != 2) {
-				ownScore = arr.get(player.getColor() * 2);
-			} else {
-				if (player.getColor() == 0) {
-					ownScore = arr.get(0);
-				} else {
-					ownScore = arr.get(2);
-				}
-			}
-			ArrayList<Integer> otherScores = new ArrayList<Integer>();
-			for (int i = 0; i < arr.size(); i = i + 2) {
-				if (i != player.getColor() * 2) {
-					otherScores.add(arr.get(i));
-				}
-			}
-
-			for (int i : otherScores) {
-				if (i > ownScore) {
-					won = false;
-				}
-			}
-			System.out.println("AI TYPE:" + ai.getClass());
-			System.out.println("WON: " + won);
-			System.out.println("END " + args);
-
-			if (won) {
-				sendMessage("CHAT GG ez");
-				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
-				SoundPlayer.upVolume();
-			} else {
-				SoundPlayer.playSound("");
-			}
-
-		} catch (NumberFormatException e) {
-			System.out.println("Wrong stats received");
-		}
-
-	}
-
 	/**
-	 * Behandeld een error.
+	 * Reacts to errors received from the server. Will disconnect when the name
+	 * is in use. Will disconnect when it detects a desync in the board
 	 * 
 	 * @param args
+	 *            The error code
 	 */
 	private void cmdERROR(final ArrayList<String> args) {
 		int errorCode = 0;
@@ -540,88 +602,14 @@ public class Client extends Thread {
 		} else {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
-
-		// TODO meer situaties toevoegen?
 	}
-
+	
 	/**
-	 * Verwerkt een zet op het spel bord.
-	 * 
-	 * @throws InvalidMoveException
+	 * Sends a message to the server
+	 * Will convert to cyrillic if that is on
+	 * @param msg	The chat message this Client wants to send
+	 * @require msg!=null
 	 */
-	private void processMove(int x, int y, int type, int color)
-			throws InvalidMoveException {
-		if (mui instanceof ActionWindow) {
-			((ActionWindow) mui).doMove(x, y, type, color);
-		} else {
-			System.out.println("mui fail");
-		}
-
-		game.move(x, y, type, color);
-		game.isGameOver();
-		myTurn = false;
-
-		// System.out.println("Adding ring at: "+ x+" , "+y);
-	}
-
-	void setMUI(MessageUI mui) {
-		this.mui = mui;
-	}
-
-	/**
-	 * Stuurt een join command naar de server, vragend om in een lobby geplaatst
-	 * te worden.
-	 * 
-	 * @param slots
-	 */
-
-	public void joinLobby(final int slots) {
-		// System.out.println("Joining lobby);
-		if (status == HANDSHAKE_SUCCESFULL) {
-			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
-			status = INLOBBY;
-		}
-	}
-
-	/**
-	 * Used by the GUI to select an AI. 1 being Smart 2 being Random
-	 * 
-	 * @param i
-	 */
-	public void setAI(final int i) {
-		selectedAI = i;
-	}
-
-	/**
-	 * Used by the GUI to determine if a player plays himself.
-	 * 
-	 * @param b
-	 */
-	public void setIsPlaying(final boolean b) {
-		humanIsPlaying = b;
-	}
-
-	/**
-	 * Used by the GUI to enable/disable the flame bot crap talker.
-	 * 
-	 * @param f
-	 */
-	public void setFlame(final boolean f) {
-		autoCrapTalk = f;
-		System.out.println("Set autoCrapTalk to: " + autoCrapTalk);
-	}
-
-	/**
-	 * Used by the GUI to enable/disable the cyrillic converter.
-	 * 
-	 * @param c
-	 */
-	public void setCyrillic(final boolean c) {
-		convertToCyrillic = c;
-		System.out.println("Set convertToCyrillic to: " + convertToCyrillic);
-	}
-
-	/** Stuurt een bericht over de socketverbinding naar de ClientHandler. */
 	public void sendMessage(String msg) {
 		try {
 			String input = msg;
@@ -632,14 +620,15 @@ public class Client extends Thread {
 			out.flush();
 
 		} catch (IOException e) {
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Stuurt een error naar de server.
+	 * Called when the client detects an error.
+	 * Implanted to make it easier to debug, also possible to send errors to the server
 	 * 
-	 * @param errorCode
+	 * @param errorCode	What error has occurred
 	 */
 	public void sendError(final int errorCode) {
 		System.out.println(">>>>>>>ERROR, Last input: " + lastInput);
@@ -648,9 +637,11 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Stuurt een command naar de server.
+	 * Sends a command to the server
+	 * Will add a command separator at the end, will not send commands the server does not support
 	 * 
-	 * @param command
+	 * @param command	The command to send
+	 * @require	command!=null
 	 */
 	public void sendCommand(final String command) {
 
@@ -668,9 +659,9 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Stuurt de server een DISCONNECT command, met de meegegeven message.
+	 * Sends a DISCONNECT command to the server, telling him this Client wants to disconnect
 	 * 
-	 * @param msg
+	 * @param msg	possible message to be included
 	 */
 	public void sendDisconnect(final String msg) {
 
@@ -684,41 +675,216 @@ public class Client extends Thread {
 		}
 
 	}
+	
+	/**
+	 * Sends a join command to the server, telling it this Client wants to join
+	 * a lobby
+	 * 
+	 * @param slots
+	 *            How many slots the lobby should have
+	 */
+	public void joinLobby(final int slots) {
+		if (status == HANDSHAKE_SUCCESFULL) {
+			sendCommand(util.Protocol.CMD_JOIN + " " + slots);
+			status = INLOBBY;
+		}
+	}
+	
+	/**
+	 * This method is called when its the clients turn. Will immediately send
+	 * back an AI move if there is no human playing, otherwise informs the GUI
+	 * to do a move.
+	 * 
+	 * @require myTurn==true;
+	 */
+	private void askMove() {
+
+		System.out.println("Asking move..");
+
+		// TODO laat GUI aangeven dat het jou beurt is
+		// arr: 0 = x, 1 = y, 2 = type, 3 = color
+		System.out.println(ai);
+		aiMove = ai.getMove();
+		if (!humanIsPlaying) {
+			sendCommand(util.Protocol.CMD_MOVE + " "
+					+ util.Util.concatArrayList(aiMove));
+		}
+	}
 
 	/**
-	 * Maakt verbinding met een server, stuurt eerste command voor handshake.
+	 * Sends a (human) move to the server
 	 * 
-	 * @param port
-	 * @param ip
-	 * @throws IOException
-	 *             Als het verbinden fout gaat
-	 * @require Of geen verbinding, Of het eerst versturen van een disconnect
+	 * @param arr
+	 *            arr.get(n) 0 = x, 1 = y, 2 = type, 3 = color
+	 * @return True if succesfull (if it was indeed your turn)
 	 */
-	public void connectToServer(final int port, final InetAddress ip)
-			throws IOException {
-		if (connected) {
-			sendDisconnect("Connecting to a (new) server");
+	public boolean doHumanMove(final int x, final int y, final int type,
+			final int color) {
+		boolean output = false;
+		if (myTurn) {
+			try {
+				output = game.getBoard().canMove(x, y,
+						player.getPiece(type, color));
+				if (output) {
+					sendCommand(util.Protocol.CMD_MOVE + " " + x + " " + y
+							+ " " + type + " " + color);
+				}
+			} catch (InvalidPieceException e) {
+				output = false;
+			}
+
 		}
 
-		sock = new Socket(ip, port);
-		connected = sock != null;
-		if (connected) {
+		return output;
+	}
 
-			try {
-				in = new BufferedReader(new InputStreamReader(
-						sock.getInputStream(), Server.ENCODING));
-				out = new BufferedWriter(new OutputStreamWriter(
-						sock.getOutputStream(), Server.ENCODING));
+	/**
+	 * Processes a move on the board (and tells it to the GUI aswell)
+	 * 
+	 * @throws InvalidMoveException
+	 *             if the move is not valid
+	 * @param x
+	 *            The X coordinate of the move
+	 * @param y
+	 *            The Y coordinate of the move
+	 * @param type
+	 *            The type of the Piece
+	 * @param color
+	 *            The color of the Piece
+	 */
+	private void processMove(int x, int y, int type, int color)
+			throws InvalidMoveException {
+		if (mui instanceof ActionWindow) {
+			((ActionWindow) mui).doMove(x, y, type, color);
+		} else {
+			System.out.println("mui fail");
+		}
 
-				sendCommand(util.Protocol.CMD_CONNECT + " " + clientName);
-				status = HANDSHAKE_PENDING_1;
-			} catch (UnsupportedEncodingException e1) {
-				System.out
-						.println("Not Supported Encoding, this program requires UTF-8");
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+		game.move(x, y, type, color);
+		game.isGameOver(); // Updates its own version of the game (ie, remove
+							// players if those cant do a move anymnore)
+		myTurn = false;
+	}
+	
+	/**
+	 * Checks the gameOver stats for the winner, will print if you have won,
+	 * plays victory sound and will send 'GG ez' if autoCraptalk is on and you
+	 * won
+	 * 
+	 * @param args
+	 *            The game stats
+	 */
+	private void displayGameOverScreen(ArrayList<String> args) {
+		// TODO game over screen displayen
+		try {
+			boolean won = hasWon(util.Util.ConvertToInt(args));
+
+			System.out.println("AI TYPE:" + ai.getClass());
+			System.out.println("WON: " + won);
+			System.out.println("END " + args);
+
+			if (won) {
+				if (autoCrapTalk) {
+					sendMessage("CHAT GG ez");
+				}
+				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
+				SoundPlayer.upVolume();
+			} else {
+				SoundPlayer.playSound("");
+			}
+
+		} catch (NumberFormatException e) {
+			System.out.println("Wrong stats received");
+		}
+	}
+
+	/**
+	 * Sets the mui variable this Client has
+	 * 
+	 * @param mui
+	 *            The new mui
+	 */
+	void setMUI(MessageUI mui) {
+		this.mui = mui;
+	}
+
+	
+
+	/**
+	 * Used by the GUI to select an AI. 1 being Smart 2 being Random 3 being EWall
+	 * 
+	 * @param i
+	 */
+	public void setAI(final int i) {
+		selectedAI = i;
+	}
+
+	/**
+	 * Used by the GUI to determine if a human is playing.
+	 * 
+	 * @param b	whether or not a human is playing
+	 */
+	public void setIsPlaying(final boolean b) {
+		humanIsPlaying = b;
+	}
+
+	/**
+	 * Used by the GUI to enable/disable the flame bot crap talker.
+	 * 
+	 * @param f	whether or not autoCraptalk should be on
+	 */
+	public void setFlame(final boolean f) {
+		autoCrapTalk = f;
+		System.out.println("Set autoCrapTalk to: " + autoCrapTalk);
+	}
+
+	/**
+	 * Used by the GUI to enable/disable the cyrillic converter.
+	 * 
+	 * @param c	whether or not to convert the messages send to cyrillic
+	 */
+	public void setCyrillic(final boolean c) {
+		convertToCyrillic = c;
+		System.out.println("Set convertToCyrillic to: " + convertToCyrillic);
+	}
+
+	/**
+	 * @return the move the ai would do (from the most recent turn given to you)
+	 */
+	public ArrayList<Integer> getAIMove() {
+		return aiMove;
+	}
+
+	/**
+	 * Checks if you have won according to the given stats
+	 * @param arr	The statistics of the game (typically received from an END command)
+	 * @return	True if you have won (false on tie or lose)
+	 * @require arr.size() == 2*game.getPlayerCount()
+	 */
+	public boolean hasWon(ArrayList<Integer> arr) {
+		boolean won = true;
+		int ownScore = 0;
+		if (game.getPlayerCount() != 2) {
+			ownScore = arr.get(player.getColor() * 2);
+		} else {
+			if (player.getColor() == 0) {
+				ownScore = arr.get(0);
+			} else {
+				ownScore = arr.get(2);
 			}
 		}
+		ArrayList<Integer> otherScores = new ArrayList<Integer>();
+		for (int i = 0; i < arr.size(); i = i + 2) {
+			if (i != player.getColor() * 2) {
+				otherScores.add(arr.get(i));
+			}
+		}
+
+		for (int i : otherScores) {
+			if (i >= ownScore) {
+				won = false;
+			}
+		}
+		return won;
 	}
 }

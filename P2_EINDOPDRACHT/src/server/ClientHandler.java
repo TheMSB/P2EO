@@ -247,6 +247,7 @@ public class ClientHandler extends Thread {
 		 * supposed to do (can be more if commands, as this is an example of) In
 		 * all cases this ClientHandler will send the appropriate error if does
 		 * not comply to the expectations
+		 * @require args!=null
 		 */
 		if (status == EXPECTING_CONNECT) {
 			if (args.size() == 1) {
