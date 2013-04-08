@@ -9,17 +9,19 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
- * This AI calculates the best set to do It does this by first assigning points
+ * This AI calculates the best set to do. It does this by first assigning points
  * to each cell, based on: EffortToWin, how easy it is to get the point for this
- * cell Connectiveness, How much this cell will improve the connection this
- * color has Blocking, How much this move will hinder the enemy.
+ * cell connectedness, How much this cell will improve the connection this color
+ * has Blocking, How much this move will hinder the enemy.
  * 
  * After calculating those values, it will calculate the best series of moves to
  * make, saved in a Path. This is done by calculating the best path (by checking
- * all paths) to the ponit with the highest score. If the average score from
+ * all paths) to the point with the highest score. If the average score from
  * this path is higher than the next best point, it will make these moves
  * (starting with one) If not, it will check the average worth of the next best
- * point, recursively going further
+ * point, recursively going further.
+ * 
+ * While doing so it makes use of the CellPoint and Path classes.
  * 
  * @author I3anaan
  * 
@@ -55,7 +57,8 @@ public class EWallAI implements AI {
 	 */
 	private CellPoint[][] cellPoints;
 	/**
-	 * A sorted set of CellPoints
+	 * A sorted set of CellPoints, the highest CellPoint will have the highest
+	 * total Worth
 	 */
 	private TreeSet<CellPoint> cellPointsList;
 	/**
@@ -93,6 +96,12 @@ public class EWallAI implements AI {
 		cellPoints = new CellPoint[Board.DIM][Board.DIM];
 	}
 
+	/**
+	 * Calculates the best move to make, then returns it in an
+	 * ArrayList<Integer>
+	 * 
+	 * @return ArrayList<Integer> of data representing a move (x,y,type,color)
+	 */
 	@Override
 	public ArrayList<Integer> getMove() {
 		Path bestPath = null;
@@ -100,17 +109,20 @@ public class EWallAI implements AI {
 		Path bestPath2 = null;
 
 		// FIXED Legt 2e kleur te laat neer FIXED
-		// FIXED cellsAvailable is maar van 1 kleur.	FIXED, maakt nu 2 verschillende cellsAvailable aan
-		// FIXED maakt cell met 3 eigen zetten af, hoeft niet		FIXED
+		// FIXED cellsAvailable is maar van 1 kleur. FIXED, maakt nu 2
+		// verschillende cellsAvailable aan
+		// FIXED maakt cell met 3 eigen zetten af, hoeft niet FIXED
 
-		// FIXED blokkeert eigen 2e kleur		
+		// FIXED blokkeert eigen 2e kleur
 		// TODO moet ook punten krijgen voor victory blok
 		// TODO bij blokken moet overkant niet avaible zijn, ipv stuk hebben
 		// TODO piecesUsed checken
 		// TODO victory block moet bij blocking ie, van 2-1 naar 2-2 gaan
-		
-		
 
+		/*
+		 * For 2 and 3 player games the AI needs to check 2 colors, those are
+		 * assigned here. 4 Player games only let each player have one color.
+		 */
 		if (playerCount == 2) {
 			bestPath1 = getBestMove(player.getColor());
 			bestPath2 = getBestMove(player.getColor() + 1);
@@ -124,8 +136,13 @@ public class EWallAI implements AI {
 		} else {
 			System.out.println("PlayerCount invalid");
 		}
+
 		System.out.println(bestPath);
 		if (bestPath == null) {
+			/*
+			 * It should never come to this, nonetheless it will print some
+			 * information about the board. In case it goes wrong.
+			 */
 			System.out.println("No more moves possible");
 			System.out.println(cellsAvailable);
 			System.out.println(bestPath1);
@@ -135,24 +152,18 @@ public class EWallAI implements AI {
 			System.out.println(game.canDoMove(player));
 		}
 
-		boolean validMoveFound = false;
-
-		int x;
-		int y;
 		Piece piece = null;
+		int x = bestPath.get(0).x;
+		int y = bestPath.get(0).y;
 
-
-			x = bestPath.get(0).getX();
-			y = bestPath.get(0).getY();
-			try {
-				piece = player.getPiece(bestPath.get(0).getBestType(), bestPath
-						.get(0).getBestColor());
-			} catch (InvalidPieceException e) {
-				e.printStackTrace();
-				System.out
-						.println("SMART AI BUG, wil niet bestaand Piece gebruiken");
-			}
-			validMoveFound = board.canMove(x, y, piece);
+		try {
+			piece = player.getPiece(bestPath.get(0).getBestType(), bestPath
+					.get(0).getBestColor());
+		} catch (InvalidPieceException e) {
+			e.printStackTrace();
+			System.out
+					.println("SMART AI BUG, wil niet bestaand Piece gebruiken");
+		}
 
 		ArrayList<Integer> arr = new ArrayList<Integer>();
 		arr.add(x);
@@ -162,6 +173,16 @@ public class EWallAI implements AI {
 		return arr;
 	}
 
+	/**
+	 * Checks which Path is better
+	 * 
+	 * @param p1
+	 *            Path 1
+	 * @param p2
+	 *            Path 2
+	 * @return The best Path of the 2 given.
+	 * @ensure result is p1 or p2
+	 */
 	public Path BestPath(Path p1, Path p2) {
 		Path output = p1;
 		if (p1 == null
@@ -177,10 +198,13 @@ public class EWallAI implements AI {
 	}
 
 	/**
-	 * Will return the best path of moves for the given color
+	 * Checks which moves to do for the given color, to do so this method will
+	 * first set some variables, and then call other methods to build the actual
+	 * Path
 	 * 
 	 * @param playerColor
-	 * @return
+	 *            The color to get the best path for
+	 * @return The best path of moves for the given color
 	 */
 	public Path getBestMove(int playerColor) {
 		pieces = new ArrayList<Piece>();
@@ -193,7 +217,6 @@ public class EWallAI implements AI {
 				pieces.add(p);
 			}
 		}// pieces now only contains the pieces of the given color
-		//System.out.println(pieces);
 
 		for (int x = 0; x < Board.DIM; x++) {
 			for (int y = 0; y < Board.DIM; y++) {
@@ -207,6 +230,7 @@ public class EWallAI implements AI {
 					if (board.canMove(x, y, piece)) {
 						cellsAvailable.add(cell);
 						available = true;
+						// There is a move possible on the current coordinates
 					}
 				}
 			}
@@ -214,7 +238,7 @@ public class EWallAI implements AI {
 		// cellsAvailable contains all the CellPoints on which the given color
 		// can be put
 
-		System.out.println("CellsAvaible:  " + cellsAvailable);
+		// System.out.println("CellsAvaible:  " + cellsAvailable);
 		Iterator<CellPoint> it = cellPointsList.descendingIterator();
 		return getBestPath(it);
 		// Set all the arrays and stuff to match the color given,
@@ -222,30 +246,20 @@ public class EWallAI implements AI {
 	}
 
 	/**
-	 * Will return the best path of moves based upon several arrays set in
-	 * getBestMove and the given iterator
+	 * Will calculate the best Path based upon several variables set in
+	 * getBestMove() and the given iterator.
 	 * 
 	 * @param it
-	 * @return
+	 *            Iterator that goes through all the Cells descending (starting
+	 *            with the highest)
+	 * @return The best path of moves
+	 * @require it!=null
 	 */
 	private Path getBestPath(Iterator<CellPoint> it) {
 		Path output = null;
 		if (it.hasNext()) {
 			CellPoint point = it.next();
-			if (it.hasNext()) {
-				CellPoint nextPoint = it.next();
-				Path path = getBestPathTo(point);// Start met het beste path
-													// naar hoogste punt
-				if (path != null && path.getAverageWorth() > nextPoint.getW()) {
-					output = path;
-					// Punt per zet van Path is groter dan daarna beste zet
-					// (zonder pad), base case
-				} else {
-					output = getBestPathOfTwo(path, it);
-					// wil het beste path van dat wat je nu hebt, en het path
-					// naar het volgende beste punt(zonder path)
-				}
-			}
+			output = getBestPathOfTwo(getBestPathTo(point), it);
 		}
 		return output;
 		// null als er geen nieuwe zet mogelijk is
@@ -253,47 +267,50 @@ public class EWallAI implements AI {
 	}
 
 	/**
-	 * Recursively checks until a path average is better than the next highest
-	 * solo avaible point, Will return the same path given if there are no other
-	 * options
+	 * Recursively compares Paths until one Paths average worth per move is
+	 * higher than the next best CellPoint's total worth. If this returns null,
+	 * it means there is no path possible to one of the point in the iterator
+	 * (and the path argument was null aswell)
+	 * 
 	 * 
 	 * @param path
+	 *            The current best path
 	 * @param it
-	 * @return
-	 */
+	 *            The iterator which contains all the cellPoints sorted from
+	 *            best to worst
+	 * @return The best path of the current path and all the remaining paths to
+	 *         one of the CellPoints in the iterator
+	 * @ensure Compares all paths to the point where it is impossible to get a
+	 *         better path
+	 * @require it!=null
+	 * */
 	private Path getBestPathOfTwo(Path path, Iterator<CellPoint> it) {
 		Path output = path;
-		//MAAKT NOOIT NIEW PATH AAN!!!
 		if (it.hasNext()) {
 			CellPoint nextPoint = it.next();
 			if (path != null && path.getAverageWorth() > nextPoint.getW()) {
 				output = path;
-				//	DEBUG dit komt zelden voor
-				// Punt per zet van Path is groter dan daarna beste zet (zonder
-				// pad), base case
+				// The average points per move of the current Path is higher
+				// then the next best Point
 			} else {
-				//Pad gemiddelde is niet meteen beter als volgend hoogste punt
-				//dan wil ik pad gemiddelde bekijken met het pad naar dat punt
-				//uiteindleijk is er een pad dat of gemiddeld beter is dan daarna punt, of het laatste pad is
-				//als het het laatste pad is ga je in principe alle paden langs en checked welke beter is
-				
-				output = BestPath(path,getBestPathOfTwo(getBestPathTo(nextPoint), it));
-				// wil het beste path van dat wat je nu hebt, en het path naar
-				// het volgende beste punt(zonder path)
+				output = BestPath(path,
+						getBestPathOfTwo(getBestPathTo(nextPoint), it));
+				// output is now the best Path of the current Path (path) and
+				// the best Path to the next point in the iterator.
 			}
-		}else{
+		} else {
 			output = path;
-			//Dit gebeurt in meeste gevallen
+			// If there are no other Paths to check
 		}
 		return output;
 	}
 
 	/**
-	 * Gets the best path to the given point, from all the possible starting
+	 * Gets the best path to the given Cell, from all the possible starting
 	 * points possible (cellsAvailable)
 	 * 
-	 * @param point
-	 * @return
+	 * @param point	Which destination the path should have
+	 * @return	Best Path available to that Cell
 	 */
 	private Path getBestPathTo(CellPoint point) {
 		// lijst met cells waar je mag leggen
@@ -330,11 +347,11 @@ public class EWallAI implements AI {
 
 		// TODO piecesUsed zou teveel Pieces kunnen bevatten, moet mogelijk
 		// gereset worden
-		int dx = point2.getX() - point1.getX();
-		int dy = point2.getY() - point1.getY();
-		System.out.println("dx: "+dx+" dy: "+dy);
+		int dx = point2.x - point1.x;
+		int dy = point2.y - point1.y;
+		System.out.println("dx: " + dx + " dy: " + dy);
 
-		if (getBestType(point1)!=-1) {
+		if (getBestType(point1) != -1) {
 			// TODO kijken of ik op point1 kan zetten, kan nu de steen niet
 			// hebben
 			Path currentPath = new Path(point1);
@@ -351,34 +368,33 @@ public class EWallAI implements AI {
 				}
 			} // Get a piece with that type and reserve it from further moves
 
-			System.out.println("PiecesUsed1:  "+piecesUsed +  "CurrentPath:  "+currentPath);
+			System.out.println("PiecesUsed1:  " + piecesUsed + "CurrentPath:  "
+					+ currentPath);
 			if (pieceFound) { // If there is a piece available to place on that
 								// cell
 								// System.out.println("GetPath from:  "+
 								// point1+"  TO: "+point2);
-				int x = point1.getX();
-				int y = point1.getY();
+				int x = point1.x;
+				int y = point1.y;
 
 				if (Math.abs(dx) > 0) {
 					Path pathX = currentPath.copy();
 					CellPoint cell = cellPoints[x + (int) (Math.signum(dx))][y];
 					if (!cellsAvailable.contains(cell)
-							&& !board.getCell(cell.getX(), cell.getY())
-									.isFull()) {
+							&& !board.getCell(cell.x, cell.y).isFull()) {
 						pathX.add(cell);
 						continuePath(pathX, point2);
 					}// else{ System.out.println("Detour detected");}
 				} else if (dy == 0) {
 					// System.out.println("BASECASE:  "+currentPath);
-					System.out.println("PiecesUsed:  "+piecesUsed);
+					System.out.println("PiecesUsed:  " + piecesUsed);
 					currentPaths.add(currentPath); // BaseCase
 				}
 				if (Math.abs(dy) > 0) {
 					Path pathY = currentPath.copy();
 					CellPoint cell = cellPoints[x][y + (int) (Math.signum(dy))];
 					if (!cellsAvailable.contains(cell)
-							&& !board.getCell(cell.getX(), cell.getY())
-									.isFull()) {
+							&& !board.getCell(cell.x, cell.y).isFull()) {
 						pathY.add(cell);
 						continuePath(pathY, point2);
 					}// else{ System.out.println("Detour detected");}
@@ -386,7 +402,8 @@ public class EWallAI implements AI {
 			}
 		}
 		Path output = null;
-		System.out.println("Path returned = "+output+"  CurrentPaths  "+currentPaths.size());
+		System.out.println("Path returned = " + output + "  CurrentPaths  "
+				+ currentPaths.size());
 
 		if (currentPaths.size() > 0) {
 			output = currentPaths.last();
@@ -405,11 +422,11 @@ public class EWallAI implements AI {
 		// Calculate the x and y difference from where the path is to the
 		// destination
 		CellPoint point1 = currentPath.get(currentPath.size() - 1);
-		int dx = point2.getX() - point1.getX();
-		int dy = point2.getY() - point1.getY();
+		int dx = point2.x - point1.x;
+		int dy = point2.y - point1.y;
 
-		int x = point1.getX();
-		int y = point1.getY();
+		int x = point1.x;
+		int y = point1.y;
 
 		int bestType = getBestType(point1);
 		point1.setBestType(bestType); // Best type for the cell
@@ -422,7 +439,8 @@ public class EWallAI implements AI {
 				pieceFound = true;
 			}
 		} // Get a piece with that type and reserve it from further moves
-		System.out.println("PiecesUsed2:  "+piecesUsed +  "CurrentPath:  "+currentPath);
+		System.out.println("PiecesUsed2:  " + piecesUsed + "CurrentPath:  "
+				+ currentPath);
 		if (pieceFound) { // If there is a piece available to place on that cell
 
 			// if there still needs to be done a step on the X axis it will do
@@ -433,7 +451,7 @@ public class EWallAI implements AI {
 				Path pathX = currentPath.copy();
 				CellPoint cell = cellPoints[x + (int) (Math.signum(dx))][y];
 				if (!cellsAvailable.contains(cell)
-						&& !board.getCell(cell.getX(), cell.getY()).isFull()) {
+						&& !board.getCell(cell.x, cell.y).isFull()) {
 					// if cellsAvaible has the same cell it means this path is
 					// taking a detour, thus its not worth taking up the path
 					pathX.add(cell);
@@ -449,7 +467,7 @@ public class EWallAI implements AI {
 				Path pathY = currentPath.copy();
 				CellPoint cell = cellPoints[x][y + (int) (Math.signum(dy))];
 				if (!cellsAvailable.contains(cell)
-						&& !board.getCell(cell.getX(), cell.getY()).isFull()) {
+						&& !board.getCell(cell.x, cell.y).isFull()) {
 					pathY.add(cell);
 					continuePath(pathY, point2);
 				}
@@ -481,7 +499,7 @@ public class EWallAI implements AI {
 
 		boolean typeFound = false;
 		while (!typeFound && possiblePieces.size() > 0) {
-			if (board.getCell(cell.getX(), cell.getY()).isEmpty()
+			if (board.getCell(cell.x, cell.y).isEmpty()
 					&& cell.getBW() > cell.getWW()
 					&& getPieceOfType(possiblePieces, 4) != null) {
 				type = 4;
@@ -494,7 +512,7 @@ public class EWallAI implements AI {
 			// Removes the just used piece from possible pieces so that in the
 			// next iteration it will not try the same Piece
 
-			typeFound = board.canMove(cell.getX(), cell.getY(), new Piece(type,
+			typeFound = board.canMove(cell.x, cell.y, new Piece(type,
 					playerColor));
 		}
 
@@ -555,8 +573,8 @@ public class EWallAI implements AI {
 		Cell cell = board.getCell(x, y);
 
 		if (!board.getCell(x, y).isFull()) {
-			cellReturn = new CellPoint(x, y, 0*effortToWin(cell), 0*connections(x,
-					y), blocking(x, y));
+			cellReturn = new CellPoint(x, y, 0 * effortToWin(cell),
+					0 * connections(x, y), blocking(x, y));
 			// TODO deze waarden balanceren
 		}
 		return cellReturn;
@@ -677,15 +695,17 @@ public class EWallAI implements AI {
 		// 2 punt extra voor elke naastgelegen vak ook dicht zonder die speler.
 		// TODO lategame veel te veel waard
 		double points = 0;
-		ArrayList<Integer> list2 = board.getCell(x,y).getOwnerList();
+		ArrayList<Integer> list2 = board.getCell(x, y).getOwnerList();
 		int own = list2.remove(player.getColor());
-		
-		//Victory block als iemand 2 stukken heeft, iemand anders 1 stuk
-		if ((list2.indexOf(2) != -1 && list2.indexOf(1) != 1 && playerCount!=2)
-				|| (playerCount==2 && list2.indexOf(2)!=((playerColor+1)%2+1) && list2.indexOf(2)!=-1 && list2.indexOf(1)!=-1)) {
+
+		// Victory block als iemand 2 stukken heeft, iemand anders 1 stuk
+		if ((list2.indexOf(2) != -1 && list2.indexOf(1) != 1 && playerCount != 2)
+				|| (playerCount == 2
+						&& list2.indexOf(2) != ((playerColor + 1) % 2 + 1)
+						&& list2.indexOf(2) != -1 && list2.indexOf(1) != -1)) {
 			points = 3;
-		} 
-		
+		}
+
 		ArrayList<Integer> list = board.getCell(x, y).getOwnerList();
 		checkedCells = new ArrayList<Point>();
 		checkedCells.add(new Point(x, y));
@@ -837,7 +857,7 @@ public class EWallAI implements AI {
 			}
 		}
 
-		//System.out.println(output);
+		// System.out.println(output);
 		return output;
 	}
 }
