@@ -1,7 +1,5 @@
 package ai;
 
-import game.Game;
-
 import java.util.ArrayList;
 
 /**
