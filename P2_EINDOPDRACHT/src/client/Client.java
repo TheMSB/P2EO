@@ -423,7 +423,7 @@ public class Client extends Thread {
 		} else if (selectedAI == 2) {
 			ai = new RandomAI(game, player);
 		} else if (selectedAI == 3) {
-			ai = new EWallAI(game, player);
+			ai = new CustomAI(game, player,0,0,1);
 		}
 
 		status = INGAME;

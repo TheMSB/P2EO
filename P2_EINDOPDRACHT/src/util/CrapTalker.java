@@ -1,11 +1,16 @@
 package util;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 
+/**
+ * This Class has some methods for insulting other people, and can also convert Strings to cyrillic, according to russian rules
+ * @author I3anaan
+ *
+ */
 public class CrapTalker {
 
-	private static PrintWriter pWriter;
+	/**
+	 * Arrays with insults categorized on certain events.
+	 */
 	public static final String[] INSULTS_START = {"Govnodavy","Yob materi vashi!","Ti galuboy"};
 	public static final String[] INSULTS_OPPONENT_MOVE = {"Govnosos","Pizdets","Do pizdy","Nu vse, tebe pizda","Durak neshtiasnyI","Viyebnutsa","Ti Durak","Na huy...?"};
 	public static final String[] INSULTS_OPPONENT_LOSE = {"Perdoon stary","Poshol nahuj","Loh","Pidar","Eedee tryakhate tvayu mamu"};
@@ -16,19 +21,11 @@ public class CrapTalker {
 	public static final String[] INSULTS_OPPONENT_CHATS = {"Past' zabej, padla jebanaja","Zacroy svoy peesavati rot, sooka","Zacroy rot","Eto mnye do huya"};
 	public static final String[] INSULTS_OPPONENT_DISCONNECT = {"Ne ssi v kompot, tam povor nogi moet"};
 
-	public static void main(String[] args) {
-		//System.out.println(insult());
-	}
-
-	
-	public static String convert() throws FileNotFoundException {
-		pWriter = new PrintWriter("RussianInsults.txt");
-		pWriter.println("Кгыышфт еуче");
-		pWriter.flush();
-
-		return "Russian text";
-	}
-
+	/**
+	 * Converts the given String to cyrillic, according to the russian language
+	 * @param string	String to convert
+	 * @return	The given String converted to cyrillic
+	 */
 	public static String toCyrillic(String string) {
 		String output = string.toLowerCase();
 		output = output.replaceAll("haha", "xaxa");
@@ -65,11 +62,13 @@ public class CrapTalker {
 		return output;
 	}
 
+	/**
+	 * Returns a random insult chosen from the given array of Strings
+	 * @param insultType	The Array of Strings to choose from, generally one of the Arrays defined in this class
+	 * @return	A random insult from that Array, in cyrillic
+	 */
 	public static String insult(String[] insultType) {
-		//Checked game state en zet dan insultType
-		String insult = insultType[(int)(Math.random()*insultType.length)];
-		
-		return toCyrillic(insult);
+		return toCyrillic(insultType[(int)(Math.random()*insultType.length)]);
 	}
 
 }
