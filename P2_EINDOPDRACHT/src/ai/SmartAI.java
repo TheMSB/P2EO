@@ -30,7 +30,7 @@ public class SmartAI implements AI {
 	/**
 	 * The game this ai is playing in
 	 */
-	private Game game;
+	protected Game game;
 	/**
 	 * The number of players in this game
 	 */
@@ -42,7 +42,7 @@ public class SmartAI implements AI {
 	/**
 	 * The board of this game, in its current state (gotten from game
 	 */
-	private Board board;
+	protected Board board;
 	/**
 	 * The player this AI belongs to
 	 */
@@ -544,7 +544,7 @@ public class SmartAI implements AI {
 	 *            The Cell to check
 	 * @return The Worth assigned based on effort to win
 	 */
-	private double effortToWin(Cell cell) {
+	protected double effortToWin(Cell cell) {
 		double points = 0;
 		ArrayList<Integer> list = cell.getOwnerList();
 		int own = list.remove(player.getColor());
@@ -606,7 +606,7 @@ public class SmartAI implements AI {
 	 *            Y coordinate
 	 * @return The value assigned based on connections
 	 */
-	private double connections(int x, int y) {
+	protected double connections(int x, int y) {
 		// 1 point for each Cell it adds to the available cells of the current
 		// color
 
@@ -659,7 +659,7 @@ public class SmartAI implements AI {
 	 * @return Points based on how many cells it blocks
 	 * @require board.isCell(x,y)==true
 	 */
-	private double blocking(int x, int y) {
+	protected double blocking(int x, int y) {
 		// 1 point for each neighboring color who cannot pass this Cell anymore
 		// 2 extra points for each neighboring cell which also blocks the same
 		// color
