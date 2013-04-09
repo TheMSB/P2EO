@@ -16,6 +16,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 import ai.*;
 
 import server.Server;
@@ -82,7 +84,7 @@ public class Client extends Thread {
 	/**
 	 * Whether or not there is an human playing
 	 */
-	private boolean humanIsPlaying = false; // TODO waarom stond deze op true?
+	private boolean humanIsPlaying = true; // TODO Omdat standaard geen AI geselecteerd is.
 	/**
 	 * The mui of the ClientGUI to which this CLient sends things like chat
 	 * messages
@@ -210,7 +212,7 @@ public class Client extends Thread {
 			// TODO hier iets naar GUI sturen zodat je opnieuw kunt connecten
 		}
 	}
-	
+
 	/**
 	 * Sets up a connection with a (new) server
 	 * 
@@ -239,7 +241,7 @@ public class Client extends Thread {
 				status = HANDSHAKE_PENDING_1;
 			} catch (UnsupportedEncodingException e1) {
 				System.out
-						.println("Not Supported Encoding, this program requires UTF-8");
+				.println("Not Supported Encoding, this program requires UTF-8");
 				e1.printStackTrace();
 			}
 		}else{
@@ -323,6 +325,13 @@ public class Client extends Thread {
 		if (status == HANDSHAKE_PENDING_1) {
 			if (args.size() >= 0) {
 				status = HANDSHAKE_PENDING_2;
+				if (args.size() >= 2) {
+					String msg = "";
+					for (String s : args) {
+						msg = msg + s + " ";
+					}
+					mui.addMessage("Server", msg);
+				}
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -355,6 +364,7 @@ public class Client extends Thread {
 				sendCommand(util.Protocol.CMD_FEATURED + " "
 						+ util.Util.concatArrayList(clientFeatures));
 				status = HANDSHAKE_SUCCESFULL;
+				((ConnectionWindow) mui).enableMenu();
 			} else {
 				sendError(util.Protocol.ERR_INVALID_COMMAND);
 			}
@@ -601,7 +611,7 @@ public class Client extends Thread {
 			sendError(util.Protocol.ERR_COMMAND_UNEXPECTED);
 		}
 	}
-	
+
 	/**
 	 * Sends a message to the server
 	 * Will convert to cyrillic if that is on
@@ -652,7 +662,7 @@ public class Client extends Thread {
 			}
 		} catch (IOException e) {
 			System.out
-					.println("Failed to send message to:  " + this.clientName);
+			.println("Failed to send message to:  " + this.clientName);
 		}
 	}
 
@@ -663,6 +673,7 @@ public class Client extends Thread {
 	 */
 	public void sendDisconnect(final String msg) {
 
+		mui.addMessage("Server", "Disconnecting:  " + msg);
 		System.out.println("Disconnecting:  " + msg);
 		try {
 			out.write(util.Protocol.CMD_DISCONNECT + " " + msg);
@@ -673,7 +684,7 @@ public class Client extends Thread {
 		}
 
 	}
-	
+
 	/**
 	 * Sends a join command to the server, telling it this Client wants to join
 	 * a lobby
@@ -687,7 +698,7 @@ public class Client extends Thread {
 			status = INLOBBY;
 		}
 	}
-	
+
 	/**
 	 * This method is called when its the clients turn. Will immediately send
 	 * back an AI move if there is no human playing, otherwise informs the GUI
@@ -760,10 +771,10 @@ public class Client extends Thread {
 
 		game.move(x, y, type, color);
 		game.isGameOver(); // Updates its own version of the game (ie, remove
-							// players if those cant do a move anymnore)
+		// players if those cant do a move anymnore)
 		myTurn = false;
 	}
-	
+
 	/**
 	 * Checks the gameOver stats for the winner, will print if you have won,
 	 * plays victory sound and will send 'GG ez' if autoCraptalk is on and you
@@ -773,20 +784,26 @@ public class Client extends Thread {
 	 *            The game stats
 	 */
 	private void displayGameOverScreen(ArrayList<String> args) {
-		// TODO game over screen displayen
+		// TODO Score omzetten naar menselijke taal
 		try {
 			boolean won = hasWon(util.Util.ConvertToInt(args));
 
-			System.out.println("AI TYPE:" + ai.getClass());
-			System.out.println("WON: " + won);
-			System.out.println("END " + args);
+			// TODO dit geeft de popup weer met de score uitslag
+			// TODO won boolean blijkt niet te kloppen, kijk dit ff na.
+			JOptionPane.showMessageDialog(null, 
+					"AI TYPE:" + ai.getClass() + "\n"
+							+ "WON: " + won + "\n"
+							+ "END " + args);
 
+			((ActionWindow) mui).playAgainDialog();
+			//Server kicked iedereen na de game, hoe te fixen?
 			if (won) {
 				if (autoCrapTalk) {
 					sendMessage("CHAT GG ez");
 				}
 				SoundPlayer.playSound("resources/sounds2/VictoryMusic.wav");
 				SoundPlayer.upVolume();
+
 			} else {
 				SoundPlayer.playSound("");
 			}
@@ -797,16 +814,28 @@ public class Client extends Thread {
 	}
 
 	/**
-	 * Sets the mui variable this Client has
+	 * Sets the mui variable this Client has.
 	 * 
 	 * @param mui
 	 *            The new mui
 	 */
-	void setMUI(MessageUI mui) {
+	void setMUI(final MessageUI mui) {
 		this.mui = mui;
 	}
+	/**
+	 * Returns the mui variable this Client has.
+	 */
+	MessageUI getMUI() {
+		return mui;
+	}
+	/**
+	 * Returns if the Client is connected or not.
+	 */
+	protected boolean isConnected(){
+		return connected;
+	}
 
-	
+
 
 	/**
 	 * Used by the GUI to select an AI. 1 being Smart 2 being Random 3 being EWall

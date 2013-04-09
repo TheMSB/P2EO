@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 
 import exceptions.InvalidPieceException;
 import game.Board;
@@ -18,8 +19,10 @@ import game.Game;
 import game.Piece;
 import game.Player;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -48,6 +51,8 @@ import client.InventoryPainter.MyCellComponent;
  */
 public class ActionWindow extends JFrame implements ActionListener, MouseListener, MessageUI, KeyListener, ListSelectionListener {
 
+	//---- Server related varuables --------------------
+	private MessageUI cw;
 	//---- Game related variables ----------------------
 
 	private Game game;
@@ -70,6 +75,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	private GamePanel gamePanel;
 	private JTextField	myMessage;
 	private JTextArea   taMessages;
+	private JButton bHint;
 
 	//---- Constructor ---------------------------------
 
@@ -88,6 +94,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		this.client = clnt;
 		this.game = g;
 		this.player = p;
+		cw = client.getMUI();
 		client.setMUI(this);
 		c = getContentPane();
 		buildGUI();
@@ -132,6 +139,9 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		p2.setLayout(new BorderLayout());
 		p2.setPreferredSize(new Dimension(350, 600));
 
+		bHint = new JButton("Hint");
+		bHint.addActionListener(this);
+
 		myMessage = new JTextField("");
 		JLabel myMessagelb = new JLabel("My Message:");
 		p2.add(myMessage, BorderLayout.NORTH);
@@ -155,6 +165,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		p2.add(lbMessages);
 		p2.add(taScroll, BorderLayout.SOUTH);
 
+		chatbox.add(bHint, BorderLayout.NORTH);
 		chatbox.add(p2, BorderLayout.EAST);
 		c.add(chatbox, BorderLayout.EAST);
 
@@ -217,6 +228,26 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 
 	}
 
+	/**
+	 * Asks to play again after a game ends.
+	 */
+	public void playAgainDialog() {
+
+		int response = JOptionPane.showConfirmDialog(null, "Do you want to play again?", "Confirm", 
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		if (response == JOptionPane.YES_OPTION) {
+			this.dispose();
+			//TODO hier server rejoinen
+			client.setMUI(cw);
+			((ConnectionWindow) cw).setVisible(true);
+
+		} else {
+			System.exit(0);
+		}
+
+	}
+
 	//---- Action Events ------------------------
 
 	//-------------------------------------------
@@ -228,7 +259,23 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 	//-------------------------------------------
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-
+		if (e.getSource() == bHint) {
+			ArrayList<Integer> moves = client.getAIMove();
+			int pcx = moves.get(0);
+			int pcy = moves.get(1);
+			int pct = moves.get(2);
+			String pcc = null;
+			if (moves.get(3) == 0) {
+				pcc = "RED";
+			} else if (moves.get(3) == 1) {
+				pcc = "BLUE";
+			} else if (moves.get(3) == 0) {
+				pcc = "GREEN";
+			} else if (moves.get(3) == 0) {
+				pcc = "YELLOW";
+			}
+			JOptionPane.showMessageDialog(null, "Place color: " + pcc + " type:" + pct + " on: (" + pcx + "," + pcy + ")");
+		}
 
 	}
 
@@ -313,7 +360,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				}
 			}
 		}
-		
+
 	}
 
 }

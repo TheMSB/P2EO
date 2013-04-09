@@ -262,8 +262,9 @@ public class Game extends Observable {
 		board.startStone(x, y);
 
 		if (playercount == 4) {
-			for (int pl = 0; pl < 4; pl++) { // Player loop
-				for (int t = 0; t < 5; t++) { // Piece type loop
+
+			for (int t = 0; t < 5; t++) { // Piece type loop
+				for (int pl = 0; pl < 4; pl++) { // Player loop
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						Player player = players.get(pl);
 						player.addPiece(new Piece(t, player.getColor()));
@@ -271,21 +272,26 @@ public class Game extends Observable {
 				}
 			}
 		} else if (playerCount == 3) { // 3 Player Game
-			for (int pl = 0; pl < 3; pl++) { // Player loop
-				for (int t = 0; t < 5; t++) { // Piece type loop
+			for (int t = 0; t < 5; t++) { // Piece type loop
+				for (int pl = 0; pl < 3; pl++) { // Player loop
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
 					}
 					players.get(pl).addPiece(new Piece(t, 3));
 				}
-				//TODO Remove this Debugging Line.
-				System.out.println("Player " + pl + " pieces:  " + players.get(pl).getPieces());
+				
 			}
 		} else if (playerCount == 2) { // 2 Player Game
-			for (int pl = 0; pl < 2; pl++) { // Player loop
-				for (int t = 0; t < 5; t++) { // Piece type loop
+			for (int t = 0; t < 5; t++) { // Piece type loop
+				for (int pl = 0; pl < 2; pl++) { // Player loop
 					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor()));
+					}
+				}
+			}
+			for (int t = 0; t < 5; t++) { // Piece type loop
+				for (int pl = 0; pl < 2; pl++) { // Player loop
+					for (int pc = 0; pc < 3; pc++) { // Piece amount loop
 						// The Xtra piece, players get their color + color of 1 other player
 						players.get(pl).addPiece(new Piece(t, players.get(pl).getColor() + 1));
 					}

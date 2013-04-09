@@ -19,7 +19,7 @@ public class SoundPlayer extends Thread {
 
 	public void run() {
 		while(playRadioSong){
-			playSound("resources/sounds2/RadioSong.wav");
+			this.playSound("resources/sounds2/RadioSong.wav");
 			try {
 				this.sleep(22000);
 			} catch (InterruptedException e) {
@@ -84,6 +84,7 @@ public class SoundPlayer extends Thread {
 	
 	public static void setRadioSong(boolean rs){
 		playRadioSong = rs;
+		
 	}
 	
 	public void setBattleMusic(boolean bm){

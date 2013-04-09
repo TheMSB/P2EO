@@ -354,13 +354,12 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		try {
 			client = new Client(myName.getText(), addr, port, this);
 			client.start();
+			
 		} catch (IOException e) {
+			
 			System.out.println("IOException");
 		}
-		addMessage("Server", "Connected to server...");
-		connected = true;
-		myMessage.setEditable(true);
-		bConnect.setEnabled(false);
+		
 	}
 
 	/**
@@ -374,10 +373,31 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		soundPlayer.start();
 	}
 	/**
-	 * Stops the waiting tune.
+	 * Stops the waiting tune after the current loop.
 	 */
 	private void stopSound() {
 		soundPlayer.setRadioSong(false);
+	}
+	
+	/**
+	 * Called after handshaking is complete.
+	 * Enables the rest of the GUI for operation.
+	 */
+	public void enableMenu() {
+		connected = client.isConnected();
+		
+		if (connected) {
+			addMessage("Server", "Connected to server...");
+			myMessage.setEditable(true);
+			bConnect.setEnabled(false);
+			nrPlayers.setEnabled(true);
+			aiList.setEnabled(true);
+			bFlame.setEnabled(true);
+			bCyrillic.setEnabled(true);
+			bJoin.setEnabled(true);
+		}
+		
+		
 	}
 
 
@@ -394,13 +414,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	public void actionPerformed(final ActionEvent e) {
 		if (e.getSource() == bConnect) {
 			connect();
-			if (connected) {
-				nrPlayers.setEnabled(true);
-				aiList.setEnabled(true);
-				bFlame.setEnabled(true);
-				bCyrillic.setEnabled(true);
-				bJoin.setEnabled(true);
-			}
+			
 		} else if (e.getSource() == bJoin) {
 			join(Integer.parseInt((String) nrPlayers.getSelectedItem()));
 		} else if (e.getSource() == aiList) {
@@ -462,7 +476,7 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 	}
 
 	@Override
-	public void itemStateChanged(ItemEvent e) {
+	public void itemStateChanged(final ItemEvent e) {
 		if (e.getSource() == bFlame) {
 			if (bFlame.isSelected()) {
 				client.setFlame(true);
