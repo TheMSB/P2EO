@@ -205,7 +205,6 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 			System.out.println("doMove():  " + x + " " + y + " " + type + " " + color);
 			inventPiece = game.getMovPiece(x, y, type, color);
 			gamePanel.removePiece(inventPiece);
-			addMessage("System", "Performed move on: " + x + " " + y + "With Piece type: " + type + " and color: " + color);
 			updateAW();
 		} catch (InvalidPieceException e) {
 			// TODO Auto-generated catch block
