@@ -796,7 +796,7 @@ public class Client extends Thread {
 							+ "END " + args);
 
 			((ActionWindow) mui).playAgainDialog();
-			//Server kicked iedereen na de game, hoe te fixen?
+			status = HANDSHAKE_SUCCESFULL;
 			if (won) {
 				if (autoCrapTalk) {
 					sendMessage("CHAT GG ez");

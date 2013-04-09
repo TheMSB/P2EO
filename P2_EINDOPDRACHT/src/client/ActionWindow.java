@@ -237,9 +237,10 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
 		if (response == JOptionPane.YES_OPTION) {
-			this.dispose();
-			//TODO hier server rejoinen
+			
 			client.setMUI(cw);
+			this.setVisible(false);
+			((ConnectionWindow) cw).enableMenu();
 			((ConnectionWindow) cw).setVisible(true);
 
 		} else {
@@ -264,7 +265,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 			int pcx = moves.get(0);
 			int pcy = moves.get(1);
 			int pct = moves.get(2);
-			String pcc = null;
+			String pcc = "any";
 			if (moves.get(3) == 0) {
 				pcc = "RED";
 			} else if (moves.get(3) == 1) {
