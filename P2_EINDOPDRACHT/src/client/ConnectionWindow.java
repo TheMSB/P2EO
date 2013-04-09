@@ -371,12 +371,14 @@ public class ConnectionWindow extends JFrame implements ActionListener, MessageU
 		soundPlayer = new SoundPlayer();
 		soundPlayer.setRadioSong(true);
 		soundPlayer.start();
+		bMusic.setEnabled(false);
 	}
 	/**
-	 * Stops the waiting tune after the current loop.
+	 * Stops the waiting tune .
 	 */
 	private void stopSound() {
 		soundPlayer.setRadioSong(false);
+		soundPlayer.playSound("");
 	}
 	
 	/**

@@ -16,6 +16,16 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.*;
 
+/**
+ * Cell Panel is an extention of JPanel, 
+ * modeled after a cell provided by the game board.
+ * Each CellPanel is responsible for exactly one cell, 
+ * if the cell contains pieces each piece is draw onto 
+ * the CellPanel by a PiecePainter.
+ * 
+ * @author martijnbruning
+ *
+ */
 public class CellPanel extends JPanel {
 
 	//---- Constants --------------------------

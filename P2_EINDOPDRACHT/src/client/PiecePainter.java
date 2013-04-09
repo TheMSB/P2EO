@@ -24,6 +24,7 @@ import javax.swing.*;
  * the RINGGZ game. It is responsible for drawing
  * all of the pieces in the game. Other Classes
  * call on this class to draw pieces for them.
+ * Each instance of this class draws exactly one piece.
  * 
  * @author martijnbruning
  *

@@ -200,6 +200,7 @@ public class Client extends Thread {
 					} else {
 						sock.close();
 						connected = false;
+						JOptionPane.showMessageDialog(null, "Connection to the server was lost!", "Connection Error", JOptionPane.ERROR_MESSAGE);
 						System.out.println("Socket closed");
 						sendError(util.Protocol.ERR_INVALID_COMMAND);
 					}
@@ -672,8 +673,8 @@ public class Client extends Thread {
 	 * @param msg	possible message to be included
 	 */
 	public void sendDisconnect(final String msg) {
-
-		mui.addMessage("Server", "Disconnecting:  " + msg);
+		
+		JOptionPane.showMessageDialog(null, msg, "Connection Error", JOptionPane.ERROR_MESSAGE);
 		System.out.println("Disconnecting:  " + msg);
 		try {
 			out.write(util.Protocol.CMD_DISCONNECT + " " + msg);
