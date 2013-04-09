@@ -50,7 +50,10 @@ public class Lobby {
 	 * Name of the player whos turn it is
 	 */
 	private ClientHandler turn;
-	
+
+	/**
+	 * Instance of SoundPlayer used to play sounds from GlaDOS
+	 */
 	private SoundPlayer soundPlayer;
 
 	/**
@@ -76,7 +79,8 @@ public class Lobby {
 
 	/**
 	 * Forwards the move command into the game, which will check if it is a
-	 * valid move and if so will update its board accordingly
+	 * valid move and if so will update its board accordingly and then will give
+	 * the next turn
 	 * 
 	 * @param args
 	 *            the move to be done (x,y,type,color)
@@ -85,16 +89,16 @@ public class Lobby {
 	 *          args.size()==4
 	 * @ensure If the move is valid, every client in the lobby will be informed
 	 *         of that move, and the next turn will be given out
- 	 * 
+	 * 
 	 */
 	public void move(ArrayList<Integer> args) {
-		try{
+		try {
 			game.move(args.get(0), args.get(1), args.get(2), args.get(3));
 			soundPlayer.playSound();
 			broadcastMessage(util.Protocol.CMD_MOVED + " "
 					+ util.Util.concatArrayList(args));
 			giveTurn();
-		}catch (InvalidMoveException e) {
+		} catch (InvalidMoveException e) {
 			System.out.println("InvalidMoveDetected");
 			turn.sendError(util.Protocol.ERR_INVALID_MOVE);
 			e.printStackTrace();
@@ -103,24 +107,24 @@ public class Lobby {
 	}
 
 	/**
-	 * Gives the turn over to the next person, meaning it will send a TURN
-	 * command to everyone
+	 * if(game.isGameOver()) > ends this lobby (and the game)
+	 * if(!game.isGameOver()) > Gives the turn over to the next player, turn is
+	 * got from the game, then send to all clients
 	 */
 	private void giveTurn() {
-		//System.out.println("GameOver:  "+game.isGameOver());
-		if(!game.isGameOver()){
+		if (!game.isGameOver()) {
 			turn = clients.get(game.getTurn());
-			broadcastMessage(util.Protocol.CMD_TURN + " " + turn);
-		}else{
+			broadcastMessage(util.Protocol.CMD_TURN + " " + turn.getClientName());
+		} else {
 			endLobby();
 		}
 	}
 
 	/**
-	 * Adds a client to this lobby, ie letting him join.
+	 * Adds a client to this lobby, letting him join.
 	 * 
 	 * @param client
-	 * @return true if succesful
+	 * @return true if successful
 	 * @require client!=null
 	 * @ensure client is now in clients clients.size()++ client.getLobby() ==
 	 *         this if clients.size()==slots > will start the game
@@ -149,37 +153,36 @@ public class Lobby {
 	 * 
 	 * @param ch
 	 *            client
-	 * @ensure if clients.size()==0 > will remove this lobby
+	 * @ensure will not leave behind an empty lobby
 	 */
 	public synchronized void removeClientFromLobby(ClientHandler ch) {
 		clients.remove(ch);
 		ch.leaveLobby();
-		
-		if (clients.size() == 0 || this.status==ClientHandler.INGAME) {
+
+		if (clients.size() == 0 || this.status == ClientHandler.INGAME) {
 			endLobby();
 		}
 	}
 
 	/**
-	 * Starts the lobby, meaning the lobby has al its slots filled up, and the
+	 * Starts the lobby, meaning the lobby has all its slots filled up, and the
 	 * game is starting
 	 * 
 	 * @ensure this.game!=null status = ClientHandler.INGAME
+	 * @ensure StartStone position = 2,2
 	 * @require clients.size()==slots status = ClientHandler.INLOBBY
 	 */
 	private void startLobby() {
-		// TODO startsteen positie bepalen;
-
 		Collections.shuffle(clients);
-		try{
+		try {
 			game = new Game(2, 2, util.Util.makePlayerNameList(clients));
-		}catch(InvalidMoveException e){
+		} catch (InvalidMoveException e) {
 			System.out.println("Error in lobby, startstone is invalid");
 		}
 
 		for (ClientHandler i : clients) {
 			i.lobbySTART(util.Protocol.CMD_START + " 2 2 "
-					+ util.Util.concatArrayList(clients));
+					+ util.Util.concatArrayList(util.Util.makePlayerNameList(clients)));
 		}
 
 		status = ClientHandler.INGAME;
@@ -188,22 +191,24 @@ public class Lobby {
 	}
 
 	/**
-	 * Immediately ends this lobby by removing all clients from it
+	 * Immediately ends this lobby. First sends the END command if this lobby is
+	 * playing a game. Then removes all clients from this lobby. Then removes
+	 * the game and tells the server to remove this lobby.
+	 * 
+	 * @ensure Removes this instance
 	 */
 	private synchronized void endLobby() {
-		System.out.println("Ending lobby");
-		
-		//TODO speler die crashed 0 punten geven
-		broadcastMessage(util.Protocol.CMD_END+" "+util.Util.concatArrayList(game.getStats()));
+		if (this.status == ClientHandler.INGAME) {
+			broadcastMessage(util.Protocol.CMD_END + " "
+					+ util.Util.concatArrayList(game.getStats()));
+		}
 		for (ClientHandler ch : clients) {
 			ch.leaveLobby();
 		}
-		server.removeLobby(this); //TODO dit testen
+		server.removeLobby(this); // TODO dit testen
 		game = null;
-		
-		
+
 		System.out.println("Removed lobby");
-		//TODO testen of lobby enden goed gaat
 	}
 
 	/**
@@ -212,8 +217,8 @@ public class Lobby {
 	 * @param message
 	 */
 	protected synchronized void broadcastMessage(String message) {
-		//TODO geeft nullpointer als disconnect wil zendne naar al disconnected gast
 		for (ClientHandler i : clients) {
+			System.out.println(i);
 			i.sendCommand(message);
 		}
 	}
@@ -246,5 +251,12 @@ public class Lobby {
 	 */
 	public int getStatus() {
 		return status;
+	}
+
+	/**
+	 * Standard toString() fuction
+	 */
+	public String toString() {
+		return "[Lobby, " + slots + " slots. Clients: " + clients+"]";
 	}
 }

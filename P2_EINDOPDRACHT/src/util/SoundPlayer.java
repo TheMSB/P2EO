@@ -78,7 +78,7 @@ public class SoundPlayer extends Thread {
 				clip.open(stream);
 				clip.start();
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	
