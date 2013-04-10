@@ -785,16 +785,14 @@ public class Client extends Thread {
 	 *            The game stats
 	 */
 	private void displayGameOverScreen(ArrayList<String> args) {
-		// TODO Score omzetten naar menselijke taal
 		try {
 			boolean won = hasWon(util.Util.ConvertToInt(args));
-
+			
 			// TODO dit geeft de popup weer met de score uitslag
-			// TODO won boolean blijkt niet te kloppen, kijk dit ff na.
 			JOptionPane.showMessageDialog(null, 
 					"AI TYPE:" + ai.getClass() + "\n"
-							+ "WON: " + won + "\n"
-							+ "END " + args);
+							+ getWinMessage(won) + "\n"
+							+ "END " + getStatString(args));
 
 			((ActionWindow) mui).playAgainDialog();
 			status = HANDSHAKE_SUCCESFULL;
@@ -914,5 +912,41 @@ public class Client extends Thread {
 			}
 		}
 		return won;
+	}
+	
+	/**
+	 * Returns a human readable stat overview
+	 * @param arr	The stats
+	 * @return An easy to read String containing the game stats
+	 * @require arr.size() ==2n
+	 */
+	public String getStatString(ArrayList<String> arr){
+		String output = "";
+		if(game.getPlayerCount()==2){
+			output = output + "["+game.getPlayer(0).getName()+"] "+arr.get(0)+" ";
+			output = output + "["+game.getPlayer(1).getName()+"] "+arr.get(0);
+		}else{
+			for(int i = 0; i<arr.size();i++){
+				output = output +"["+ game.getPlayer(i).getName()+"] "+arr.get(i)+ " ";
+			}
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * Translates a boolean into victory/defeat
+	 * @param won	if you have won or not
+	 * @return	VICTORY! if won==true, else DEFEAT.
+	 */
+	public String getWinMessage(boolean won){
+		String output = "";
+		if(won){
+			output = "VICTORY!";
+		}else{
+			output = "DEFEAT.";
+		}
+		
+		return output;
 	}
 }

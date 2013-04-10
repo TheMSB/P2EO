@@ -347,7 +347,7 @@ public class ActionWindow extends JFrame implements ActionListener, MouseListene
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 
 		if (lsm.isSelectionEmpty()) {
-			JOptionPane.showMessageDialog(null, "No piece has been selected!", "Invallid Move", JOptionPane.ERROR_MESSAGE);
+			//JOptionPane.showMessageDialog(null, "No piece has been selected!", "Invallid Move", JOptionPane.ERROR_MESSAGE);
 		} else {
 			// Find out which indexes are selected.
 			int minIndex = lsm.getMinSelectionIndex();

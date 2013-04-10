@@ -88,7 +88,7 @@ public class Game extends Observable {
 	 * @return player
 	 */
 	public Player getPlayer(final int p) {
-		return players.get(p);
+		return playersConnected.get(p);
 	}
 	/**
 	 * Returns the amount of players that are in this game.
